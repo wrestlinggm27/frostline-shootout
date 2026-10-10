@@ -138,7 +138,7 @@ test('first visit requests name, leads to team setup, saves separate player reco
   t.submit('teamForm');
   assert.equal(t.elem('teamDialog').open, false);
   assert.equal(t.elem('teamNameDisplay').textContent, 'AURORA STARS');
-  const saved = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  const saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
   assert.equal(saved.players.length, 1);
   assert.equal(saved.players[0].name, 'Slapshot Ace');
   assert.equal(saved.players[0].team.name, 'Aurora Stars');
@@ -155,7 +155,7 @@ test('first visit requests name, leads to team setup, saves separate player reco
   assert.equal(t.elem('shots').textContent, 1);
   for (let i = 0; i < 370; i++) t.frame(100);
   assert.equal(t.elem('overlay').hidden, false);
-  const after = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  const after = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
   assert.equal(after.players[0].records.arcade.pond.rounds, 1);
   assert.equal(after.players[0].records.arcade.beer.rounds, 0);
   assert.equal(after.players[0].records.arcade.pond.shots, 1);
@@ -165,9 +165,9 @@ test('first visit requests name, leads to team setup, saves separate player reco
 
 test('legacy high scores migrate once, each player stays independent', () => {
   const seed = {
-    'frostline-shootout-high-score-v1': '7',
-    'frostline-shootout-high-score-beer-v1': '5',
-    'frostline-shootout-personal-team-v1': JSON.stringify({
+    'frostline-dev:frostline-shootout-high-score-v1': '7',
+    'frostline-dev:frostline-shootout-high-score-beer-v1': '5',
+    'frostline-dev:frostline-shootout-personal-team-v1': JSON.stringify({
       name: 'Old Heroes', primary: '#113388', secondary: '#cc2222', trim: '#ffffff'
     })
   };
@@ -175,7 +175,7 @@ test('legacy high scores migrate once, each player stays independent', () => {
   t.frame(16);
   t.elem('playerNameInput').value = 'Original';
   t.submit('playerForm');
-  let data = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  let data = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
   assert.equal(data.players[0].records.arcade.show.best, 7);
   assert.equal(data.players[0].records.arcade.beer.best, 5);
   assert.equal(data.players[0].team.name, 'Old Heroes');
@@ -188,7 +188,7 @@ test('legacy high scores migrate once, each player stays independent', () => {
   t.elem('switchPlayerButton').emit('click');
   t.elem('playerNameInput').value = 'New Contender';
   t.submit('playerForm');
-  data = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  data = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
   assert.equal(data.players.length, 2);
   assert.equal(data.players[1].records.arcade.show?.best ?? 0, 0);
   t.elem('cancelTeam').emit('click');
