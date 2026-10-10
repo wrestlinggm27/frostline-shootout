@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#071523">
+  <meta name="theme-color" content="#071f54">
   <meta name="description" content="Frostline Shootout — a 30-second, flick-to-shoot hockey arcade game.">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=1.4">
-  <script src="game.js?v=1.4" defer></script>
+  <link rel="stylesheet" href="style.css?v=1.5">
+  <script src="game.js?v=1.5" defer></script>
 </head>
 <body>
   <main class="app" aria-label="Frostline Shootout hockey game">
@@ -17,6 +17,7 @@
         <div>
           <p class="eyebrow">THE ARCADE SERIES · 001</p>
           <h1>FROSTLINE<span> SHOOTOUT</span></h1>
+          <p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p>
         </div>
       </div>
       <button id="soundButton" class="sound-button" type="button" aria-label="Mute sound" title="Toggle sound">
@@ -58,13 +59,42 @@
             </div>
             <p class="difficulty-description" id="difficultyDescription">A competitive goalie. A fair challenge.</p>
           </div>
+          <button id="customizeButton" class="customize-button" type="button">✦ CUSTOMIZE TEAM</button>
           <button id="playButton" class="play-button" type="button">START GAME <span aria-hidden="true">↗</span></button>
           <span id="overlayHint" class="overlay-hint">30 SECONDS · UNLIMITED PUCKS · 3 LEAGUES</span>
         </div>
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.4</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.5</span></footer>
   </main>
+  <dialog id="teamDialog" class="team-dialog" aria-labelledby="teamDialogTitle">
+    <form id="teamForm" autocomplete="off">
+      <div class="customizer-head">
+        <div><p class="customizer-kicker">YOUR CREW. YOUR COLORS.</p><h2 id="teamDialogTitle">CUSTOMIZE TEAM</h2></div>
+        <button id="closeTeamDialog" type="button" class="customizer-close" aria-label="Close team customizer">×</button>
+      </div>
+      <div class="team-preview">
+        <div class="preview-crest"><span id="previewInitials">BB</span></div>
+        <div><small>HOME TEAM</small><strong id="previewTeamName">BROADWAY BLUES</strong><span class="preview-stripes" aria-hidden="true"></span></div>
+      </div>
+      <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
+      <input type="text" id="teamNameInput" name="teamName" maxlength="24" placeholder="Your team name" required>
+      <p class="customizer-label preset-heading">QUICK COLOR THEMES</p>
+      <div class="team-presets" role="group" aria-label="Choose a starter team theme">
+        <button type="button" data-team-preset="broadway"><span class="preset-dot" style="--p:#0038A8;--s:#CE1126"></span>BROADWAY</button>
+        <button type="button" data-team-preset="ice"><span class="preset-dot" style="--p:#007E8A;--s:#EF7827"></span>ICEBREAKERS</button>
+        <button type="button" data-team-preset="aurora"><span class="preset-dot" style="--p:#5C2590;--s:#41D4DF"></span>AURORA</button>
+        <button type="button" data-team-preset="black"><span class="preset-dot" style="--p:#202837;--s:#F4B942"></span>BLACK ICE</button>
+      </div>
+      <div class="team-colors">
+        <label for="teamPrimary">PRIMARY <input id="teamPrimary" name="primary" type="color" value="#0038a8"></label>
+        <label for="teamSecondary">SECONDARY <input id="teamSecondary" name="secondary" type="color" value="#ce1126"></label>
+        <label for="teamTrim">TRIM <input id="teamTrim" name="trim" type="color" value="#ffffff"></label>
+      </div>
+      <p class="customizer-note">Your team is saved on this device. Colors change the rink and scoreboard, not the goalie difficulty.</p>
+      <div class="customizer-actions"><button id="cancelTeam" type="button" class="cancel-team">CANCEL</button><button type="submit" class="save-team">SAVE MY TEAM</button></div>
+    </form>
+  </dialog>
 </body>
 </html>
