@@ -1,0 +1,27 @@
+name: Frostline quality checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the game
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check game.js
+          node --check tests/smoke.test.cjs
+      - name: Test onboarding, scores and basic gameplay
+        run: node --test tests/smoke.test.cjs
