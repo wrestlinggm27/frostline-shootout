@@ -74,6 +74,7 @@ function boot(seed = {}) {
   const leagues = ['pond', 'beer', 'show'].map(id => Object.assign(new MockNode(id), { dataset: { difficulty: id } }));
   const presets = ['broadway', 'ice', 'aurora', 'black'].map(id => Object.assign(new MockNode(id), { dataset: { teamPreset: id } }));
   const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
+  const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -82,10 +83,12 @@ function boot(seed = {}) {
       if (selector === '[data-difficulty]') return leagues;
       if (selector === '[data-team-preset]') return presets;
       if (selector === '[data-f-logo]') return logoChoices;
+      if (selector === '[data-team-crest]') return crestChoices;
       return [];
     },
     querySelector(selector) { return elem('query:' + selector); },
     createElement(name) { return new MockNode(name); },
+    createElementNS(ns, name) { return new MockNode(name); },
     addEventListener: noop
   };
   elem('rink').getContext = () => ctx;
@@ -113,7 +116,7 @@ function boot(seed = {}) {
     cb(time);
   }
   function submit(id) { elem(id).emit('submit'); }
-  return { elem, leagues, presets, logoChoices, storage, localStorage, frame, submit, errors, raf };
+  return { elem, leagues, presets, logoChoices, crestChoices, storage, localStorage, frame, submit, errors, raf };
 }
 
 test('UI contains player, team and local record book elements', () => {
@@ -247,4 +250,82 @@ test('DEV Logo Lab previews all three F styles, cancel restores, and saving pers
   assert.equal(saved.players.length, 2);
   assert.equal(saved.players[0].logoVariant, 'ice');
   assert.equal(saved.players[1].logoVariant, 'power');
+});
+
+test('DEV custom team shields preview, save and persist separately for each player', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Crest Tester';
+  t.submit('playerForm');
+  assert.equal(t.elem('teamDialog').open, true);
+  assert.equal(t.crestChoices.length, 6);
+  t.crestChoices[1].emit('click');
+  assert.equal(t.crestChoices[1].getAttribute('aria-pressed'), 'true');
+  assert.equal(t.elem('previewTeamCrest').children.length, 1);
+  t.elem('teamNameInput').value = 'Forest Wolves';
+  t.elem('teamPrimary').value = '#225533';
+  t.elem('teamSecondary').value = '#ddee22';
+  t.submit('teamForm');
+  assert.equal(t.elem('teamDialog').open, false);
+
+  let saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].team.crest, 'wolf');
+  assert.equal(saved.players[0].team.name, 'Forest Wolves');
+  assert.equal(saved.players[0].team.primary, '#225533');
+  assert.equal(saved.players[0].team.secondary, '#ddee22');
+  assert.equal(t.elem('headerTeamCrest').children.length, 1);
+
+  // Cancel must restore the last saved crest, not accidentally persist a draft.
+  t.elem('customizeButton').emit('click');
+  t.crestChoices[2].emit('click');
+  assert.equal(t.crestChoices[2].getAttribute('aria-pressed'), 'true');
+  t.elem('cancelTeam').emit('click');
+  saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].team.crest, 'wolf');
+  t.elem('customizeButton').emit('click');
+  assert.equal(t.crestChoices[1].getAttribute('aria-pressed'), 'true');
+  t.elem('cancelTeam').emit('click');
+
+  t.elem('switchPlayerButton').emit('click');
+  t.elem('playerNameInput').value = 'Second Team';
+  t.submit('playerForm');
+  t.elem('cancelTeam').emit('click');
+  t.elem('customizeButton').emit('click');
+  t.crestChoices[3].emit('click');
+  t.submit('teamForm');
+  saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players[1].team.crest, 'sticks');
+  assert.equal(saved.players[0].team.crest, 'wolf');
+
+  const reloaded = boot(Object.fromEntries(t.storage));
+  reloaded.elem('switchPlayerButton').emit('click');
+  reloaded.elem('existingPlayers').children[0].emit('click');
+  reloaded.elem('customizeButton').emit('click');
+  assert.equal(reloaded.crestChoices[1].getAttribute('aria-pressed'), 'true');
+  assert.equal(reloaded.elem('previewTeamCrest').children.length, 1);
+  reloaded.elem('cancelTeam').emit('click');
+
+  // Original gameplay remains playable with a custom shield on the rink.
+  reloaded.elem('playButton').emit('click');
+  const rink = reloaded.elem('rink');
+  rink.emit('pointerdown', { pointerId: 35, clientX: 210, clientY: 563 });
+  rink.emit('pointermove', { pointerId: 35, clientX: 174, clientY: 653 });
+  rink.emit('pointerup', { pointerId: 35, clientX: 174, clientY: 653 });
+  assert.equal(reloaded.elem('shots').textContent, 1);
+  assert.ok(!reloaded.storage.has('frostline-player-profiles-v1'), 'Stable data must remain separate');
+});
+
+test('DEV data normalizes unknown old shield identifiers safely', () => {
+  const seed = {
+    'frostline-dev:frostline-player-profiles-v1': JSON.stringify({
+      activeId: 'known',
+      legacyClaimed:true,
+      players:[{id:'known',name:'Legacy Tester',team:{
+        name:'Heritage',primary:'#0038a8',secondary:'#ce1126',trim:'#ffffff',crest:'unknown-symbol'
+      },difficulty:'beer',records:{arcade:{}}}]
+    })
+  };
+  const t = boot(seed);
+  t.elem('customizeButton').emit('click');
+  assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
 });
