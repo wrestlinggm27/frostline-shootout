@@ -1,4 +1,4 @@
-# Frostline Shootout — Version 1.6
+# Frostline Shootout — Version 1.7
 
 A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with original graphics using plain HTML, CSS, and JavaScript. No installation, frameworks, or accounts. Crowd recordings are licensed and credited below.
 
@@ -38,6 +38,16 @@ python -m http.server 8000
 Then open http://localhost:8000 in your browser.
 
 **Playing on a phone:** Put the same files on any simple static web host (for example GitHub Pages) and open that link in your mobile browser. If you want to test from a phone on the same Wi-Fi network as a computer, run a local server on the computer, allow access through the firewall if needed, and visit the computer's LAN IP and port from the phone.
+
+## Compact arcade layout (V1.7)
+
+The shootout is intentionally presented as the **same narrow, vertical arcade cabinet** on both desktop and mobile. This is the game's visual identity, not a temporary mobile layout. Game physics and 30-second Arcade Shootout gameplay are unchanged.
+
+- Welcome and post-round overlays fit the **available rink size**, including when a desktop browser window is short. They do not expand to fill a widescreen monitor.
+- Results prioritize the final score, difficulty picker, team/records actions and Play Again. Decorative elements and redundant text are hidden on the result screen.
+- The three results stat tiles are fluid columns rather than fixed-width tiles; long captions and menu buttons cannot force horizontal scrolling.
+- Styles use **rink container queries**, not device detection, so compact desktop and phone cabinets get the same design rules.
+- Browser layout tests validate desktop and mobile sizes. Separate smoke tests cover player profiles, shooting and records.
 
 ## Player onboarding, arcade mode and the record book (V1.6)
 
