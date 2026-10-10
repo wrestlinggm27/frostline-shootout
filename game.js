@@ -479,6 +479,22 @@
     timeFill.classList.toggle('urgent', urgent);
   }
 
+  // The cabinet has the same compact proportions on desktop and mobile.
+  // When the entire rink becomes small (including a short desktop window),
+  // shrink the menu uniformly instead of letting labels spill or show scrollbars.
+  function fitOverlayCard() {
+    if (overlay.hidden) return;
+    const card = overlay.querySelector('.overlay-card');
+    if (!card || !overlay.clientWidth || !overlay.clientHeight) return;
+    card.style.setProperty('--overlay-fit', '1');
+    const availableWidth = Math.max(1, overlay.clientWidth - 16);
+    const availableHeight = Math.max(1, overlay.clientHeight - 16);
+    const neededWidth = Math.max(card.scrollWidth || 0, card.offsetWidth || 0, 1);
+    const neededHeight = Math.max(card.scrollHeight || 0, card.offsetHeight || 0, 1);
+    const scale = Math.min(1, availableWidth / neededWidth, availableHeight / neededHeight);
+    card.style.setProperty('--overlay-fit', scale.toFixed(3));
+  }
+
   function resetPuck() {
     game.puck = { ...PUCK_START, moving: false, vx: 0, vy: 0, trail: [] };
     game.shot = null;
@@ -504,6 +520,7 @@
       saveProfileDB();
     }
     updateHUD();
+    fitOverlayCard();
   }
   difficultyButtons.forEach(button => button.addEventListener('click', () => setDifficulty(button.dataset.difficulty)));
   setDifficulty(initialDifficulty);
@@ -529,6 +546,7 @@
     game.statsRefresh = 0;
     resetPuck();
     overlay.hidden = true;
+    overlay.classList.remove('results');
     toast.className = 'shot-toast';
     toast.textContent = '';
     $('controlHint').textContent = 'PULL BACK & RELEASE  ·  OR FLICK FORWARD';
@@ -540,6 +558,7 @@
     if (game.mode === 'finished') return;
     stopWindup();
     game.mode = 'finished';
+    overlay.classList.add('results');
     if (game.profile) {
       const record = getRecord(game.difficulty);
       record.rounds += 1;
@@ -559,7 +578,7 @@
     $('overlayCopy').textContent = newRecord
       ? 'The goalie is already studying the replay. Ready to go again?'
       : 'Thirty seconds goes fast. Find the corners and beat the goalie next round.';
-    $('overlayHint').textContent = 'ARCADE SHOOTOUT · MORE GAME STYLES IN DEVELOPMENT';
+    $('overlayHint').textContent = 'ARCADE SHOOTOUT · MORE MODES COMING';
     $('overlay').querySelector('.overlay-kicker').textContent = 'ARCADE SHOOTOUT · FINAL BUZZER';
     const summary = $('endSummary');
     summary.hidden = false;
@@ -570,6 +589,7 @@
     overlay.hidden = false;
     $('controlHint').textContent = 'ROUND COMPLETE  ·  BEAT YOUR RECORD';
     updateHUD();
+    fitOverlayCard();
   }
 
   $('playButton').addEventListener('click', startGame);
@@ -1084,6 +1104,7 @@
     canvas.height = Math.max(1, Math.round(r.height * dpr));
     ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
     draw();
+    fitOverlayCard();
   }
 
   const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resizeCanvas) : null;
@@ -1205,6 +1226,7 @@
     resetPuck();
     toast.textContent = '';
     toast.className = 'shot-toast';
+    overlay.classList.remove('results');
     $('overlayTitle').innerHTML = 'THIRTY SECONDS.<br><em>ONE NET.</em>';
     $('overlayCopy').textContent =
       'Pull back from the puck to aim, then let go to rip it. You can also flick it forward.';
@@ -1216,6 +1238,7 @@
     game.best = readBest(game.difficulty);
     overlay.hidden = false;
     updateHUD();
+    fitOverlayCard();
   }
 
   function activateProfile(profile) {
