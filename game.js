@@ -111,26 +111,33 @@
     src.start(t); src.stop(t + duration + .015);
   }
 
-  // Filtered pitched voices let us make little "Oooo" boos and "Aaah" cheers
-  // rather than simply changing an oscillator note.
+  // Brighter, layered procedural arena crowd. The broad formants and high-frequency
+  // texture keep reactions distinct on small phone speakers (no licensed samples).
   function crowdVoice(ac, t, duration, vowel, pitch, peak, output) {
     const osc = ac.createOscillator();
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(pitch, t);
-    osc.frequency.linearRampToValueAtTime(pitch * (vowel === 'oo' ? .77 : 1.15), t + duration);
+    osc.frequency.linearRampToValueAtTime(pitch * (vowel === 'oo' ? .83 : 1.18), t + duration);
+    const wobble = ac.createOscillator();
+    wobble.frequency.value = 5 + Math.random() * 6;
+    const wobbleDepth = ac.createGain();
+    wobbleDepth.gain.value = pitch * .013;
+    wobble.connect(wobbleDepth); wobbleDepth.connect(osc.frequency);
     const voiced = ac.createGain();
-    volumeFade(voiced, t, peak, .09 + Math.random() * .18, duration);
-    const frequencies = vowel === 'oo' ? [380, 900, 2300] : [780, 1330, 2600];
-    const levels = vowel === 'oo' ? [.60, .27, .13] : [.53, .34, .13];
+    volumeFade(voiced, t, peak, .035 + Math.random() * .08, duration);
+    const frequencies = vowel === 'oo' ? [490, 1130, 2650] : [900, 1660, 3220];
+    const levels = vowel === 'oo' ? [.60, .46, .30] : [.58, .48, .35];
     frequencies.forEach((freq, i) => {
       const filter = ac.createBiquadFilter();
-      filter.type = 'bandpass'; filter.frequency.value = freq * (.94 + Math.random() * .12);
-      filter.Q.value = i === 0 ? 2 : 3;
+      filter.type = 'bandpass';
+      filter.frequency.value = freq * (.91 + Math.random() * .18);
+      filter.Q.value = [1.1, 1.6, 1.85][i];
       const band = ac.createGain(); band.gain.value = levels[i];
       osc.connect(filter); filter.connect(band); band.connect(voiced);
     });
     voiced.connect(output);
-    osc.start(t); osc.stop(t + duration + .025);
+    osc.start(t); wobble.start(t);
+    osc.stop(t + duration + .025); wobble.stop(t + duration + .025);
   }
 
   function replaceAtmosphere(ac, kind) {
@@ -139,63 +146,79 @@
       const old = arenaAudio.crowd;
       old.gain.cancelScheduledValues(t);
       old.gain.setValueAtTime(Math.max(.0001, old.gain.value), t);
-      old.gain.exponentialRampToValueAtTime(.0001, t + .08);
+      old.gain.exponentialRampToValueAtTime(.0001, t + .075);
     }
     const bus = ac.createGain();
-    bus.gain.value = 1;
+    bus.gain.value = .90;
     bus.connect(arenaAudio.master);
     arenaAudio.crowd = bus;
     const cheering = kind === 'cheer';
-    const duration = cheering ? 2.25 : 1.5;
-    noiseBurst(ac, t + .05, duration, cheering ? 1250 : 540, .54,
-      cheering ? .25 : .15, bus, .17);
-    const count = cheering ? 9 : 7;
+    const duration = cheering ? 2.05 : 1.5;
+    // Midrange voices plus crisp arena air. Previously the single low noise
+    // band masked the cheers and boos, especially on phone speakers.
+    noiseBurst(ac, t + .025, duration, cheering ? 1800 : 1020, .42,
+      cheering ? .26 : .17, bus, .075);
+    noiseBurst(ac, t + .035, duration * .90, cheering ? 3700 : 2700, .85,
+      cheering ? .18 : .095, bus, .10);
+    const count = cheering ? 12 : 9;
     for (let i = 0; i < count; i++) {
-      const offset = .03 + Math.random() * (cheering ? .36 : .18);
-      const voiceDuration = duration - offset - .03;
+      const offset = .02 + Math.random() * (cheering ? .55 : .21);
+      const voiceDuration = cheering
+        ? .65 + Math.random() * (duration - offset - .73)
+        : .86 + Math.random() * .40;
       crowdVoice(ac, t + offset, voiceDuration, cheering ? 'ah' : 'oo',
-        (cheering ? 130 : 110) + Math.random() * (cheering ? 170 : 65),
-        cheering ? .048 : .057, bus);
+        (cheering ? 145 : 100) + Math.random() * (cheering ? 145 : 80),
+        cheering ? .063 : .077, bus);
+    }
+    if (cheering) {
+      // Sharp, staggered claps and shouts supply the recognizable crowd edge.
+      for (let i = 0; i < 16; i++) {
+        const offset = .06 + Math.random() * 1.78;
+        noiseBurst(ac, t + offset, .038 + Math.random() * .04,
+          3200 + Math.random() * 1400, .9, .13, bus, .003);
+      }
     }
   }
 
+  // One quick stick-and-skate swish when the player pulls back. No sustained
+  // synthetic voice: the old "ahhhhh" quickly became repetitive and distracting.
   function startWindup() {
     if (arenaAudio.windup || !game.audioEnabled) return;
     const ac = audioReady();
     if (!ac) return;
     try {
       const t = ac.currentTime;
-      const osc = ac.createOscillator();
-      osc.type = 'sawtooth';
-      osc.frequency.value = 145;
-      const voice = ac.createGain();
-      voice.gain.setValueAtTime(.0001, t);
-      // Three vowel formants approximate an excited player's "ahhhhh".
-      [780, 1300, 2450].forEach((freq, i) => {
-        const filter = ac.createBiquadFilter();
-        filter.type = 'bandpass'; filter.frequency.value = freq;
-        filter.Q.value = i === 0 ? 2.4 : 3.2;
-        const band = ac.createGain(); band.gain.value = [.50, .35, .15][i];
-        osc.connect(filter); filter.connect(band); band.connect(voice);
-      });
-      voice.connect(arenaAudio.master);
-      const wobble = ac.createOscillator(); wobble.frequency.value = 5.8;
-      const wobbleDepth = ac.createGain(); wobbleDepth.gain.value = 3.2;
-      wobble.connect(wobbleDepth); wobbleDepth.connect(osc.frequency);
-      osc.start(t); wobble.start(t);
-      arenaAudio.windup = { osc, wobble, voice };
-    } catch { /* Optional audio must never break the swipe mechanic. */ }
+      const bus = ac.createGain();
+      bus.gain.value = .65;
+      bus.connect(arenaAudio.master);
+      const src = ac.createBufferSource();
+      src.buffer = getNoise(ac);
+      const filter = ac.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1550, t);
+      filter.frequency.exponentialRampToValueAtTime(3200, t + .17);
+      filter.Q.value = .75;
+      const gain = ac.createGain();
+      volumeFade(gain, t, .22, .025, .19);
+      src.connect(filter); filter.connect(gain); gain.connect(bus);
+      src.start(t); src.stop(t + .205);
+      const low = ac.createOscillator();
+      low.type = 'triangle';
+      low.frequency.setValueAtTime(170, t);
+      low.frequency.exponentialRampToValueAtTime(100, t + .14);
+      const lowGain = ac.createGain();
+      volumeFade(lowGain, t, .080, .013, .14);
+      low.connect(lowGain); lowGain.connect(bus);
+      low.start(t); low.stop(t + .155);
+      arenaAudio.windup = { bus };
+    } catch { /* Never let optional sound block a shot. */ }
   }
 
   function updateWindup(pull) {
-    if (!game.audioEnabled || pull < 14) return;
+    // Trigger only once per actual pull-back gesture, not on every pointermove.
+    if (!game.audioEnabled || pull < 18 || !game.aiming || game.aiming.windupPlayed) return;
+    game.aiming.windupPlayed = true;
     startWindup();
-    const sound = arenaAudio.windup;
-    if (!sound || !game.audioContext) return;
-    const t = game.audioContext.currentTime;
-    const strength = clamp((pull - 14) / 125, 0, 1);
-    sound.osc.frequency.setTargetAtTime(135 + strength * 95, t, .065);
-    sound.voice.gain.setTargetAtTime(.034 + strength * .09, t, .05);
   }
 
   function stopWindup() {
@@ -203,10 +226,9 @@
     if (!sound || !game.audioContext) return;
     arenaAudio.windup = null;
     const t = game.audioContext.currentTime;
-    sound.voice.gain.cancelScheduledValues(t);
-    sound.voice.gain.setValueAtTime(Math.max(.0001, sound.voice.gain.value), t);
-    sound.voice.gain.exponentialRampToValueAtTime(.0001, t + .055);
-    try { sound.osc.stop(t + .07); sound.wobble.stop(t + .07); } catch {}
+    sound.bus.gain.cancelScheduledValues(t);
+    sound.bus.gain.setValueAtTime(Math.max(.0001, sound.bus.gain.value), t);
+    sound.bus.gain.exponentialRampToValueAtTime(.0001, t + .045);
   }
 
   function playSlapshot(ac) {
@@ -464,7 +486,7 @@
     if (distance(pt, PUCK_START) > 67) return;
     event.preventDefault();
     canvas.setPointerCapture(event.pointerId);
-    game.aiming = { pointerId: event.pointerId, origin: pt, current: pt, started: performance.now() };
+    game.aiming = { pointerId: event.pointerId, origin: pt, current: pt, started: performance.now(), windupPlayed: false };
   });
 
   canvas.addEventListener('pointermove', (event) => {
