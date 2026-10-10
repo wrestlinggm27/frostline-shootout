@@ -184,3 +184,100 @@ h1 span{color:var(--team-highlight)}
  .menu-utility-actions{margin-bottom:6px}
  .menu-utility-actions .customize-button{padding:6px 4px}
 }
+
+
+/* V1.7: Compact arcade cabinet layout on ALL devices.
+   Size the menu to its RINK, not to the browser window: a short desktop
+   window often has a narrower rink than a phone in portrait orientation. */
+.rink-frame{container-name:arcade-rink;container-type:inline-size}
+.overlay{overflow:hidden;overflow-x:hidden;overflow-y:hidden;padding:8px;display:block}
+.overlay-card{
+ position:absolute;top:50%;left:50%;
+ width:min(355px,calc(100% - 16px));max-width:none;
+ margin:0;box-sizing:border-box;
+ transform:translate(-50%,-50%) scale(var(--overlay-fit,1));
+ transform-origin:center center;
+ padding:12px 10px 13px;
+}
+.overlay-card *{min-width:0}
+.overlay h2{margin-bottom:9px;overflow-wrap:break-word}
+.overlay-copy{margin-bottom:10px;max-width:100%;line-height:1.4;overflow-wrap:anywhere}
+.overlay-kicker{margin-bottom:7px}
+.overlay-icon{height:29px;width:29px;font-size:20px;margin-bottom:7px}
+.player-bar{max-width:100%;margin:0 0 9px}
+.end-summary{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ width:100%;max-width:100%;
+ gap:6px;margin:0 0 10px;
+}
+.end-summary[hidden]{display:none}
+.end-summary>div{
+ min-width:0;width:100%;padding:8px 3px;
+ overflow:hidden;overflow-wrap:anywhere;
+}
+.end-summary span{font-size:clamp(7px,2.1cqw,9px);letter-spacing:.04em;white-space:normal}
+.end-summary strong{display:block;font-size:20px}
+.difficulty-select{max-width:100%;margin-bottom:9px}
+.difficulty-label{margin-bottom:5px}
+.difficulty-options{gap:5px}
+.difficulty-choice{padding:5px 2px;min-height:43px}
+.difficulty-choice span{font-size:clamp(8px,2.7cqw,11px);overflow-wrap:break-word}
+.difficulty-choice small{font-size:clamp(7px,2.15cqw,9px)}
+.difficulty-description{font-size:10px;line-height:1.25;margin-top:5px;min-height:0}
+.menu-utility-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ width:100%;max-width:100%;gap:6px;margin:0 0 8px;
+}
+.menu-utility-actions .customize-button{
+ display:flex;align-items:center;justify-content:center;
+ width:100%;max-width:100%;min-height:31px;
+ line-height:1.12;white-space:normal;overflow-wrap:normal;
+ margin:0;padding:5px 3px;font-size:clamp(8px,2.35cqw,10px);
+ letter-spacing:0;
+}
+.overlay .play-button{width:100%;max-width:100%;padding:11px 13px}
+.overlay-hint{margin-top:10px;line-height:1.3;overflow-wrap:break-word}
+
+/* Results prioritize the score and replay. No decorative filler steals space. */
+.overlay.results .overlay-icon,
+.overlay.results .overlay-copy,
+.overlay.results .difficulty-description{display:none}
+.overlay.results h2{margin-bottom:8px}
+.overlay.results .end-summary{margin-bottom:10px}
+.overlay.results .difficulty-select{margin-bottom:9px}
+.overlay.results .player-bar{margin-bottom:7px}
+.overlay.results .overlay-hint{margin-top:9px}
+.overlay.results .overlay-kicker{margin-bottom:6px}
+
+/* Container queries work identically for a desktop's small rink and a phone. */
+@container arcade-rink (max-width:370px){
+ .overlay-card{padding:10px 9px 11px;border-radius:14px}
+ .overlay-icon{display:none}
+ .overlay h2{font-size:clamp(22px,8cqw,29px);margin-bottom:7px;line-height:1.04}
+ .overlay-copy{font-size:10px;line-height:1.35;margin-bottom:8px}
+ .overlay-kicker{font-size:8px;letter-spacing:.09em;margin-bottom:5px}
+ .player-bar{padding:5px 7px;margin-bottom:7px;gap:6px}
+ .player-bar>span{font-size:8px;letter-spacing:.04em}
+ .player-bar strong{font-size:10px}
+ .player-bar button{font-size:8px;padding:4px 6px}
+ .end-summary{gap:5px;margin-bottom:8px}
+ .end-summary>div{padding:6px 2px}
+ .end-summary span{font-size:clamp(7px,2.4cqw,8px)}
+ .end-summary strong{font-size:19px}
+ .difficulty-select{margin-bottom:7px}
+ .difficulty-label{font-size:8px;letter-spacing:.10em;margin-bottom:5px}
+ .difficulty-choice{min-height:40px;gap:2px;padding:4px 2px}
+ .difficulty-description{font-size:9px;margin-top:4px}
+ .menu-utility-actions{gap:5px;margin-bottom:7px}
+ .menu-utility-actions .customize-button{min-height:29px;padding:5px 2px}
+ .overlay .play-button{padding:10px 10px;font-size:11px}
+ .overlay-hint{font-size:8px;margin-top:8px;letter-spacing:.025em}
+}
+@container arcade-rink (max-width:275px){
+ .overlay-card{padding:8px 7px 9px;width:calc(100% - 12px)}
+ .overlay h2{font-size:22px}
+ .end-summary strong{font-size:17px}
+ .difficulty-choice span{font-size:8px}
+ .menu-utility-actions .customize-button{font-size:8px}
+ .overlay-hint{font-size:7px}
+}
