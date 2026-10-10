@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV BUILD (based on V1.7)
+# Frostline Shootout — DEV V1.8: F Logo Lab
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,18 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## F Logo Lab — Development experiment (V1.8)
+
+This build adds three **original vector logos for the Frostline brand badge**, all preserving the red-and-blue glowing shield outline while replacing the old three-slash emblem with a recognizable, **two-bar F**:
+
+- **A · Power Play** — classic, bold F with a strong vertical spine and a long top/short middle bar.
+- **B · Speed Rush** — aggressive forward-swept angles and sharp slanted edges.
+- **C · Ice Cut** — a chunky F with angular cuts/notches.
+
+On the DEV game, choose **Logo Lab** on the start/replay menu or click the top-left badge. Click a logo to preview it live on the header, then click **Save Logo** or **Cancel**. Choices persist with the current **DEV player profile** and follow the player when switching profiles; cancel and Escape restore the previous saved choice.
+
+**Stable V1.7 remains untouched.** The designs are prototypes for choosing one final Frostline logo; this does not edit the customizable team crest, goalie mechanics, sound, or player records. The logo's original artwork is defined as inline SVG symbols in `index.html` and styled in `style.css`, with selection and persistence in `game.js`.
 
 ## How to play
 
