@@ -9,7 +9,40 @@
   const PUCK_START = { x: 210, y: 563 };
   const GOAL = { left: 120, right: 300, line: 172 };
   const GOALIE_LINE = 225;
-  const HIGH_SCORE_KEY = 'frostline-shootout-high-score-v1';
+  const LEGACY_HIGH_SCORE_KEY = 'frostline-shootout-high-score-v1';
+  const MODE_KEY = 'frostline-shootout-difficulty-v1';
+  // Each rink keeps the 30-second format. Only goalie skill changes.
+  // Hard preserves the original goalie; the other levels are deliberately beatable.
+  const DIFFICULTIES = {
+    pond: {
+      name: 'Pond Hockey', description: 'A casual goalie. More open net, slower reactions.',
+      reactionStart: .55, reactionEnd: .40, repeatBoost: .015,
+      patrolSpeed: 1.8, patrolWave: 26, patrolExtra: 9,
+      biasStart: .06, biasGain: .08,
+      chaseStart: 88, chaseGain: 92, saveStart: 19, saveGain: 4, drift: 21
+    },
+    beer: {
+      name: 'Beer League', description: 'A competitive goalie. A fair challenge.',
+      reactionStart: .37, reactionEnd: .18, repeatBoost: .03,
+      patrolSpeed: 2.0, patrolWave: 35, patrolExtra: 13,
+      biasStart: .16, biasGain: .14,
+      chaseStart: 125, chaseGain: 150, saveStart: 24, saveGain: 6, drift: 9
+    },
+    show: {
+      name: 'The Show', description: 'Pro-level goalie. Earn every goal.',
+      reactionStart: .21, reactionEnd: .07, repeatBoost: .045,
+      patrolSpeed: 2.25, patrolWave: 43, patrolExtra: 16,
+      biasStart: .24, biasGain: .20,
+      chaseStart: 165, chaseGain: 190, saveStart: 28, saveGain: 8, drift: 0
+    }
+  };
+  function readDifficulty() {
+    try {
+      const stored = localStorage.getItem(MODE_KEY);
+      return Object.hasOwn(DIFFICULTIES, stored) ? stored : 'beer';
+    } catch { return 'beer'; }
+  }
+  const initialDifficulty = readDifficulty();
 
   const $ = (id) => document.getElementById(id);
   const canvas = $('rink');
@@ -32,18 +65,26 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  function readBest() {
-    try { return Math.max(0, Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0); }
-    catch { return 0; }
+  function readBest(difficulty) {
+    try {
+      const key = 'frostline-shootout-high-score-' + difficulty + '-v1';
+      const saved = localStorage.getItem(key);
+      // Old V1-V1.3 records were earned against what is now "The Show".
+      const value = saved === null && difficulty === 'show'
+        ? localStorage.getItem(LEGACY_HIGH_SCORE_KEY) : saved;
+      return Math.max(0, Number(value) || 0);
+    } catch { return 0; }
   }
   function saveBest(n) {
-    try { localStorage.setItem(HIGH_SCORE_KEY, String(n)); }
-    catch { /* Private browsing may deny storage. Gameplay still works. */ }
+    try {
+      localStorage.setItem('frostline-shootout-high-score-' + game.difficulty + '-v1', String(n));
+    } catch { /* Private browsing may deny storage. Gameplay still works. */ }
   }
 
   const game = {
     mode: 'idle', remaining: ROUND_SECONDS, elapsed: 0, bestAtStart: 0,
-    goals: 0, shots: 0, saves: 0, misses: 0, best: readBest(),
+    difficulty: initialDifficulty,
+    goals: 0, shots: 0, saves: 0, misses: 0, best: readBest(initialDifficulty),
     puck: { ...PUCK_START, moving: false, vx: 0, vy: 0, trail: [] },
     goalie: { x: 210, targetX: 210, lean: 0, flash: 0 },
     shot: null, cooldown: 0, toastTimer: 0, shake: 0,
@@ -367,11 +408,33 @@
     game.cooldown = 0;
   }
 
+  const difficultyButtons = Array.from(document.querySelectorAll('[data-difficulty]'));
+  const difficultyDescription = $('difficultyDescription');
+  const difficultyStatus = $('difficultyStatus');
+  function setDifficulty(id) {
+    if (game.mode === 'playing' || game.mode === 'ending' || !Object.hasOwn(DIFFICULTIES, id)) return;
+    game.difficulty = id;
+    game.best = readBest(id);
+    for (const button of difficultyButtons) {
+      const selected = button.dataset.difficulty === id;
+      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      button.classList.toggle('selected', selected);
+    }
+    difficultyDescription.textContent = DIFFICULTIES[id].description;
+    difficultyStatus.textContent = DIFFICULTIES[id].name.toUpperCase();
+    try { localStorage.setItem(MODE_KEY, id); } catch {}
+    updateHUD();
+  }
+  difficultyButtons.forEach(button => button.addEventListener('click', () => setDifficulty(button.dataset.difficulty)));
+  setDifficulty(initialDifficulty);
+
   function startGame() {
     stopWindup();
     const ac = audioReady(); // Start button provides the user gesture Safari needs.
     if (ac) preloadCrowd(ac);
     game.mode = 'playing';
+    // Snapshot the selected mode's record, even after switching levels on the menu.
+    game.best = readBest(game.difficulty);
     game.remaining = ROUND_SECONDS;
     game.elapsed = 0;
     game.bestAtStart = game.best;
@@ -572,12 +635,16 @@
       ? PUCK_START.x + (GOAL.line - PUCK_START.y) * gesture.directionX / gesture.directionY
       : PUCK_START.x + 1200 * gesture.directionX;
     game.shots++;
-    const difficulty = clamp(game.elapsed / ROUND_SECONDS, 0, 1);
+    const progress = clamp(game.elapsed / ROUND_SECONDS, 0, 1);
+    const settings = DIFFICULTIES[game.difficulty];
     const lastTargets = game.previousTargets;
     const repeat = lastTargets.length >= 2 && lastTargets.slice(-2).every(n => Math.abs(n - predictedNetX) < 32);
     game.shot = {
       aimX: predictedGoalieX, netX: predictedNetX, power: gesture.power,
-      reacted: false, reactionTime: .21 - difficulty * .14 - (repeat ? .045 : 0),
+      // Less experienced goalies occasionally misread where the puck is heading.
+      aimDrift: (Math.random() * 2 - 1) * settings.drift,
+      reacted: false, reactionTime: lerp(settings.reactionStart, settings.reactionEnd, progress)
+        - (repeat ? settings.repeatBoost : 0),
       // High-power shots can occasionally sail up into the crossbar.
       // The chance rises with force, so max power has a small risk/reward tradeoff.
       crossbar: gesture.power > .86 && Math.random() < (gesture.power - .86) * 1.05
@@ -590,26 +657,28 @@
 
   function updateGoalie(dt) {
     const g = game.goalie;
-    const difficulty = clamp(game.elapsed / ROUND_SECONDS, 0, 1);
-    // Independent patrol + an adaptive bias if the player repeats a corner.
-    const patrol = 210 + Math.sin(game.elapsed * (2.25 + difficulty * .65)) * 43
-      + Math.sin(game.elapsed * 4.3 + 1.3) * 16;
+    const progress = clamp(game.elapsed / ROUND_SECONDS, 0, 1);
+    const settings = DIFFICULTIES[game.difficulty];
+    // Independent patrol + adaptive corner bias; all levels improve over 30 seconds.
+    const patrol = 210 + Math.sin(game.elapsed * (settings.patrolSpeed + progress * .65)) * settings.patrolWave
+      + Math.sin(game.elapsed * 4.3 + 1.3) * settings.patrolExtra;
     let target = patrol;
     if (game.previousTargets.length > 1) {
       const last = game.previousTargets.slice(-3);
       const avg = last.reduce((a, b) => a + b, 0) / last.length;
       const consistent = last.every(n => Math.abs(n - avg) < 35);
-      if (consistent) target = lerp(target, clamp(avg, 142, 278), .24 + difficulty * .2);
+      if (consistent) target = lerp(target, clamp(avg, 142, 278),
+        settings.biasStart + progress * settings.biasGain);
     }
     if (game.shot) {
       game.shot.reactionTime -= dt;
       if (game.shot.reactionTime <= 0) {
         game.shot.reacted = true;
-        target = clamp(game.shot.aimX, 146, 274);
+        target = clamp(game.shot.aimX + game.shot.aimDrift, 146, 274);
       }
     }
     g.targetX = target;
-    const speed = 165 + difficulty * 190;
+    const speed = settings.chaseStart + progress * settings.chaseGain;
     const step = clamp(g.targetX - g.x, -speed * dt, speed * dt);
     g.x = clamp(g.x + step, 146, 274);
     g.lean = lerp(g.lean, clamp(step / Math.max(.01, dt) / 300, -1, 1), Math.min(1, dt * 10));
@@ -627,7 +696,8 @@
 
     // Goalie collision is checked when crossing its plane, not per-pixel overlap.
     if (beforeY > GOALIE_LINE && p.y <= GOALIE_LINE) {
-      const goalieWidth = 28 + 8 * clamp(game.elapsed / ROUND_SECONDS, 0, 1);
+      const settings = DIFFICULTIES[game.difficulty];
+      const goalieWidth = settings.saveStart + settings.saveGain * clamp(game.elapsed / ROUND_SECONDS, 0, 1);
       if (Math.abs(p.x - game.goalie.x) <= goalieWidth) {
         registerOutcome('save');
         return;
