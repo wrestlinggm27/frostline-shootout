@@ -55,8 +55,24 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#playerNameInput').fill('Arcade Test Driver');
       await page.locator('#createPlayerButton').click();
       await page.waitForSelector('#teamDialog[open]', { timeout:3000 });
-      await page.locator('#cancelTeam').click();
+      assert.equal(await page.locator('[data-team-crest]').count(), 6, viewport.label + ': six shield designs');
+      assert.equal(await page.locator('#previewTeamCrest svg').count(), 1, viewport.label + ': shield SVG preview');
+      await page.locator('[data-team-crest="wolf"]').click();
+      assert.equal(await page.locator('[data-team-crest="wolf"]').getAttribute('aria-pressed'), 'true');
+      await page.locator('#teamNameInput').fill('Blue Wolves');
+      await page.locator('#teamForm button[type="submit"]').click();
       await page.waitForSelector('#overlay:not([hidden])');
+      const storedTeam = await page.evaluate(() => {
+        const data = JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1'));
+        return data?.players[0]?.team;
+      });
+      assert.equal(storedTeam.crest, 'wolf', viewport.label + ': saved crest');
+      assert.equal(await page.locator('#headerTeamCrest svg').count(), 1, viewport.label + ': header shield');
+      await page.locator('#customizeButton').click();
+      await page.locator('[data-team-crest="bolt"]').click();
+      await page.locator('#cancelTeam').click();
+      assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1')).players[0].team.crest), 'wolf',
+        viewport.label + ': cancelled shield change leaves saved design intact');
 
       const start = await inspect(page);
       assert.ok(start.cardFits, viewport.label + ': start menu escaped rink, ' + JSON.stringify(start));
