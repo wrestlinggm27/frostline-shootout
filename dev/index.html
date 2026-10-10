@@ -7,16 +7,31 @@
   <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
   <meta name="robots" content="noindex, nofollow">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=1.7">
-  <script src="game.js?v=1.7" defer></script>
+  <link rel="stylesheet" href="style.css?v=1.8-dev">
+  <script src="game.js?v=1.8-dev" defer></script>
 </head>
 <body>
+  <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
+  <svg class="logo-symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="frostline-power" viewBox="0 0 32 32">
+      <path d="M9.5 26 V6.5 H26 M9.5 16.2 H21" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="square" stroke-linejoin="miter"/>
+    </symbol>
+    <symbol id="frostline-speed" viewBox="0 0 32 32">
+      <path d="M8 27 L12.5 6.5 H28 L24 11 H16.3 L15.4 15.2 H23.4 L19.4 19.5 H14.5 L12.9 27 Z" fill="currentColor"/>
+    </symbol>
+    <symbol id="frostline-ice" viewBox="0 0 32 32">
+      <path d="M8 6 H28 L25.4 10.2 H13.8 V14.9 H23.2 L20.5 19.2 H13.8 V26.5 H8 Z" fill="currentColor"/>
+      <path d="M19.2 6 L16.9 10.2 M16.8 14.9 L14.6 19.2" fill="none" stroke="#07132d" stroke-width="1.9"/>
+    </symbol>
+  </svg>
   <main class="app" aria-label="Frostline Shootout hockey game">
     <header class="topbar">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <button id="brandLogoButton" class="brand-mark" type="button" aria-label="Open Logo Lab to compare Frostline F logos" title="Open Logo Lab">
+          <svg class="brand-glyph" viewBox="0 0 32 32" aria-hidden="true"><use id="brandLogoUse" href="#frostline-power"></use></svg>
+        </button>
         <div>
-          <p class="eyebrow">DEV BUILD · EXPERIMENTAL</p>
+          <p class="eyebrow">DEV BUILD · EXPERIMENTAL · LOGO LAB</p>
           <h1>FROSTLINE<span> SHOOTOUT</span></h1>
           <p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p>
         </div>
@@ -65,14 +80,47 @@
             <button id="customizeButton" class="customize-button" type="button">✦ CUSTOMIZE TEAM</button>
             <button id="recordsButton" class="customize-button records-button" type="button">▤ RECORD BOOK</button>
           </div>
+          <button id="logoLabButton" class="logo-lab-trigger" type="button">✦ LOGO LAB · TRY 3 F DESIGNS</button>
           <button id="playButton" class="play-button" type="button">START GAME <span aria-hidden="true">↗</span></button>
           <span id="overlayHint" class="overlay-hint">30 SECONDS · UNLIMITED PUCKS · MORE MODES COMING</span>
         </div>
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.7-DEV</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.8-DEV</span></footer>
   </main>
+  <dialog id="logoLabDialog" class="logo-lab-dialog" aria-labelledby="logoLabTitle">
+    <div class="logo-lab-content">
+      <div class="customizer-head">
+        <div><p class="customizer-kicker">FROSTLINE · DEVELOPMENT EXPERIMENT</p><h2 id="logoLabTitle">THE F LOGO LAB</h2></div>
+        <button id="closeLogoLab" type="button" class="customizer-close" aria-label="Close Logo Lab">×</button>
+      </div>
+      <p class="logo-lab-intro">Same glowing badge. Three original two-bar F designs. Choose your favorite.</p>
+      <div class="logo-lab-choices" role="group" aria-label="Choose your Frostline F logo">
+        <button type="button" class="logo-choice" data-f-logo="power" aria-pressed="true">
+          <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-power"></use></svg></span>
+          <strong>A · POWER PLAY</strong><small>Bold and clear</small>
+        </button>
+        <button type="button" class="logo-choice" data-f-logo="speed" aria-pressed="false">
+          <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-speed"></use></svg></span>
+          <strong>B · SPEED RUSH</strong><small>Fast and sharp</small>
+        </button>
+        <button type="button" class="logo-choice" data-f-logo="ice" aria-pressed="false">
+          <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-ice"></use></svg></span>
+          <strong>C · ICE CUT</strong><small>Chiseled edges</small>
+        </button>
+      </div>
+      <div class="logo-lab-spotlight" aria-live="polite">
+        <span class="logo-spotlight-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use id="logoPreviewUse" href="#frostline-power"></use></svg></span>
+        <span><small>PREVIEW ON YOUR GAME HEADER</small><strong id="logoPreviewName">A · POWER PLAY</strong></span>
+      </div>
+      <p class="logo-lab-note">Test selection saves with this DEV player only. Stable keeps its original logo until you approve a winner.</p>
+      <div class="logo-lab-actions">
+        <button id="cancelLogoLab" type="button" class="logo-lab-cancel">CANCEL</button>
+        <button id="saveLogoLab" type="button" class="logo-lab-save">SAVE LOGO</button>
+      </div>
+    </div>
+  </dialog>
   <dialog id="playerDialog" class="profile-dialog" aria-labelledby="playerDialogTitle">
     <form id="playerForm" autocomplete="off">
       <p class="customizer-kicker">WELCOME TO FROSTLINE</p>

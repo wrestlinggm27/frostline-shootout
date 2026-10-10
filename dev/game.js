@@ -125,12 +125,21 @@
       const players = data.players.filter(p => p && typeof p.id === 'string' && cleanPlayerName(p.name)).map(p => ({
         id: p.id, name: cleanPlayerName(p.name),
         team: normalizeTeam(p.team),
+        logoVariant: typeof p.logoVariant === 'string' && ['power','speed','ice'].includes(p.logoVariant)
+          ? p.logoVariant : 'power',
         difficulty: Object.hasOwn(DIFFICULTIES, p.difficulty) ? p.difficulty : 'beer',
         records: p.records && typeof p.records === 'object' ? p.records : {}
       }));
       return { players, activeId: data.activeId, legacyClaimed: !!data.legacyClaimed };
     } catch { return blank; }
   }
+  const LOGO_VARIANTS = {
+    power: { name: 'A · POWER PLAY', symbol: '#frostline-power' },
+    speed: { name: 'B · SPEED RUSH', symbol: '#frostline-speed' },
+    ice: { name: 'C · ICE CUT', symbol: '#frostline-ice' }
+  };
+  const normalizeLogo = value => Object.hasOwn(LOGO_VARIANTS, value) ? value : 'power';
+
   const profileDB = loadProfileDB();
   function saveProfileDB() {
     try { devStorage.setItem(PROFILE_DB_KEY, JSON.stringify(profileDB)); }
@@ -1253,6 +1262,7 @@
     game.profile = profile;
     profileDB.activeId = profile.id;
     applyTeam(profile.team);
+    applyLogo(normalizeLogo(profile.logoVariant));
     $('menuPlayerName').textContent = profile.name.toUpperCase();
     setDifficulty(profile.difficulty);
     returnToArcadeMenu();
@@ -1305,6 +1315,7 @@
       id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9),
       name,
       team: firstProfile ? loadTeam() : normalizeTeam(null),
+      logoVariant: 'power',
       difficulty: firstProfile ? initialDifficulty : 'beer',
       records: { arcade: {} }
     };
@@ -1348,6 +1359,47 @@
   }
   $('recordsButton').addEventListener('click', openRecords);
   $('closeRecords').addEventListener('click', () => recordDialog.close());
+
+  // Logo Lab is a DEV-only brand experiment. The player's chosen preview is
+  // saved with their DEV profile; the Stable mark and data are never touched.
+  const logoDialog = $('logoLabDialog');
+  const logoChoices = [...document.querySelectorAll('[data-f-logo]')];
+  let logoDraft = 'power';
+  function applyLogo(kind) {
+    const logo = LOGO_VARIANTS[normalizeLogo(kind)];
+    $('brandLogoUse').setAttribute('href', logo.symbol);
+    $('logoPreviewUse').setAttribute('href', logo.symbol);
+    $('logoPreviewName').textContent = logo.name;
+    for (const button of logoChoices) {
+      button.setAttribute('aria-pressed', String(button.dataset.fLogo === normalizeLogo(kind)));
+    }
+  }
+  function openLogoLab() {
+    if (game.mode === 'playing' || game.mode === 'ending' || logoDialog.open || !game.profile) return;
+    logoDraft = normalizeLogo(game.profile.logoVariant);
+    applyLogo(logoDraft);
+    logoDialog.showModal();
+  }
+  function cancelLogoLab() {
+    applyLogo(normalizeLogo(game.profile?.logoVariant));
+    logoDialog.close();
+  }
+  $('logoLabButton').addEventListener('click', openLogoLab);
+  $('brandLogoButton').addEventListener('click', openLogoLab);
+  $('cancelLogoLab').addEventListener('click', cancelLogoLab);
+  $('closeLogoLab').addEventListener('click', cancelLogoLab);
+  logoDialog.addEventListener('cancel', event => { event.preventDefault(); cancelLogoLab(); });
+  logoChoices.forEach(button => button.addEventListener('click', () => {
+    logoDraft = normalizeLogo(button.dataset.fLogo);
+    applyLogo(logoDraft);
+  }));
+  $('saveLogoLab').addEventListener('click', () => {
+    if (!game.profile) return;
+    game.profile.logoVariant = logoDraft;
+    saveProfileDB();
+    logoDialog.close();
+  });
+  applyLogo('power');
 
   applyTeam(game.team);
   const resumed = profileDB.players.find(p => p.id === profileDB.activeId);
