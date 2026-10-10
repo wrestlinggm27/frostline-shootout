@@ -1,6 +1,16 @@
-# Frostline Shootout — Version 1.7
+# Frostline Shootout — DEV BUILD (based on V1.7)
+
+> **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
 A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with original graphics using plain HTML, CSS, and JavaScript. No installation, frameworks, or accounts. Crowd recordings are licensed and credited below.
+
+## Stable vs Development
+
+- [Stable game](https://wrestlinggm27.github.io/frostline-shootout/) — approved version played by everyone.
+- [Development preview](https://wrestlinggm27.github.io/frostline-shootout/dev/) — experiments and features under review; may contain bugs.
+- [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
+
+Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
 
 ## How to play
 
