@@ -11,7 +11,7 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 12
     steps:
       - name: Check out the game
         uses: actions/checkout@v4
@@ -23,5 +23,12 @@ jobs:
         run: |
           node --check game.js
           node --check tests/smoke.test.cjs
+          node --check tests/layout.test.cjs
       - name: Test onboarding, scores and basic gameplay
         run: node --test tests/smoke.test.cjs
+      - name: Install browser test tools
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify compact desktop and mobile menu fit
+        run: node --test tests/layout.test.cjs
