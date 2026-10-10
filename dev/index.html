@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071f54">
+  <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Frostline Shootout</title>
+  <link rel="stylesheet" href="style.css?v=1.7">
+  <script src="game.js?v=1.7" defer></script>
+</head>
+<body>
+  <main class="app" aria-label="Frostline Shootout hockey game">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <p class="eyebrow">DEV BUILD · EXPERIMENTAL</p>
+          <h1>FROSTLINE<span> SHOOTOUT</span></h1>
+          <p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p>
+        </div>
+      </div>
+      <button id="soundButton" class="sound-button" type="button" aria-label="Mute sound" title="Toggle sound">
+        <svg id="soundOnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 9a4 4 0 0 1 0 6M18.8 6a8 8 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <svg id="soundOffIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><path d="M4 9v6h4l5 4V5L8 9H4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m17 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <section class="scoreboard" aria-label="Live game statistics">
+      <div class="primary-stat"><span class="stat-label">GOALS</span><strong id="score" class="big-value">0</strong></div>
+      <div class="primary-stat timer-stat"><span class="stat-label">TIME LEFT</span><strong id="time" class="big-value">30.0<span class="time-unit">s</span></strong></div>
+      <div class="timer-track" aria-hidden="true"><div id="timeFill" class="timer-fill"></div></div>
+      <div class="secondary-stats">
+        <div><span>SHOTS</span><strong id="shots">0</strong></div>
+        <div><span>SAVES</span><strong id="saves">0</strong></div>
+        <div><span>MISSES</span><strong id="misses">0</strong></div>
+        <div><span>SHOOT %</span><strong id="percentage">0%</strong></div>
+        <div class="record"><span>BEST</span><strong id="best">0</strong></div>
+      </div>
+    </section>
+
+    <section class="rink-frame" id="rinkFrame" aria-label="Ice hockey rink. Start the game, then drag from the puck and release to shoot.">
+      <canvas id="rink" width="420" height="680" aria-label="Hockey puck, net and moving goalie"></canvas>
+      <div class="rink-vignette" aria-hidden="true"></div>
+      <div id="shotToast" class="shot-toast" aria-live="polite" aria-atomic="true"></div>
+      <div id="overlay" class="overlay">
+        <div class="overlay-card">
+          <div class="overlay-icon" aria-hidden="true">✦</div>
+          <p class="overlay-kicker">ARCADE SHOOTOUT · CLASSIC MODE</p>
+          <div class="player-bar"><span>PLAYER <strong id="menuPlayerName">NEW PLAYER</strong></span><button id="switchPlayerButton" type="button">SWITCH</button></div>
+          <h2 id="overlayTitle">THIRTY SECONDS.<br><em>ONE NET.</em></h2>
+          <p id="overlayCopy" class="overlay-copy">Pull back from the puck to aim, then let go to rip it. You can also flick it forward. Beat the goalie before the buzzer.</p>
+          <div id="endSummary" class="end-summary" hidden></div>
+          <div class="difficulty-select" role="group" aria-label="Choose goalie difficulty">
+            <p class="difficulty-label">PICK YOUR LEAGUE</p>
+            <div class="difficulty-options">
+              <button class="difficulty-choice" type="button" data-difficulty="pond" aria-pressed="false"><span>POND HOCKEY</span><small>EASY</small></button>
+              <button class="difficulty-choice" type="button" data-difficulty="beer" aria-pressed="true"><span>BEER LEAGUE</span><small>MEDIUM</small></button>
+              <button class="difficulty-choice" type="button" data-difficulty="show" aria-pressed="false"><span>THE SHOW</span><small>HARD</small></button>
+            </div>
+            <p class="difficulty-description" id="difficultyDescription">A competitive goalie. A fair challenge.</p>
+          </div>
+          <div class="menu-utility-actions">
+            <button id="customizeButton" class="customize-button" type="button">✦ CUSTOMIZE TEAM</button>
+            <button id="recordsButton" class="customize-button records-button" type="button">▤ RECORD BOOK</button>
+          </div>
+          <button id="playButton" class="play-button" type="button">START GAME <span aria-hidden="true">↗</span></button>
+          <span id="overlayHint" class="overlay-hint">30 SECONDS · UNLIMITED PUCKS · MORE MODES COMING</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.7-DEV</span></footer>
+  </main>
+  <dialog id="playerDialog" class="profile-dialog" aria-labelledby="playerDialogTitle">
+    <form id="playerForm" autocomplete="off">
+      <p class="customizer-kicker">WELCOME TO FROSTLINE</p>
+      <h2 id="playerDialogTitle">WHO'S HITTING THE ICE?</h2>
+      <p class="profile-intro">Choose a player name to keep your team and Arcade Shootout records together on this device.</p>
+      <div id="existingPlayerSection" hidden>
+        <p class="customizer-label">WELCOME BACK · SELECT A PLAYER</p>
+        <div id="existingPlayers" class="existing-players"></div>
+      </div>
+      <label class="customizer-label" for="playerNameInput">NEW PLAYER NAME</label>
+      <input id="playerNameInput" name="playerName" type="text" minlength="2" maxlength="18" placeholder="Enter your player name" required autocomplete="off">
+      <p id="playerError" class="player-error" role="alert" aria-live="polite"></p>
+      <button id="createPlayerButton" type="submit" class="save-team profile-submit">CONTINUE TO TEAM SETUP <span aria-hidden="true">↗</span></button>
+      <button id="closePlayerDialog" type="button" class="profile-back" hidden>BACK TO GAME</button>
+      <p class="profile-privacy">No account, payment, ads or online tracking. Player records are saved in this browser only.</p>
+    </form>
+  </dialog>
+  <dialog id="recordsDialog" class="profile-dialog records-dialog" aria-labelledby="recordsTitle">
+    <div class="records-content">
+      <div class="customizer-head"><div><p class="customizer-kicker">ARCADE SHOOTOUT · LOCAL RECORDS</p><h2 id="recordsTitle">YOUR RECORD BOOK</h2></div>
+        <button id="closeRecords" type="button" class="customizer-close" aria-label="Close record book">×</button></div>
+      <p id="recordsSubtitle" class="profile-intro">Your best 30-second performances.</p>
+      <div id="recordRows" class="record-rows"></div>
+      <p class="profile-privacy">Records are specific to this player and browser. Online leaderboards are not enabled.</p>
+    </div>
+  </dialog>
+  <dialog id="teamDialog" class="team-dialog" aria-labelledby="teamDialogTitle">
+    <form id="teamForm" autocomplete="off">
+      <div class="customizer-head">
+        <div><p class="customizer-kicker">YOUR CREW. YOUR COLORS.</p><h2 id="teamDialogTitle">CUSTOMIZE TEAM</h2></div>
+        <button id="closeTeamDialog" type="button" class="customizer-close" aria-label="Close team customizer">×</button>
+      </div>
+      <div class="team-preview">
+        <div class="preview-crest"><span id="previewInitials">BB</span></div>
+        <div><small>HOME TEAM</small><strong id="previewTeamName">BROADWAY BLUES</strong><span class="preview-stripes" aria-hidden="true"></span></div>
+      </div>
+      <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
+      <input type="text" id="teamNameInput" name="teamName" maxlength="24" placeholder="Your team name" required>
+      <p class="customizer-label preset-heading">QUICK COLOR THEMES</p>
+      <div class="team-presets" role="group" aria-label="Choose a starter team theme">
+        <button type="button" data-team-preset="broadway"><span class="preset-dot" style="--p:#0038A8;--s:#CE1126"></span>BROADWAY</button>
+        <button type="button" data-team-preset="ice"><span class="preset-dot" style="--p:#007E8A;--s:#EF7827"></span>ICEBREAKERS</button>
+        <button type="button" data-team-preset="aurora"><span class="preset-dot" style="--p:#5C2590;--s:#41D4DF"></span>AURORA</button>
+        <button type="button" data-team-preset="black"><span class="preset-dot" style="--p:#202837;--s:#F4B942"></span>BLACK ICE</button>
+      </div>
+      <div class="team-colors">
+        <label for="teamPrimary">PRIMARY <input id="teamPrimary" name="primary" type="color" value="#0038a8"></label>
+        <label for="teamSecondary">SECONDARY <input id="teamSecondary" name="secondary" type="color" value="#ce1126"></label>
+        <label for="teamTrim">TRIM <input id="teamTrim" name="trim" type="color" value="#ffffff"></label>
+      </div>
+      <p class="customizer-note">Your team is saved on this device. Colors change the rink and scoreboard, not the goalie difficulty.</p>
+      <div class="customizer-actions"><button id="cancelTeam" type="button" class="cancel-team">CANCEL</button><button type="submit" class="save-team">SAVE MY TEAM</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
