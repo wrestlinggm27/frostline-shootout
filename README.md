@@ -41,7 +41,7 @@ Then open http://localhost:8000 in your browser.
 
 ## Player onboarding, arcade mode and the record book (V1.6)
 
-The first time a browser opens the game, **Who’s Hitting the Ice?** requests a local **player name** (2–18 characters). After entering the name, the player is taken directly into **Build Your Team** to choose a team name, themed presets and three colors. Saving or selecting **Use Default Team** returns to the game’s menu.
+The first time a browser opens the game, **Who’s Hitting the Ice?** requests a local **player name** (2–18 characters). After entering the name, the player is taken directly into **Build Your Team** to choose a team name, themed presets and three colors. Saving or selecting **Keep This Team** returns to the game’s menu.
 
 - **Arcade Shootout** is the existing 30-second hockey shootout. The game explicitly labels it as a mode so **additional game styles can be introduced later without replacing it**. Other modes are not implemented yet.
 - Names are local **profile identifiers**, **not account sign-ins** or globally unique usernames. No password, server account, telemetry or purchase is required.
