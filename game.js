@@ -1152,7 +1152,7 @@
   function openTeamEditor(firstTime = false) {
     if (game.mode === 'playing' || game.mode === 'ending') return;
     $('teamDialogTitle').textContent = firstTime ? 'BUILD YOUR TEAM' : 'CUSTOMIZE TEAM';
-    $('cancelTeam').textContent = firstTime ? 'USE DEFAULT TEAM' : 'CANCEL';
+    $('cancelTeam').textContent = firstTime ? 'KEEP THIS TEAM' : 'CANCEL';
     const team = game.team;
     teamNameInput.value = team.name;
     teamPrimary.value = team.primary;
