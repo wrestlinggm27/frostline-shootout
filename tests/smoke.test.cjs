@@ -73,6 +73,7 @@ function boot(seed = {}) {
   }
   const leagues = ['pond', 'beer', 'show'].map(id => Object.assign(new MockNode(id), { dataset: { difficulty: id } }));
   const presets = ['broadway', 'ice', 'aurora', 'black'].map(id => Object.assign(new MockNode(id), { dataset: { teamPreset: id } }));
+  const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -80,6 +81,7 @@ function boot(seed = {}) {
     querySelectorAll(selector) {
       if (selector === '[data-difficulty]') return leagues;
       if (selector === '[data-team-preset]') return presets;
+      if (selector === '[data-f-logo]') return logoChoices;
       return [];
     },
     querySelector(selector) { return elem('query:' + selector); },
@@ -111,7 +113,7 @@ function boot(seed = {}) {
     cb(time);
   }
   function submit(id) { elem(id).emit('submit'); }
-  return { elem, leagues, presets, storage, localStorage, frame, submit, errors, raf };
+  return { elem, leagues, presets, logoChoices, storage, localStorage, frame, submit, errors, raf };
 }
 
 test('UI contains player, team and local record book elements', () => {
@@ -206,4 +208,43 @@ test('legacy high scores migrate once, each player stays independent', () => {
   assert.equal(reloaded.elem('teamNameDisplay').textContent, 'OLD HEROES');
   assert.equal(reloaded.elem('best').textContent, 7);
   assert.equal(reloaded.elem('difficultyStatus').textContent, 'THE SHOW');
+});
+
+test('DEV Logo Lab previews all three F styles, cancel restores, and saving persists per player', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Logo Tester';
+  t.submit('playerForm');
+  t.elem('cancelTeam').emit('click');
+
+  t.elem('logoLabButton').emit('click');
+  assert.equal(t.elem('logoLabDialog').open, true);
+  t.logoChoices[1].emit('click');
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-speed');
+  assert.equal(t.elem('logoPreviewUse').getAttribute('href'), '#frostline-speed');
+  t.elem('cancelLogoLab').emit('click');
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-power');
+
+  t.elem('brandLogoButton').emit('click');
+  t.logoChoices[2].emit('click');
+  assert.equal(t.elem('logoPreviewName').textContent, 'C · ICE CUT');
+  t.elem('saveLogoLab').emit('click');
+  assert.equal(t.elem('logoLabDialog').open, false);
+  let saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].logoVariant, 'ice');
+
+  const again = boot(Object.fromEntries(t.storage));
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
+  again.elem('switchPlayerButton').emit('click');
+  again.elem('playerNameInput').value = 'Second Player';
+  again.submit('playerForm');
+  again.elem('cancelTeam').emit('click');
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-power');
+  again.elem('switchPlayerButton').emit('click');
+  again.elem('existingPlayers').children[0].emit('click');
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
+  saved = JSON.parse(again.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players.length, 2);
+  assert.equal(saved.players[0].logoVariant, 'ice');
+  assert.equal(saved.players[1].logoVariant, 'power');
 });
