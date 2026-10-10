@@ -62,6 +62,34 @@
     aurora: { name: 'Aurora', primary: '#5c2590', secondary: '#41d4df', trim: '#ffffff' },
     black: { name: 'Black Ice', primary: '#202837', secondary: '#f4b942', trim: '#ffffff' }
   };
+  // Original hockey crests. Each team's identity is a serializable design ID
+  // and palette, reusable later when opponents are introduced.
+  const CREST_ART = {
+    monogram: { label: 'Captain', shapes: [] },
+    wolf: { label: 'Wolf', shapes: [
+      { d: 'M27 45 L35 32 L43 46 L50 41 L57 46 L65 32 L73 45 L71 69 L61 82 L50 75 L39 82 L29 69 Z' },
+      { d: 'M37 56 L45 59 L39 63 Z M55 59 L63 56 L61 63 Z', mode: 'cutout' },
+      { d: 'M44 67 L56 67 L50 73 Z', mode: 'cutout' }
+    ] },
+    bolt: { label: 'Lightning', shapes: [
+      { d: 'M55 29 L35 60 H51 L43 86 L70 52 H53 L63 29 Z' }
+    ] },
+    sticks: { label: 'Crossed Sticks', shapes: [
+      { d: 'M30 37 L67 77 M69 37 L32 78', mode: 'stroke' },
+      { d: 'M67 77 Q74 80 76 72 M32 78 Q26 80 24 73', mode: 'stroke' },
+      { d: 'M44 81 H56 V85 H44 Z' }
+    ] },
+    star: { label: 'Star', shapes: [
+      { d: 'M50 27 L58 47 L79 48 L63 62 L69 84 L50 72 L31 84 L37 62 L21 48 L42 47 Z' }
+    ] },
+    mountain: { label: 'Summit', shapes: [
+      { d: 'M23 78 L44 39 L55 58 L64 44 L78 78 Z' },
+      { d: 'M35 57 L44 39 L52 54 L44 51 L40 59 Z M58 55 L64 44 L72 59 L64 56 Z', mode: 'cutout' }
+    ] }
+  };
+  const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
+  const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
+  const SHIELD_INNER = 'M50 14 L79 24 L77 61 Q74 83 50 101 Q26 83 23 61 L21 24 Z';
   const validHex = color => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
   function normalizeTeam(value) {
     const fallback = TEAM_PRESETS.broadway;
@@ -69,8 +97,85 @@
       name: typeof value?.name === 'string' ? (value.name.trim().slice(0, 24) || fallback.name) : fallback.name,
       primary: validHex(value?.primary) ? value.primary.toLowerCase() : fallback.primary,
       secondary: validHex(value?.secondary) ? value.secondary.toLowerCase() : fallback.secondary,
-      trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim
+      trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim,
+      crest: normalizeCrest(value?.crest)
     };
+  }
+  function makeCrestSvg(team, className = '') {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const create = (tag, attrs) => {
+      const node = document.createElementNS(svgNS, tag);
+      Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+      return node;
+    };
+    const svg = create('svg', { viewBox: '0 0 100 116', 'aria-hidden': 'true', class: className });
+    svg.append(create('path', { d: SHIELD_OUTER, fill: team.secondary, stroke: team.trim, 'stroke-width': 2.4 }));
+    svg.append(create('path', { d: SHIELD_INNER, fill: team.primary, stroke: team.trim, 'stroke-width': 1.5 }));
+    svg.append(create('path', { d: 'M30 28 H70', fill: 'none', stroke: team.trim, 'stroke-width': 2, opacity: .65 }));
+    if (team.crest === 'monogram') {
+      const label = create('text', {
+        x: 50, y: 69, 'font-family': 'system-ui, sans-serif',
+        'font-weight': 1000, 'font-size': 29,
+        'text-anchor': 'middle', 'letter-spacing': -1.5, fill: team.trim
+      });
+      label.textContent = initialsFor(team.name);
+      svg.append(label);
+    } else {
+      for (const shape of CREST_ART[team.crest].shapes) {
+        const attrs = { d: shape.d, fill: shape.mode === 'stroke' ? 'none'
+          : shape.mode === 'cutout' ? team.secondary : team.trim };
+        if (shape.mode === 'stroke') {
+          attrs.stroke = team.trim;
+          attrs['stroke-width'] = 5.5;
+          attrs['stroke-linecap'] = 'round';
+          attrs['stroke-linejoin'] = 'round';
+        }
+        svg.append(create('path', attrs));
+      }
+    }
+    return svg;
+  }
+  function renderCrest(node, team, className = '') {
+    node.replaceChildren(makeCrestSvg(team, className));
+  }
+  function drawIceCrest(team) {
+    // Share the same shield geometry and symbol paths as the SVG preview.
+    // The center-ice logo is decorative; older test contexts without Path2D
+    // use the initials fallback.
+    ctx.save();
+    ctx.globalAlpha = .58;
+    if (typeof Path2D === 'function') {
+      ctx.translate(-27, -42);
+      ctx.scale(.54, .54);
+      ctx.fillStyle = team.secondary; ctx.strokeStyle = team.trim; ctx.lineWidth = 2.4;
+      const outer = new Path2D(SHIELD_OUTER);
+      ctx.fill(outer); ctx.stroke(outer);
+      ctx.fillStyle = team.primary; ctx.lineWidth = 1.5;
+      const inner = new Path2D(SHIELD_INNER);
+      ctx.fill(inner); ctx.stroke(inner);
+      ctx.strokeStyle = team.trim; ctx.lineWidth = 2; ctx.globalAlpha = .3;
+      ctx.beginPath(); ctx.moveTo(30, 28); ctx.lineTo(70, 28); ctx.stroke();
+      ctx.globalAlpha = .58;
+      if (team.crest === 'monogram') {
+        ctx.fillStyle = team.trim; ctx.font = '1000 29px system-ui, sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText(initialsFor(team.name), 50, 69, 54);
+      } else {
+        for (const shape of CREST_ART[team.crest].shapes) {
+          const path = new Path2D(shape.d);
+          if (shape.mode === 'stroke') {
+            ctx.strokeStyle = team.trim; ctx.lineWidth = 5.5;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(path);
+          } else {
+            ctx.fillStyle = shape.mode === 'cutout' ? team.secondary : team.trim;
+            ctx.fill(path);
+          }
+        }
+      }
+    } else {
+      ctx.fillStyle = team.primary; ctx.font = '1000 25px system-ui, sans-serif';
+      ctx.fillText(initialsFor(team.name), 0, 0, 57);
+    }
+    ctx.restore();
   }
   function loadTeam() {
     try { return normalizeTeam(JSON.parse(devStorage.getItem(TEAM_KEY))); }
@@ -935,10 +1040,7 @@
     ellipse(210, 414, 5, 5, game.team.secondary + '99');
     ctx.save(); ctx.translate(210, 399);
     ctx.textAlign = 'center';
-    ctx.globalAlpha = .5;
-    ellipse(0, -7, 33, 33, game.team.primary, game.team.secondary, 4);
-    ctx.fillStyle = game.team.trim; ctx.font = '1000 italic 25px system-ui, sans-serif';
-    ctx.fillText(initialsFor(game.team.name), 0, 1, 57);
+    drawIceCrest(game.team);
     ctx.globalAlpha = .55;
     ctx.fillStyle = game.team.primary; ctx.font = '900 11px system-ui, sans-serif';
     ctx.fillText(game.team.name.toUpperCase(), 0, 39, 170);
@@ -1149,6 +1251,12 @@
   const teamSecondary = $('teamSecondary');
   const teamTrim = $('teamTrim');
   const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
+  const crestButtons = [...document.querySelectorAll('[data-team-crest]')];
+  let crestDraft = 'monogram';
+  crestButtons.forEach(button => button.addEventListener('click', () => {
+    crestDraft = normalizeCrest(button.dataset.teamCrest);
+    updateTeamPreview();
+  }));
   function applyTeam(team) {
     game.team = normalizeTeam(team);
     if (game.profile) {
@@ -1167,15 +1275,21 @@
     root.setProperty('--team-deep', mixHex(game.team.primary, '#071020', .72));
     root.setProperty('--team-darker', mixHex(game.team.primary, '#020914', .91));
     $('teamNameDisplay').textContent = game.team.name.toUpperCase();
+    renderCrest($('headerTeamCrest'), game.team, 'small-team-crest');
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', mixHex(game.team.primary, '#020914', .91));
   }
   function currentEditorTeam() {
     return normalizeTeam({ name:teamNameInput.value, primary:teamPrimary.value,
-      secondary:teamSecondary.value, trim:teamTrim.value });
+      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft });
   }
   function updateTeamPreview() {
     const team = currentEditorTeam();
-    $('previewInitials').textContent = initialsFor(team.name);
+    renderCrest($('previewTeamCrest'), team, 'large-team-crest');
+    $('previewTeamCrest').setAttribute('aria-label', team.name + ' ' + CREST_ART[team.crest].label + ' shield');
+    crestButtons.forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.teamCrest === team.crest));
+      renderCrest(button.querySelector('.crest-choice-preview'), { ...team, crest: button.dataset.teamCrest }, 'option-team-crest');
+    });
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
     preview.style.setProperty('--preview-primary', team.primary);
@@ -1196,6 +1310,7 @@
     teamPrimary.value = team.primary;
     teamSecondary.value = team.secondary;
     teamTrim.value = team.trim;
+    crestDraft = normalizeCrest(team.crest);
     updateTeamPreview();
     teamDialog.showModal();
   }
