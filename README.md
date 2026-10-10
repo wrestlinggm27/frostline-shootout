@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V1.8: F Logo Lab
+# Frostline Shootout — DEV V1.9: Team Crest Studio
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,18 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## Team Crest Studio — DEV V1.9
+
+The **Customize Team** screen now includes six completely original team shield emblems: **Captain (initials), Wolf, Lightning, Crossed Sticks, Star, and Summit**. Pick a shield as part of your existing team name and three-color customization.
+
+- Each shield uses the selected primary, secondary, and trim colors, with a live preview alongside the team name and quick-theme presets.
+- The chosen emblem appears **beside the team name in the game header** and **on center ice** during Arcade Shootout. It remains decorative and does not change shooting, scoring, difficulty, or audio.
+- Both existing DEV profiles and new players get a valid default Captain crest; choosing a different crest stores its identifier in the player's existing `team` profile object alongside name and colors. The whole identity is intentionally portable for a future head-to-head matchup display.
+- Choosing a shield updates the preview only until **Save My Team** is selected. **Cancel** restores the previous saved identity. Each local DEV player can save a separate shield.
+- The icons and shield shapes are rendered from our original vector geometry, no NHL/team licensing or external art needed.
+- **Head-to-head/showdowns and goalie-controlled multiplayer are future ideas only**, not implemented in V1.9.
+- Stable V1.7.1 stays unchanged. Development profiles continue using separate `frostline-dev:` browser storage.
 
 ## F Logo Lab — Development experiment (V1.8)
 
