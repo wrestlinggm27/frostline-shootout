@@ -1,5 +1,25 @@
 # Frostline Shootout — Version 1.7
 
+## Stable and Development environments
+
+Frostline now has two independently playable sites, with the **same compact arcade interface**:
+
+| Environment | Website | Development source | Purpose |
+|---|---|---|---|
+| Stable V1.7 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
+
+**Release process:**
+1. Make new game changes **only to the `dev` branch**.
+2. Run the automated quality tests for the dev branch.
+3. Preview the updated build by mirroring the development files to the separate `/dev/` site directory. The `main` branch's root gameplay files must **not** be changed during this preview process.
+4. Review and play-test the development URL. Only after approval, carefully promote tested game files into Stable and update the version/README.
+5. Keep Stable player data and Dev player data independent: the development JavaScript prefixes its browser storage keys with `frostline-dev:`.
+
+**Important limitations:** Both preview URLs are publicly viewable. Development preview mirroring is intentionally an explicit approval/review step, not an automatic Stable deployment. GitHub Pages publishes the Stable root plus its `dev/` directory from the `main` branch. The preview does **not** auto-update merely because someone commits to the `dev` source branch. Do not use the DEV preview as a permanent home for personal records.
+
+
+
 A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with original graphics using plain HTML, CSS, and JavaScript. No installation, frameworks, or accounts. Crowd recordings are licensed and credited below.
 
 ## How to play
