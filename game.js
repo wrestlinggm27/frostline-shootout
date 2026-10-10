@@ -52,40 +52,248 @@
     statsRefresh: 0
   };
 
-  // Native Web Audio tones mean no sound files, CDN, or copyrighted assets.
-  function playSound(kind) {
-    if (!game.audioEnabled) return;
+  // Original, procedural arena audio. No licensed clips or network requests.
+  // Web Audio is unlocked by Start Game / pointer interaction on mobile Safari.
+  const arenaAudio = { master: null, noise: null, windup: null, crowd: null, horn: null };
+
+  function audioReady() {
+    if (!game.audioEnabled) return null;
     try {
       const Audio = window.AudioContext || window.webkitAudioContext;
-      if (!Audio) return;
+      if (!Audio) return null;
       if (!game.audioContext) game.audioContext = new Audio();
       const ac = game.audioContext;
       if (ac.state === 'suspended') ac.resume().catch(() => {});
-      const notes = {
-        fire: [[165, 75, .07, 'triangle']],
-        goal: [[440, 660, .16, 'triangle'], [660, 990, .20, 'sine']],
-        save: [[175, 92, .17, 'sawtooth']],
-        post: [[760, 430, .24, 'triangle']],
-        miss: [[180, 115, .13, 'sine']]
-      }[kind] || [];
-      notes.forEach(([start, end, duration, type], i) => {
-        const osc = ac.createOscillator();
-        const gain = ac.createGain();
-        const t = ac.currentTime + i * .045;
-        osc.type = type;
-        osc.frequency.setValueAtTime(start, t);
-        osc.frequency.exponentialRampToValueAtTime(Math.max(35, end), t + duration);
-        gain.gain.setValueAtTime(.0001, t);
-        gain.gain.exponentialRampToValueAtTime(.07, t + .015);
-        gain.gain.exponentialRampToValueAtTime(.0001, t + duration);
-        osc.connect(gain); gain.connect(ac.destination);
-        osc.start(t); osc.stop(t + duration + .02);
+      if (!arenaAudio.master) {
+        const compressor = ac.createDynamicsCompressor();
+        compressor.threshold.value = -16;
+        compressor.knee.value = 12;
+        compressor.ratio.value = 3;
+        compressor.attack.value = .004;
+        compressor.release.value = .18;
+        const master = ac.createGain();
+        master.gain.value = .74;
+        master.connect(compressor);
+        compressor.connect(ac.destination);
+        arenaAudio.master = master;
+      }
+      return ac;
+    } catch { return null; }
+  }
+
+  function volumeFade(gain, t, peak, attack, duration) {
+    gain.gain.setValueAtTime(.0001, t);
+    gain.gain.linearRampToValueAtTime(Math.max(.0001, peak), t + attack);
+    gain.gain.setValueAtTime(Math.max(.0001, peak), t + Math.max(attack, duration * .5));
+    gain.gain.exponentialRampToValueAtTime(.0001, t + duration);
+  }
+
+  function getNoise(ac) {
+    if (!arenaAudio.noise) {
+      const buffer = ac.createBuffer(1, Math.ceil(ac.sampleRate * 3.4), ac.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      arenaAudio.noise = buffer;
+    }
+    return arenaAudio.noise;
+  }
+
+  function noiseBurst(ac, t, duration, center, q, peak, output, attack = .012) {
+    const src = ac.createBufferSource();
+    src.buffer = getNoise(ac);
+    const filter = ac.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = center;
+    filter.Q.value = q;
+    const gain = ac.createGain();
+    volumeFade(gain, t, peak, attack, duration);
+    src.connect(filter); filter.connect(gain); gain.connect(output);
+    src.start(t); src.stop(t + duration + .015);
+  }
+
+  // Filtered pitched voices let us make little "Oooo" boos and "Aaah" cheers
+  // rather than simply changing an oscillator note.
+  function crowdVoice(ac, t, duration, vowel, pitch, peak, output) {
+    const osc = ac.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(pitch, t);
+    osc.frequency.linearRampToValueAtTime(pitch * (vowel === 'oo' ? .77 : 1.15), t + duration);
+    const voiced = ac.createGain();
+    volumeFade(voiced, t, peak, .09 + Math.random() * .18, duration);
+    const frequencies = vowel === 'oo' ? [380, 900, 2300] : [780, 1330, 2600];
+    const levels = vowel === 'oo' ? [.60, .27, .13] : [.53, .34, .13];
+    frequencies.forEach((freq, i) => {
+      const filter = ac.createBiquadFilter();
+      filter.type = 'bandpass'; filter.frequency.value = freq * (.94 + Math.random() * .12);
+      filter.Q.value = i === 0 ? 2 : 3;
+      const band = ac.createGain(); band.gain.value = levels[i];
+      osc.connect(filter); filter.connect(band); band.connect(voiced);
+    });
+    voiced.connect(output);
+    osc.start(t); osc.stop(t + duration + .025);
+  }
+
+  function replaceAtmosphere(ac, kind) {
+    const t = ac.currentTime;
+    if (arenaAudio.crowd) {
+      const old = arenaAudio.crowd;
+      old.gain.cancelScheduledValues(t);
+      old.gain.setValueAtTime(Math.max(.0001, old.gain.value), t);
+      old.gain.exponentialRampToValueAtTime(.0001, t + .08);
+    }
+    const bus = ac.createGain();
+    bus.gain.value = 1;
+    bus.connect(arenaAudio.master);
+    arenaAudio.crowd = bus;
+    const cheering = kind === 'cheer';
+    const duration = cheering ? 2.25 : 1.5;
+    noiseBurst(ac, t + .05, duration, cheering ? 1250 : 540, .54,
+      cheering ? .25 : .15, bus, .17);
+    const count = cheering ? 9 : 7;
+    for (let i = 0; i < count; i++) {
+      const offset = .03 + Math.random() * (cheering ? .36 : .18);
+      const voiceDuration = duration - offset - .03;
+      crowdVoice(ac, t + offset, voiceDuration, cheering ? 'ah' : 'oo',
+        (cheering ? 130 : 110) + Math.random() * (cheering ? 170 : 65),
+        cheering ? .048 : .057, bus);
+    }
+  }
+
+  function startWindup() {
+    if (arenaAudio.windup || !game.audioEnabled) return;
+    const ac = audioReady();
+    if (!ac) return;
+    try {
+      const t = ac.currentTime;
+      const osc = ac.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.value = 145;
+      const voice = ac.createGain();
+      voice.gain.setValueAtTime(.0001, t);
+      // Three vowel formants approximate an excited player's "ahhhhh".
+      [780, 1300, 2450].forEach((freq, i) => {
+        const filter = ac.createBiquadFilter();
+        filter.type = 'bandpass'; filter.frequency.value = freq;
+        filter.Q.value = i === 0 ? 2.4 : 3.2;
+        const band = ac.createGain(); band.gain.value = [.50, .35, .15][i];
+        osc.connect(filter); filter.connect(band); band.connect(voice);
       });
-    } catch { /* Sound is optional. */ }
+      voice.connect(arenaAudio.master);
+      const wobble = ac.createOscillator(); wobble.frequency.value = 5.8;
+      const wobbleDepth = ac.createGain(); wobbleDepth.gain.value = 3.2;
+      wobble.connect(wobbleDepth); wobbleDepth.connect(osc.frequency);
+      osc.start(t); wobble.start(t);
+      arenaAudio.windup = { osc, wobble, voice };
+    } catch { /* Optional audio must never break the swipe mechanic. */ }
+  }
+
+  function updateWindup(pull) {
+    if (!game.audioEnabled || pull < 14) return;
+    startWindup();
+    const sound = arenaAudio.windup;
+    if (!sound || !game.audioContext) return;
+    const t = game.audioContext.currentTime;
+    const strength = clamp((pull - 14) / 125, 0, 1);
+    sound.osc.frequency.setTargetAtTime(135 + strength * 95, t, .065);
+    sound.voice.gain.setTargetAtTime(.034 + strength * .09, t, .05);
+  }
+
+  function stopWindup() {
+    const sound = arenaAudio.windup;
+    if (!sound || !game.audioContext) return;
+    arenaAudio.windup = null;
+    const t = game.audioContext.currentTime;
+    sound.voice.gain.cancelScheduledValues(t);
+    sound.voice.gain.setValueAtTime(Math.max(.0001, sound.voice.gain.value), t);
+    sound.voice.gain.exponentialRampToValueAtTime(.0001, t + .055);
+    try { sound.osc.stop(t + .07); sound.wobble.stop(t + .07); } catch {}
+  }
+
+  function playSlapshot(ac) {
+    const t = ac.currentTime;
+    // Stick-on-ice scrape, a double wooden crack, then short low puck "thock".
+    noiseBurst(ac, t, .09, 1950, .8, .55, arenaAudio.master, .002);
+    noiseBurst(ac, t + .014, .074, 530, 1.7, .51, arenaAudio.master, .002);
+    const osc = ac.createOscillator(); osc.type = 'triangle';
+    const gain = ac.createGain();
+    osc.frequency.setValueAtTime(240, t);
+    osc.frequency.exponentialRampToValueAtTime(86, t + .11);
+    volumeFade(gain, t, .32, .003, .13);
+    osc.connect(gain); gain.connect(arenaAudio.master);
+    osc.start(t); osc.stop(t + .15);
+  }
+
+  function playHorn(ac) {
+    const t = ac.currentTime;
+    if (arenaAudio.horn) {
+      const old = arenaAudio.horn;
+      old.gain.cancelScheduledValues(t);
+      old.gain.setValueAtTime(Math.max(.0001, old.gain.value), t);
+      old.gain.exponentialRampToValueAtTime(.0001, t + .07);
+    }
+    const bus = ac.createGain(); bus.gain.value = 1;
+    bus.connect(arenaAudio.master); arenaAudio.horn = bus;
+    // Original two-blast arena siren/horn, not an NHL club recording.
+    [.0, .77].forEach((offset, index) => {
+      const start = t + offset;
+      const duration = index === 0 ? .60 : .82;
+      [233, 349.5, 466].forEach((freq, i) => {
+        const osc = ac.createOscillator(); osc.type = i === 2 ? 'triangle' : 'sawtooth';
+        const lowpass = ac.createBiquadFilter(); lowpass.type = 'lowpass';
+        lowpass.frequency.value = i === 2 ? 1300 : 900;
+        osc.frequency.setValueAtTime(freq * .986, start);
+        osc.frequency.linearRampToValueAtTime(freq * 1.012, start + duration);
+        const gain = ac.createGain();
+        volumeFade(gain, start, [.16, .11, .055][i], .045, duration);
+        osc.connect(lowpass); lowpass.connect(gain); gain.connect(bus);
+        osc.start(start); osc.stop(start + duration + .02);
+      });
+    });
+  }
+
+  function playSound(kind) {
+    if (!game.audioEnabled) return;
+    const ac = audioReady();
+    if (!ac) return;
+    try {
+      if (kind === 'fire') playSlapshot(ac);
+      if (kind === 'goal') { playHorn(ac); replaceAtmosphere(ac, 'cheer'); }
+      if (kind === 'miss' || kind === 'post') {
+        if (kind === 'post') {
+          const t = ac.currentTime;
+          [940, 1495, 2185].forEach((hz, i) => {
+            const osc = ac.createOscillator(); osc.type = 'sine';
+            const gain = ac.createGain();
+            osc.frequency.value = hz;
+            volumeFade(gain, t, .14 / (i + 1), .003, .34 + i * .1);
+            osc.connect(gain); gain.connect(arenaAudio.master);
+            osc.start(t); osc.stop(t + .59);
+          });
+        }
+        replaceAtmosphere(ac, 'boo');
+      }
+      if (kind === 'save') {
+        const t = ac.currentTime;
+        noiseBurst(ac, t, .13, 500, 1.3, .25, arenaAudio.master, .005);
+        const osc = ac.createOscillator(); osc.type = 'triangle';
+        const gain = ac.createGain();
+        osc.frequency.setValueAtTime(195, t);
+        osc.frequency.exponentialRampToValueAtTime(92, t + .16);
+        volumeFade(gain, t, .16, .005, .18);
+        osc.connect(gain); gain.connect(arenaAudio.master);
+        osc.start(t); osc.stop(t + .2);
+      }
+    } catch { /* Browsers without Web Audio still play silently. */ }
   }
 
   soundButton.addEventListener('click', () => {
     game.audioEnabled = !game.audioEnabled;
+    if (!game.audioEnabled) stopWindup();
+    if (arenaAudio.master && game.audioContext) {
+      const t = game.audioContext.currentTime;
+      arenaAudio.master.gain.setTargetAtTime(game.audioEnabled ? .74 : 0, t, .025);
+    }
+    if (game.audioEnabled) audioReady();
     soundOnIcon.hidden = !game.audioEnabled;
     soundOffIcon.hidden = game.audioEnabled;
     soundButton.setAttribute('aria-label', game.audioEnabled ? 'Mute sound' : 'Turn sound on');
@@ -113,6 +321,8 @@
   }
 
   function startGame() {
+    stopWindup();
+    audioReady(); // Start button provides the user gesture Safari needs.
     game.mode = 'playing';
     game.remaining = ROUND_SECONDS;
     game.elapsed = 0;
@@ -136,6 +346,7 @@
 
   function finishGame() {
     if (game.mode === 'finished') return;
+    stopWindup();
     game.mode = 'finished';
     game.aiming = null;
     game.cooldown = 0;
@@ -260,12 +471,18 @@
     if (!game.aiming || event.pointerId !== game.aiming.pointerId) return;
     event.preventDefault();
     game.aiming.current = worldPoint(event);
+    const a = game.aiming;
+    const dx = a.current.x - a.origin.x;
+    const dy = a.current.y - a.origin.y;
+    if (dy > 0) updateWindup(Math.hypot(dx, dy));
+    else stopWindup();
   });
 
   function releaseAim(event, canceled = false) {
     if (!game.aiming || event.pointerId !== game.aiming.pointerId) return;
     event.preventDefault();
     const aim = game.aiming;
+    stopWindup();
     game.aiming = null;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     if (canceled || game.mode !== 'playing') return;
@@ -278,7 +495,10 @@
   canvas.addEventListener('pointerup', (event) => releaseAim(event));
   canvas.addEventListener('pointercancel', (event) => releaseAim(event, true));
   canvas.addEventListener('lostpointercapture', (event) => {
-    if (game.aiming?.pointerId === event.pointerId) game.aiming = null;
+    if (game.aiming?.pointerId === event.pointerId) {
+      game.aiming = null;
+      stopWindup();
+    }
   });
   canvas.addEventListener('contextmenu', event => event.preventDefault());
 
@@ -376,6 +596,7 @@
       if (game.remaining <= 0) {
         game.mode = 'ending';
         game.aiming = null;
+        stopWindup();
       }
     }
     if (game.mode === 'playing' || game.mode === 'ending') {
