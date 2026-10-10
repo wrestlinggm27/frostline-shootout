@@ -1,6 +1,6 @@
-# Frostline Shootout — Version 1
+# Frostline Shootout — Version 1.3
 
-A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with original graphics using plain HTML, CSS, and JavaScript. No installation, frameworks, accounts, or third-party assets.
+A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with original graphics using plain HTML, CSS, and JavaScript. No installation, frameworks, or accounts. Crowd recordings are licensed and credited below.
 
 ## How to play
 
@@ -18,7 +18,9 @@ You can see your aim and power while dragging. There are unlimited pucks, but on
 - `index.html` — Game page, scoreboard, start and results screens.
 - `style.css` — Responsive layout and arcade styling.
 - `game.js` — Controls, shot trajectory, goalie AI, collision detection, timer, sound, original Canvas art.
-- `README.md` — Setup and playing instructions.
+- `assets/crowd-cheer.mp3` — Real stadium cheering, licensed from Pixabay.
+- `assets/crowd-groan.wav` — Real crowd disappointment, CC0.
+- `README.md` — Setup and playing instructions and asset credits.
 
 ## Running it
 
@@ -43,16 +45,23 @@ Then open http://localhost:8000 in your browser.
 - **Misses:** shots wide, off the post, or off the crossbar.
 - **Shoot %:** goals divided by shots, rounded to the nearest percent.
 - **Best:** highest goals scored in any single round, saved in this browser's `localStorage` (separate per browser/device).
-- You can toggle simple synthesized game sounds at the top right.
+- You can toggle arena sounds at the top right. Stick effects and goal horn are synthesized; cheering and crowd disappointment use recorded audio.
 - `Play Again` resets the round, timer, shot state, goalie and live stats; your personal best is preserved.
 
 ## Technical notes
 
 - Uses Pointer Events with pointer capture for mouse, iOS touch, and Android touch. Touch gestures over the rink cannot accidentally scroll the page.
 - An adaptable virtual 420×680 rink keeps the shooting physics consistent across screen sizes; the actual canvas is sized for the device pixel ratio.
-- No data leaves your device. Sounds are generated in the browser using the Web Audio API.
+- There are no analytics, accounts, or gameplay uploads. Audio is handled by the Web Audio API; two licensed crowd recordings ship with the project.
 - If the page is hidden, the game pauses while it is in the background.
 
 ## Possible improvements after playing V1
 
 Shot feel and goalie balance may need tuning based on your feedback. Additional visual/sound polish, animations, and an optional practice mode can follow later, but they are deliberately out of scope for V1.
+
+## Recorded crowd sound credits (Version 1.3)
+
+- **Stadium cheer:** “Crowd Cheering in Stadium” by **vishiv**, available via [Pixabay](https://pixabay.com/sound-effects/people-crowd-cheering-in-stadium-435357/), distributed under the [Pixabay Content License](https://pixabay.com/service/license-summary/). Game file adapted from the documented web-optimized version in [opstiger/aiba-percent-battle](https://github.com/opstiger/aiba-percent-battle/blob/main/assets/aiba-audio/SOURCE.md). Used as part of gameplay, not as a standalone sound library.
+- **Miss/disappointment crowd:** A short cut of “Crowd Ouch.wav” by **deleted_user_2104797**, from [Freesound](https://freesound.org/people/deleted_user_2104797/sounds/324897/), under **Creative Commons Zero (CC0)**. The game uses a wave clip (`crowdOoo3.wav`) already prepared in [kyperbelt/GGJ2024](https://github.com/kyperbelt/GGJ2024). 
+
+The procedural audio engine remains the fallback for devices that cannot load the recordings. All graphics are original; no NHL recordings or logos are used.
