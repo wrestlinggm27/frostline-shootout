@@ -43,6 +43,39 @@
     } catch { return 'beer'; }
   }
   const initialDifficulty = readDifficulty();
+  const TEAM_KEY = 'frostline-shootout-personal-team-v1';
+  // Original palette themes. Broadway Blues is inspired by New York hockey colors,
+  // but all team names and artwork in this game are fictional.
+  const TEAM_PRESETS = {
+    broadway: { name: 'Broadway Blues', primary: '#0038a8', secondary: '#ce1126', trim: '#ffffff' },
+    ice: { name: 'Icebreakers', primary: '#007e8a', secondary: '#ef7827', trim: '#ffffff' },
+    aurora: { name: 'Aurora', primary: '#5c2590', secondary: '#41d4df', trim: '#ffffff' },
+    black: { name: 'Black Ice', primary: '#202837', secondary: '#f4b942', trim: '#ffffff' }
+  };
+  const validHex = color => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
+  function normalizeTeam(value) {
+    const fallback = TEAM_PRESETS.broadway;
+    return {
+      name: typeof value?.name === 'string' ? (value.name.trim().slice(0, 24) || fallback.name) : fallback.name,
+      primary: validHex(value?.primary) ? value.primary.toLowerCase() : fallback.primary,
+      secondary: validHex(value?.secondary) ? value.secondary.toLowerCase() : fallback.secondary,
+      trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim
+    };
+  }
+  function loadTeam() {
+    try { return normalizeTeam(JSON.parse(localStorage.getItem(TEAM_KEY))); }
+    catch { return normalizeTeam(null); }
+  }
+  function mixHex(first, second, factor) {
+    const a = first.replace('#',''), b = second.replace('#','');
+    const components = [0,2,4].map(i => Math.round(parseInt(a.slice(i,i+2),16)*(1-factor)+parseInt(b.slice(i,i+2),16)*factor));
+    return '#' + components.map(n => n.toString(16).padStart(2,'0')).join('');
+  }
+  function initialsFor(name) {
+    const words = name.toUpperCase().split(/\s+/).filter(Boolean);
+    return words.length >= 2 ? words.slice(0,3).map(w=>w[0]).join('') : (words[0] || 'BB').slice(0,2);
+  }
+
 
   const $ = (id) => document.getElementById(id);
   const canvas = $('rink');
@@ -83,7 +116,7 @@
 
   const game = {
     mode: 'idle', remaining: ROUND_SECONDS, elapsed: 0, bestAtStart: 0,
-    difficulty: initialDifficulty,
+    difficulty: initialDifficulty, team: loadTeam(),
     goals: 0, shots: 0, saves: 0, misses: 0, best: readBest(initialDifficulty),
     puck: { ...PUCK_START, moving: false, vx: 0, vy: 0, trail: [] },
     goalie: { x: 210, targetX: 210, lean: 0, flash: 0 },
@@ -794,7 +827,7 @@
     iceFlecks.forEach(p => { ctx.globalAlpha = p.a; ellipse(p.x, p.y, p.r, p.r, '#4e95ac'); });
     ctx.globalAlpha = 1;
 
-    ctx.strokeStyle = '#418bcaa0'; ctx.lineWidth = 7;
+    ctx.strokeStyle = game.team.primary + '99'; ctx.lineWidth = 7;
     ctx.beginPath(); ctx.moveTo(11, 319); ctx.lineTo(409, 319); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(11, 498); ctx.lineTo(409, 498); ctx.stroke();
     ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff7a';
@@ -802,15 +835,19 @@
     ctx.beginPath(); ctx.moveTo(11, 495); ctx.lineTo(409, 495); ctx.stroke();
 
     // Original rink markings: center ice faceoff circle and stick hash lines.
-    ctx.strokeStyle = '#db6a7690'; ctx.lineWidth = 3;
+    ctx.strokeStyle = game.team.secondary + '99'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(210, 414, 71, 0, Math.PI * 2); ctx.stroke();
-    ellipse(210, 414, 5, 5, '#b74b6199');
+    ellipse(210, 414, 5, 5, game.team.secondary + '99');
     ctx.save(); ctx.translate(210, 399);
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#276e8570'; ctx.font = '1000 italic 32px system-ui, sans-serif';
-    ctx.fillText('FL', 0, 0);
-    ctx.font = '800 10px system-ui, sans-serif';
-    ctx.letterSpacing = '3px'; ctx.fillText('FROSTLINE', 0, 22);
+    ctx.globalAlpha = .5;
+    ellipse(0, -7, 33, 33, game.team.primary, game.team.secondary, 4);
+    ctx.fillStyle = game.team.trim; ctx.font = '1000 italic 25px system-ui, sans-serif';
+    ctx.fillText(initialsFor(game.team.name), 0, 1, 57);
+    ctx.globalAlpha = .55;
+    ctx.fillStyle = game.team.primary; ctx.font = '900 11px system-ui, sans-serif';
+    ctx.fillText(game.team.name.toUpperCase(), 0, 39, 170);
+    ctx.globalAlpha = 1;
     ctx.restore();
     for (const x of [78, 342]) {
       ctx.strokeStyle = '#c7747e80'; ctx.lineWidth = 2;
@@ -910,7 +947,7 @@
     const projectedX = s.directionY < -.02 ? px + (endY - py) * s.directionX / s.directionY : 9999;
     const safeX = clamp(projectedX, -120, W + 120);
     const onTarget = safeX > GOAL.left + 9 && safeX < GOAL.right - 9;
-    const aimColor = onTarget ? '#20b79e' : '#df725e';
+    const aimColor = onTarget ? game.team.primary : game.team.secondary;
 
     // Elastic tether for a backward pull; forward flick still gets a dotted guide.
     if (s.pullBack) {
@@ -932,7 +969,7 @@
     // Subtle power meter, placed above launch point.
     rr(px - 49, py - 39, 98, 7, 3.5, '#16415778', '#4f809c', 1);
     rr(px - 47, py - 37, 94 * s.power, 3.5, 1.5,
-      s.power > .86 ? '#ff795f' : '#35c9af');
+      s.power > .86 ? game.team.secondary : game.team.primary);
     ctx.textAlign = 'center'; ctx.font = '850 10px system-ui,sans-serif';
     ctx.fillStyle = '#28586e'; ctx.fillText(s.pullBack ? 'RELEASE TO SHOOT' : 'FLICK TO SHOOT', px, py - 49);
   }
@@ -952,7 +989,7 @@
     ellipse(p.x - 2.5, p.y - 1.5, 5, 1.6, '#8eb9c673');
     if (!p.moving && !game.aiming && game.mode === 'playing') {
       ctx.save(); ctx.globalAlpha = .7 + .15 * Math.sin(game.elapsed * 5);
-      ctx.strokeStyle = '#138d9c'; ctx.lineWidth = 2;
+      ctx.strokeStyle = game.team.primary; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.ellipse(PUCK_START.x, PUCK_START.y + 2, 25, 16, 0, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
       ctx.textAlign = 'center'; ctx.font = '850 10px system-ui,sans-serif';
