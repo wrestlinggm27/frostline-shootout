@@ -10,6 +10,8 @@
   const GOAL = { left: 120, right: 300, line: 172 };
   const GOALIE_LINE = 225;
   const LEGACY_HIGH_SCORE_KEY = 'frostline-shootout-high-score-v1';
+  const PROFILE_DB_KEY = 'frostline-player-profiles-v1';
+  const GAME_STYLE = 'arcade'; // Future styles get their own record namespaces.
   const MODE_KEY = 'frostline-shootout-difficulty-v1';
   // Each rink keeps the 30-second format. Only goalie skill changes.
   // Hard preserves the original goalie; the other levels are deliberately beatable.
@@ -98,26 +100,68 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  function readBest(difficulty) {
-    try {
-      const key = 'frostline-shootout-high-score-' + difficulty + '-v1';
-      const saved = localStorage.getItem(key);
-      // Old V1-V1.3 records were earned against what is now "The Show".
-      const value = saved === null && difficulty === 'show'
-        ? localStorage.getItem(LEGACY_HIGH_SCORE_KEY) : saved;
-      return Math.max(0, Number(value) || 0);
-    } catch { return 0; }
+  // Player records live on this browser only. They are not online accounts or
+  // public leaderboards. Separate arcade records are reserved for future modes.
+  function emptyRecord(best = 0) {
+    return { best: Math.max(0, Number(best) || 0), rounds: 0,
+      goals: 0, shots: 0, saves: 0, misses: 0 };
   }
-  function saveBest(n) {
+  function cleanPlayerName(value) {
+    return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim().slice(0, 18) : '';
+  }
+  function loadProfileDB() {
+    const blank = { players: [], activeId: null, legacyClaimed: false };
     try {
-      localStorage.setItem('frostline-shootout-high-score-' + game.difficulty + '-v1', String(n));
-    } catch { /* Private browsing may deny storage. Gameplay still works. */ }
+      const data = JSON.parse(localStorage.getItem(PROFILE_DB_KEY));
+      if (!data || !Array.isArray(data.players)) return blank;
+      const players = data.players.filter(p => p && typeof p.id === 'string' && cleanPlayerName(p.name)).map(p => ({
+        id: p.id, name: cleanPlayerName(p.name),
+        team: normalizeTeam(p.team),
+        difficulty: Object.hasOwn(DIFFICULTIES, p.difficulty) ? p.difficulty : 'beer',
+        records: p.records && typeof p.records === 'object' ? p.records : {}
+      }));
+      return { players, activeId: data.activeId, legacyClaimed: !!data.legacyClaimed };
+    } catch { return blank; }
+  }
+  const profileDB = loadProfileDB();
+  function saveProfileDB() {
+    try { localStorage.setItem(PROFILE_DB_KEY, JSON.stringify(profileDB)); }
+    catch { /* Private browsing / full storage: game remains playable for this session. */ }
+  }
+  function getRecord(difficulty, profile = game.profile) {
+    if (!profile) return emptyRecord();
+    if (!profile.records || typeof profile.records !== 'object') profile.records = {};
+    if (!profile.records[GAME_STYLE] || typeof profile.records[GAME_STYLE] !== 'object') {
+      profile.records[GAME_STYLE] = {};
+    }
+    if (!profile.records[GAME_STYLE][difficulty]) profile.records[GAME_STYLE][difficulty] = emptyRecord();
+    const record = profile.records[GAME_STYLE][difficulty];
+    for (const field of ['best', 'rounds', 'goals', 'shots', 'saves', 'misses']) {
+      record[field] = Math.max(0, Number(record[field]) || 0);
+    }
+    return record;
+  }
+  function readBest(difficulty) { return getRecord(difficulty).best; }
+  function saveBest(n) {
+    if (!game.profile) return;
+    const record = getRecord(game.difficulty);
+    if (n > record.best) {
+      record.best = n;
+      saveProfileDB();
+    }
+  }
+  function legacyBest(difficulty) {
+    try {
+      const current = localStorage.getItem('frostline-shootout-high-score-' + difficulty + '-v1');
+      const prior = difficulty === 'show' ? localStorage.getItem(LEGACY_HIGH_SCORE_KEY) : null;
+      return Math.max(0, Number(current) || 0, Number(prior) || 0);
+    } catch { return 0; }
   }
 
   const game = {
     mode: 'idle', remaining: ROUND_SECONDS, elapsed: 0, bestAtStart: 0,
-    difficulty: initialDifficulty, team: loadTeam(),
-    goals: 0, shots: 0, saves: 0, misses: 0, best: readBest(initialDifficulty),
+    difficulty: initialDifficulty, team: loadTeam(), profile: null,
+    goals: 0, shots: 0, saves: 0, misses: 0, best: 0,
     puck: { ...PUCK_START, moving: false, vx: 0, vy: 0, trail: [] },
     goalie: { x: 210, targetX: 210, lean: 0, flash: 0 },
     shot: null, cooldown: 0, toastTimer: 0, shake: 0,
@@ -455,13 +499,17 @@
     }
     difficultyDescription.textContent = DIFFICULTIES[id].description;
     difficultyStatus.textContent = DIFFICULTIES[id].name.toUpperCase();
-    try { localStorage.setItem(MODE_KEY, id); } catch {}
+    if (game.profile) {
+      game.profile.difficulty = id;
+      saveProfileDB();
+    }
     updateHUD();
   }
   difficultyButtons.forEach(button => button.addEventListener('click', () => setDifficulty(button.dataset.difficulty)));
   setDifficulty(initialDifficulty);
 
   function startGame() {
+    if (!game.profile) { openPlayerDialog(); return; }
     stopWindup();
     const ac = audioReady(); // Start button provides the user gesture Safari needs.
     if (ac) preloadCrowd(ac);
@@ -492,6 +540,16 @@
     if (game.mode === 'finished') return;
     stopWindup();
     game.mode = 'finished';
+    if (game.profile) {
+      const record = getRecord(game.difficulty);
+      record.rounds += 1;
+      record.goals += game.goals;
+      record.shots += game.shots;
+      record.saves += game.saves;
+      record.misses += game.misses;
+      record.best = Math.max(record.best, game.goals);
+      saveProfileDB();
+    }
     game.aiming = null;
     game.cooldown = 0;
     game.toastTimer = 0;
@@ -501,8 +559,8 @@
     $('overlayCopy').textContent = newRecord
       ? 'The goalie is already studying the replay. Ready to go again?'
       : 'Thirty seconds goes fast. Find the corners and beat the goalie next round.';
-    $('overlayHint').textContent = 'PULL BACK OR FLICK UP TO SHOOT';
-    $('overlay').querySelector('.overlay-kicker').textContent = 'FINAL BUZZER';
+    $('overlayHint').textContent = 'ARCADE SHOOTOUT · MORE GAME STYLES IN DEVELOPMENT';
+    $('overlay').querySelector('.overlay-kicker').textContent = 'ARCADE SHOOTOUT · FINAL BUZZER';
     const summary = $('endSummary');
     summary.hidden = false;
     summary.innerHTML = `<div><span>GOALS</span><strong>${game.goals}</strong></div>` +
@@ -1055,6 +1113,10 @@
   const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
   function applyTeam(team) {
     game.team = normalizeTeam(team);
+    if (game.profile) {
+      game.profile.team = { ...game.team };
+      saveProfileDB();
+    }
     const root = document.documentElement.style;
     root.setProperty('--team-primary', game.team.primary);
     root.setProperty('--team-secondary', game.team.secondary);
@@ -1116,7 +1178,7 @@
     event.preventDefault();
     const team = currentEditorTeam();
     applyTeam(team);
-    try { localStorage.setItem(TEAM_KEY, JSON.stringify(team)); } catch { /* Private mode still works. */ }
+    // Profile-specific team saves replace the old one-team-per-browser key.
     closeTeamEditor();
     resizeCanvas();
   });
