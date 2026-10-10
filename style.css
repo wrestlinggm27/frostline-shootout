@@ -46,4 +46,40 @@ h1 span{color:var(--aqua)}
 .game-footer{min-height:32px;display:flex;align-items:center;justify-content:center;gap:8px;color:#90afbc;font-size:9px;font-weight:850;letter-spacing:.09em;white-space:nowrap}.game-footer b{color:var(--aqua);margin:0 5px}.live-dot{width:6px;height:6px;flex:none;background:var(--aqua);border-radius:50%;box-shadow:0 0 10px #69f4e0}.footer-version{margin-left:auto;font-size:9px;color:#5e879b}
 @media(max-width:390px){.app{width:calc(100% - 18px);padding-top:10px}.primary-stat{padding:10px 12px 7px;gap:8px}.stat-label{font-size:8px}.secondary-stats span{font-size:8px}.game-footer{font-size:8px}.overlay-card{padding:19px 12px}}
 @media(max-height:660px){.app{padding-top:7px}.topbar{margin-bottom:6px}.scoreboard{margin-bottom:6px}.primary-stat{padding-top:6px;padding-bottom:5px}.secondary-stats{padding-top:5px;padding-bottom:5px}.rink-frame{width:min(100%,475px,calc((100dvh - 201px) * 420 / 680))}.game-footer{min-height:23px}.overlay-card{padding:10px 12px}.overlay-icon{display:none}.overlay h2{font-size:27px}.overlay-copy{font-size:12px;margin-bottom:15px}}
+/* Three goalie leagues; visible only on welcome and replay screens. */
+.difficulty-select{margin:0 auto 13px;max-width:320px}
+.difficulty-label{margin:0 0 7px;font-size:10px;font-weight:900;letter-spacing:.16em;color:#b6e9ed}
+.difficulty-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.difficulty-choice{min-width:0;min-height:49px;padding:6px 3px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;border:1px solid #406276;border-radius:9px;background:#102a40;color:#b9d3dd;box-shadow:inset 0 1px 0 #ffffff0b}
+.difficulty-choice span{font-size:clamp(9px,2.4vw,11px);font-weight:950;letter-spacing:-.025em;white-space:nowrap}
+.difficulty-choice small{font-size:9px;font-weight:850;letter-spacing:.10em;color:#7fa5b6}
+.difficulty-choice:hover{border-color:#64d7ca;color:white}
+.difficulty-choice.selected,.difficulty-choice[aria-pressed="true"]{border-color:var(--aqua);background:#16473f;color:#e2fff5;box-shadow:0 0 0 1px #69f4e066,inset 0 0 18px #69f4e019}
+.difficulty-choice.selected small{color:var(--aqua)}
+.difficulty-choice:focus-visible{outline:3px solid #f3d78d;outline-offset:2px}
+.difficulty-description{min-height:14px;margin:7px 0 0;font-size:10px;line-height:1.35;color:#b0cbd9}
+.difficulty-status{margin-left:auto;white-space:nowrap;color:var(--aqua);font-size:9px}
+.game-footer #controlHint{overflow:hidden;text-overflow:ellipsis;min-width:0;white-space:nowrap}
+.game-footer .footer-version{margin-left:2px}
+@media(max-width:390px){
+ .difficulty-choice span{font-size:9px}
+ .difficulty-choice small{font-size:8px}
+ .game-footer #controlHint{max-width:54%}
+}
+@media(max-height:730px){
+ .overlay{padding:7px;overflow-y:auto;align-items:safe center}
+ .overlay-card{padding:12px 10px}
+ .overlay-icon{height:30px;width:30px;margin-bottom:8px;font-size:23px}
+ .overlay-kicker{margin-bottom:7px;font-size:9px}
+ .overlay h2{font-size:clamp(24px,7vw,30px);margin-bottom:7px}
+ .overlay-copy{font-size:11px;line-height:1.4;margin-bottom:9px}
+ .difficulty-select{margin-bottom:9px}
+ .difficulty-choice{min-height:43px}
+ .difficulty-label{margin-bottom:5px}
+ .difficulty-description{margin-top:5px}
+ .play-button{padding:11px 14px}
+ .overlay-hint{margin-top:9px;line-height:1.3;white-space:normal}
+ .end-summary{margin-bottom:10px}
+}
+
 @media(prefers-reduced-motion:reduce){.shot-toast,.play-button,.timer-fill{transition:none}}
