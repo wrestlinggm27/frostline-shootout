@@ -3,7 +3,15 @@
 
   // All gameplay and art are drawn on a 420 x 680 virtual rink.
   // CSS scales that rink for phones and desktops; pointer coordinates are scaled back.
-  const W = 420;
+  // DEV BUILD. This version's experimental profiles and scores are isolated
+  // from Stable even though both pages share the same GitHub Pages origin.
+  const DEV_STORAGE_PREFIX = 'frostline-dev:';
+  const devStorage = {
+    getItem(key) { return localStorage.getItem(DEV_STORAGE_PREFIX + key); },
+    setItem(key, value) { return localStorage.setItem(DEV_STORAGE_PREFIX + key, value); },
+    removeItem(key) { return localStorage.removeItem(DEV_STORAGE_PREFIX + key); }
+  };
+    const W = 420;
   const H = 680;
   const ROUND_SECONDS = 30;
   const PUCK_START = { x: 210, y: 563 };
@@ -40,7 +48,7 @@
   };
   function readDifficulty() {
     try {
-      const stored = localStorage.getItem(MODE_KEY);
+      const stored = devStorage.getItem(MODE_KEY);
       return Object.hasOwn(DIFFICULTIES, stored) ? stored : 'beer';
     } catch { return 'beer'; }
   }
@@ -65,7 +73,7 @@
     };
   }
   function loadTeam() {
-    try { return normalizeTeam(JSON.parse(localStorage.getItem(TEAM_KEY))); }
+    try { return normalizeTeam(JSON.parse(devStorage.getItem(TEAM_KEY))); }
     catch { return normalizeTeam(null); }
   }
   function mixHex(first, second, factor) {
@@ -112,7 +120,7 @@
   function loadProfileDB() {
     const blank = { players: [], activeId: null, legacyClaimed: false };
     try {
-      const data = JSON.parse(localStorage.getItem(PROFILE_DB_KEY));
+      const data = JSON.parse(devStorage.getItem(PROFILE_DB_KEY));
       if (!data || !Array.isArray(data.players)) return blank;
       const players = data.players.filter(p => p && typeof p.id === 'string' && cleanPlayerName(p.name)).map(p => ({
         id: p.id, name: cleanPlayerName(p.name),
@@ -125,7 +133,7 @@
   }
   const profileDB = loadProfileDB();
   function saveProfileDB() {
-    try { localStorage.setItem(PROFILE_DB_KEY, JSON.stringify(profileDB)); }
+    try { devStorage.setItem(PROFILE_DB_KEY, JSON.stringify(profileDB)); }
     catch { /* Private browsing / full storage: game remains playable for this session. */ }
   }
   function getRecord(difficulty, profile = game.profile) {
@@ -152,8 +160,8 @@
   }
   function legacyBest(difficulty) {
     try {
-      const current = localStorage.getItem('frostline-shootout-high-score-' + difficulty + '-v1');
-      const prior = difficulty === 'show' ? localStorage.getItem(LEGACY_HIGH_SCORE_KEY) : null;
+      const current = devStorage.getItem('frostline-shootout-high-score-' + difficulty + '-v1');
+      const prior = difficulty === 'show' ? devStorage.getItem(LEGACY_HIGH_SCORE_KEY) : null;
       return Math.max(0, Number(current) || 0, Number(prior) || 0);
     } catch { return 0; }
   }
