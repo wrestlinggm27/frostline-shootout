@@ -1149,8 +1149,10 @@
     });
     presetButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.teamPreset === chosen)));
   }
-  function openTeamEditor() {
+  function openTeamEditor(firstTime = false) {
     if (game.mode === 'playing' || game.mode === 'ending') return;
+    $('teamDialogTitle').textContent = firstTime ? 'BUILD YOUR TEAM' : 'CUSTOMIZE TEAM';
+    $('cancelTeam').textContent = firstTime ? 'USE DEFAULT TEAM' : 'CANCEL';
     const team = game.team;
     teamNameInput.value = team.name;
     teamPrimary.value = team.primary;
@@ -1160,7 +1162,7 @@
     teamDialog.showModal();
   }
   function closeTeamEditor() { teamDialog.close(); }
-  $('customizeButton').addEventListener('click', openTeamEditor);
+  $('customizeButton').addEventListener('click', () => openTeamEditor(false));
   $('closeTeamDialog').addEventListener('click', closeTeamEditor);
   $('cancelTeam').addEventListener('click', closeTeamEditor);
   teamDialog.addEventListener('click', event => { if (event.target === teamDialog) closeTeamEditor(); });
@@ -1182,7 +1184,144 @@
     closeTeamEditor();
     resizeCanvas();
   });
+  // First launch: username -> team setup -> Arcade Shootout.
+  // Other players on the same browser can switch without touching each other's records.
+  const playerDialog = $('playerDialog');
+  const playerNameInput = $('playerNameInput');
+  const recordDialog = $('recordsDialog');
+
+  function returnToArcadeMenu() {
+    stopWindup();
+    game.mode = 'idle';
+    game.remaining = ROUND_SECONDS;
+    game.elapsed = 0;
+    game.goals = 0; game.shots = 0; game.saves = 0; game.misses = 0;
+    game.aiming = null;
+    game.toastTimer = 0;
+    game.shake = 0;
+    game.particles = [];
+    game.previousTargets = [];
+    game.goalie = { x:210, targetX:210, lean:0, flash:0 };
+    resetPuck();
+    toast.textContent = '';
+    toast.className = 'shot-toast';
+    $('overlayTitle').innerHTML = 'THIRTY SECONDS.<br><em>ONE NET.</em>';
+    $('overlayCopy').textContent =
+      'Pull back from the puck to aim, then let go to rip it. You can also flick it forward.';
+    $('overlayHint').textContent = '30 SECONDS · UNLIMITED PUCKS · MORE MODES COMING';
+    $('overlay').querySelector('.overlay-kicker').textContent = 'ARCADE SHOOTOUT · CLASSIC MODE';
+    $('endSummary').hidden = true;
+    $('playButton').innerHTML = 'START GAME <span aria-hidden="true">↗</span>';
+    $('controlHint').textContent = 'PULL BACK & RELEASE · OR FLICK FORWARD';
+    game.best = readBest(game.difficulty);
+    overlay.hidden = false;
+    updateHUD();
+  }
+
+  function activateProfile(profile) {
+    game.profile = profile;
+    profileDB.activeId = profile.id;
+    applyTeam(profile.team);
+    $('menuPlayerName').textContent = profile.name.toUpperCase();
+    setDifficulty(profile.difficulty);
+    returnToArcadeMenu();
+    saveProfileDB();
+  }
+
+  function openPlayerDialog() {
+    if (game.mode === 'playing' || game.mode === 'ending' || playerDialog.open) return;
+    playerNameInput.value = '';
+    $('playerError').textContent = '';
+    const list = $('existingPlayers');
+    list.replaceChildren();
+    for (const profile of profileDB.players) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'existing-player-button';
+      button.textContent = profile.name;
+      if (game.profile?.id === profile.id) button.classList.add('current-player');
+      button.addEventListener('click', () => {
+        activateProfile(profile);
+        playerDialog.close();
+      });
+      list.append(button);
+    }
+    $('existingPlayerSection').hidden = profileDB.players.length === 0;
+    $('closePlayerDialog').hidden = !game.profile;
+    playerDialog.showModal();
+  }
+
+  $('switchPlayerButton').addEventListener('click', openPlayerDialog);
+  $('closePlayerDialog').addEventListener('click', () => playerDialog.close());
+  playerDialog.addEventListener('cancel', event => {
+    if (!game.profile) event.preventDefault();
+  });
+  $('playerForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const name = cleanPlayerName(playerNameInput.value);
+    if (name.length < 2) {
+      $('playerError').textContent = 'Please enter at least 2 characters.';
+      return;
+    }
+    const duplicate = profileDB.players.find(p => p.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+    if (duplicate) {
+      activateProfile(duplicate);
+      playerDialog.close();
+      return;
+    }
+    const firstProfile = !profileDB.legacyClaimed && profileDB.players.length === 0;
+    const profile = {
+      id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9),
+      name,
+      team: firstProfile ? loadTeam() : normalizeTeam(null),
+      difficulty: firstProfile ? initialDifficulty : 'beer',
+      records: { arcade: {} }
+    };
+    if (firstProfile) {
+      for (const level of Object.keys(DIFFICULTIES)) {
+        profile.records.arcade[level] = emptyRecord(legacyBest(level));
+      }
+      profileDB.legacyClaimed = true;
+    }
+    profileDB.players.push(profile);
+    activateProfile(profile);
+    playerDialog.close();
+    // New profiles see the actual team editor before their first game.
+    openTeamEditor(true);
+  });
+
+  function openRecords() {
+    if (!game.profile || game.mode === 'playing' || game.mode === 'ending') return;
+    $('recordsTitle').textContent = game.profile.name.toUpperCase() + ' · RECORD BOOK';
+    $('recordsSubtitle').textContent = game.team.name + ' · Arcade Shootout';
+    const rows = $('recordRows');
+    rows.replaceChildren();
+    for (const level of ['pond', 'beer', 'show']) {
+      const rec = getRecord(level);
+      const row = document.createElement('div');
+      row.className = 'record-card';
+      const title = document.createElement('strong');
+      title.textContent = DIFFICULTIES[level].name;
+      const detail = document.createElement('p');
+      detail.textContent = rec.rounds + (rec.rounds === 1 ? ' ROUND' : ' ROUNDS')
+        + ' · ' + rec.goals + ' TOTAL GOALS';
+      const score = document.createElement('span');
+      score.className = 'record-score';
+      score.textContent = rec.best + ' BEST';
+      const left = document.createElement('div');
+      left.append(title, detail);
+      row.append(left, score);
+      rows.append(row);
+    }
+    recordDialog.showModal();
+  }
+  $('recordsButton').addEventListener('click', openRecords);
+  $('closeRecords').addEventListener('click', () => recordDialog.close());
+
   applyTeam(game.team);
+  const resumed = profileDB.players.find(p => p.id === profileDB.activeId);
+  if (resumed) activateProfile(resumed);
+  else requestAnimationFrame(openPlayerDialog);
   updateHUD();
   resizeCanvas();
   requestAnimationFrame(frame);
