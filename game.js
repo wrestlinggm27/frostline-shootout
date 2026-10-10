@@ -1059,6 +1059,10 @@
     root.setProperty('--team-primary', game.team.primary);
     root.setProperty('--team-secondary', game.team.secondary);
     root.setProperty('--team-trim', game.team.trim);
+    const red = parseInt(game.team.secondary.slice(1,3),16);
+    const green = parseInt(game.team.secondary.slice(3,5),16);
+    const blue = parseInt(game.team.secondary.slice(5,7),16);
+    root.setProperty('--team-action-ink', (.299*red+.587*green+.114*blue)>158 ? '#06142b' : '#ffffff');
     root.setProperty('--team-highlight', mixHex(game.team.primary, '#ffffff', .58));
     root.setProperty('--team-deep', mixHex(game.team.primary, '#071020', .72));
     root.setProperty('--team-darker', mixHex(game.team.primary, '#020914', .91));
