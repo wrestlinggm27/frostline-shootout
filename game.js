@@ -55,6 +55,24 @@
   // Original, procedural arena audio. No licensed clips or network requests.
   // Web Audio is unlocked by Start Game / pointer interaction on mobile Safari.
   const arenaAudio = { master: null, noise: null, windup: null, crowd: null, horn: null };
+  // Real recorded crowd sound effects are decoded inside the unlocked Web Audio context.
+  const crowdBuffers = { boo: null, cheer: null };
+  let crowdLoadStarted = false;
+  function preloadCrowd(ac) {
+    if (crowdLoadStarted) return;
+    crowdLoadStarted = true;
+    const clips = { boo: 'assets/crowd-groan.wav', cheer: 'assets/crowd-cheer.mp3' };
+    for (const [kind, url] of Object.entries(clips)) {
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error('Crowd audio unavailable');
+          return response.arrayBuffer();
+        })
+        .then(bytes => ac.decodeAudioData(bytes))
+        .then(buffer => { crowdBuffers[kind] = buffer; })
+        .catch(() => { /* Keep procedural fallback if offline. */ });
+    }
+  }
 
   function audioReady() {
     if (!game.audioEnabled) return null;
@@ -146,37 +164,41 @@
       const old = arenaAudio.crowd;
       old.gain.cancelScheduledValues(t);
       old.gain.setValueAtTime(Math.max(.0001, old.gain.value), t);
-      old.gain.exponentialRampToValueAtTime(.0001, t + .075);
+      old.gain.exponentialRampToValueAtTime(.0001, t + .065);
     }
     const bus = ac.createGain();
-    bus.gain.value = .90;
+    bus.gain.value = 1;
     bus.connect(arenaAudio.master);
     arenaAudio.crowd = bus;
+
     const cheering = kind === 'cheer';
-    const duration = cheering ? 2.05 : 1.5;
-    // Midrange voices plus crisp arena air. Previously the single low noise
-    // band masked the cheers and boos, especially on phone speakers.
-    noiseBurst(ac, t + .025, duration, cheering ? 1800 : 1020, .42,
-      cheering ? .26 : .17, bus, .075);
-    noiseBurst(ac, t + .035, duration * .90, cheering ? 3700 : 2700, .85,
-      cheering ? .18 : .095, bus, .10);
-    const count = cheering ? 12 : 9;
-    for (let i = 0; i < count; i++) {
-      const offset = .02 + Math.random() * (cheering ? .55 : .21);
-      const voiceDuration = cheering
-        ? .65 + Math.random() * (duration - offset - .73)
-        : .86 + Math.random() * .40;
-      crowdVoice(ac, t + offset, voiceDuration, cheering ? 'ah' : 'oo',
-        (cheering ? 145 : 100) + Math.random() * (cheering ? 145 : 80),
-        cheering ? .063 : .077, bus);
-    }
-    if (cheering) {
-      // Sharp, staggered claps and shouts supply the recognizable crowd edge.
-      for (let i = 0; i < 16; i++) {
-        const offset = .06 + Math.random() * 1.78;
-        noiseBurst(ac, t + offset, .038 + Math.random() * .04,
-          3200 + Math.random() * 1400, .9, .13, bus, .003);
+    const recorded = crowdBuffers[cheering ? 'cheer' : 'boo'];
+    if (recorded) {
+      // No muffling bandpass filter: let natural crowd voices come through.
+      const source = ac.createBufferSource();
+      source.buffer = recorded;
+      const offset = cheering ? Math.min(3.2 + Math.random() * 1.6,
+        Math.max(0, recorded.duration - 2.4)) : .06;
+      const duration = Math.min(cheering ? 2.3 : 1.65,
+        recorded.duration - offset - .02);
+      if (duration > .12) {
+        const gain = ac.createGain();
+        volumeFade(gain, t, cheering ? .72 : .85, .055, duration);
+        source.connect(gain); gain.connect(bus);
+        source.start(t, offset, duration);
+        return;
       }
+    }
+
+    // Procedural fallback while samples load or if network fails.
+    const duration = cheering ? 2 : 1.35;
+    noiseBurst(ac, t + .02, duration, cheering ? 2600 : 1200, .38,
+      cheering ? .24 : .16, bus, .07);
+    for (let i = 0; i < (cheering ? 11 : 8); i++) {
+      const offset = .02 + Math.random() * (cheering ? .35 : .2);
+      crowdVoice(ac, t + offset, duration - offset, cheering ? 'ah' : 'oo',
+        (cheering ? 155 : 102) + Math.random() * (cheering ? 140 : 65),
+        cheering ? .054 : .066, bus);
     }
   }
 
@@ -315,7 +337,10 @@
       const t = game.audioContext.currentTime;
       arenaAudio.master.gain.setTargetAtTime(game.audioEnabled ? .74 : 0, t, .025);
     }
-    if (game.audioEnabled) audioReady();
+    if (game.audioEnabled) {
+      const ac = audioReady();
+      if (ac) preloadCrowd(ac);
+    }
     soundOnIcon.hidden = !game.audioEnabled;
     soundOffIcon.hidden = game.audioEnabled;
     soundButton.setAttribute('aria-label', game.audioEnabled ? 'Mute sound' : 'Turn sound on');
@@ -344,7 +369,8 @@
 
   function startGame() {
     stopWindup();
-    audioReady(); // Start button provides the user gesture Safari needs.
+    const ac = audioReady(); // Start button provides the user gesture Safari needs.
+    if (ac) preloadCrowd(ac);
     game.mode = 'playing';
     game.remaining = ROUND_SECONDS;
     game.elapsed = 0;
@@ -395,8 +421,18 @@
   $('playButton').addEventListener('click', startGame);
 
   function showToast(text, type) {
-    toast.textContent = text;
-    toast.className = `shot-toast ${type} visible`;
+    const missDetail = type === 'miss' ? /^MISS · (.+)!$/.exec(text) : null;
+    if (missDetail) {
+      const heading = document.createElement('span');
+      heading.textContent = 'MISS!';
+      const detail = document.createElement('span');
+      detail.className = 'toast-detail';
+      detail.textContent = missDetail[1] + '!';
+      toast.replaceChildren(heading, detail);
+    } else {
+      toast.textContent = text;
+    }
+    toast.className = `shot-toast ${type}${missDetail ? ' stacked' : ''} visible`;
     game.toastTimer = .72;
   }
 
