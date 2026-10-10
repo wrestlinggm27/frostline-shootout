@@ -1046,6 +1046,77 @@
     requestAnimationFrame(frame);
   }
 
+  // Team editing is restricted to the welcome / replay menu; active rounds continue unchanged.
+  const teamDialog = $('teamDialog');
+  const teamNameInput = $('teamNameInput');
+  const teamPrimary = $('teamPrimary');
+  const teamSecondary = $('teamSecondary');
+  const teamTrim = $('teamTrim');
+  const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
+  function applyTeam(team) {
+    game.team = normalizeTeam(team);
+    const root = document.documentElement.style;
+    root.setProperty('--team-primary', game.team.primary);
+    root.setProperty('--team-secondary', game.team.secondary);
+    root.setProperty('--team-trim', game.team.trim);
+    root.setProperty('--team-highlight', mixHex(game.team.primary, '#ffffff', .58));
+    root.setProperty('--team-deep', mixHex(game.team.primary, '#071020', .72));
+    root.setProperty('--team-darker', mixHex(game.team.primary, '#020914', .91));
+    $('teamNameDisplay').textContent = game.team.name.toUpperCase();
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', mixHex(game.team.primary, '#020914', .91));
+  }
+  function currentEditorTeam() {
+    return normalizeTeam({ name:teamNameInput.value, primary:teamPrimary.value,
+      secondary:teamSecondary.value, trim:teamTrim.value });
+  }
+  function updateTeamPreview() {
+    const team = currentEditorTeam();
+    $('previewInitials').textContent = initialsFor(team.name);
+    $('previewTeamName').textContent = team.name.toUpperCase();
+    const preview = document.querySelector('.team-preview');
+    preview.style.setProperty('--preview-primary', team.primary);
+    preview.style.setProperty('--preview-secondary', team.secondary);
+    preview.style.setProperty('--preview-trim', team.trim);
+    const chosen = Object.keys(TEAM_PRESETS).find(id => {
+      const t = TEAM_PRESETS[id];
+      return t.name === team.name && t.primary === team.primary && t.secondary === team.secondary && t.trim === team.trim;
+    });
+    presetButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.teamPreset === chosen)));
+  }
+  function openTeamEditor() {
+    if (game.mode === 'playing' || game.mode === 'ending') return;
+    const team = game.team;
+    teamNameInput.value = team.name;
+    teamPrimary.value = team.primary;
+    teamSecondary.value = team.secondary;
+    teamTrim.value = team.trim;
+    updateTeamPreview();
+    teamDialog.showModal();
+  }
+  function closeTeamEditor() { teamDialog.close(); }
+  $('customizeButton').addEventListener('click', openTeamEditor);
+  $('closeTeamDialog').addEventListener('click', closeTeamEditor);
+  $('cancelTeam').addEventListener('click', closeTeamEditor);
+  teamDialog.addEventListener('click', event => { if (event.target === teamDialog) closeTeamEditor(); });
+  presetButtons.forEach(button => button.addEventListener('click', () => {
+    const theme = TEAM_PRESETS[button.dataset.teamPreset];
+    if (!theme) return;
+    teamNameInput.value = theme.name;
+    teamPrimary.value = theme.primary;
+    teamSecondary.value = theme.secondary;
+    teamTrim.value = theme.trim;
+    updateTeamPreview();
+  }));
+  [teamNameInput,teamPrimary,teamSecondary,teamTrim].forEach(el=>el.addEventListener('input',updateTeamPreview));
+  $('teamForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const team = currentEditorTeam();
+    applyTeam(team);
+    try { localStorage.setItem(TEAM_KEY, JSON.stringify(team)); } catch { /* Private mode still works. */ }
+    closeTeamEditor();
+    resizeCanvas();
+  });
+  applyTeam(game.team);
   updateHUD();
   resizeCanvas();
   requestAnimationFrame(frame);
