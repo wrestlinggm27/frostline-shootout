@@ -7,8 +7,8 @@
   <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
   <meta name="robots" content="noindex, nofollow">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=1.8-dev">
-  <script src="game.js?v=1.8-dev" defer></script>
+  <link rel="stylesheet" href="style.css?v=1.9-dev">
+  <script src="game.js?v=1.9-dev" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -31,9 +31,9 @@
           <svg class="brand-glyph" viewBox="0 0 32 32" aria-hidden="true"><use id="brandLogoUse" href="#frostline-power"></use></svg>
         </button>
         <div>
-          <p class="eyebrow">DEV BUILD · EXPERIMENTAL · LOGO LAB</p>
+          <p class="eyebrow">DEV BUILD · TEAM CREST STUDIO</p>
           <h1>FROSTLINE<span> SHOOTOUT</span></h1>
-          <p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p>
+          <div class="team-header-identity"><span id="headerTeamCrest" class="team-header-crest" aria-hidden="true"></span><p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p></div>
         </div>
       </div>
       <button id="soundButton" class="sound-button" type="button" aria-label="Mute sound" title="Toggle sound">
@@ -87,7 +87,7 @@
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.8-DEV</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.9-DEV</span></footer>
   </main>
   <dialog id="logoLabDialog" class="logo-lab-dialog" aria-labelledby="logoLabTitle">
     <div class="logo-lab-content">
@@ -154,7 +154,7 @@
         <button id="closeTeamDialog" type="button" class="customizer-close" aria-label="Close team customizer">×</button>
       </div>
       <div class="team-preview">
-        <div class="preview-crest"><span id="previewInitials">BB</span></div>
+        <div class="preview-crest" id="previewTeamCrest" aria-label="Live team crest preview" role="img"></div>
         <div><small>HOME TEAM</small><strong id="previewTeamName">BROADWAY BLUES</strong><span class="preview-stripes" aria-hidden="true"></span></div>
       </div>
       <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
@@ -171,7 +171,19 @@
         <label for="teamSecondary">SECONDARY <input id="teamSecondary" name="secondary" type="color" value="#ce1126"></label>
         <label for="teamTrim">TRIM <input id="teamTrim" name="trim" type="color" value="#ffffff"></label>
       </div>
-      <p class="customizer-note">Your team is saved on this device. Colors change the rink and scoreboard, not the goalie difficulty.</p>
+      <fieldset class="team-crest-studio">
+        <legend>CHOOSE YOUR TEAM SHIELD</legend>
+        <p class="crest-studio-description">Your shield is your team's identity. Pick one for now; it will represent you in future showdowns.</p>
+        <div class="team-crest-options" role="group" aria-label="Team crest designs">
+          <button type="button" class="team-crest-choice" data-team-crest="monogram" aria-pressed="true"><span class="crest-choice-preview" aria-hidden="true"></span><strong>CAPTAIN</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="wolf" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>WOLF</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="bolt" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>LIGHTNING</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="sticks" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>STICKS</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="star" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>STAR</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="mountain" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>SUMMIT</strong></button>
+        </div>
+      </fieldset>
+      <p class="customizer-note">Your team name, colors and shield save with this DEV player. Arcade gameplay and difficulty stay the same.</p>
       <div class="customizer-actions"><button id="cancelTeam" type="button" class="cancel-team">CANCEL</button><button type="submit" class="save-team">SAVE MY TEAM</button></div>
     </form>
   </dialog>

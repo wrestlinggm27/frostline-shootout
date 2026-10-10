@@ -334,3 +334,41 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
  .logo-lab-spotlight{padding:8px}
  .logo-lab-intro{font-size:10px}
 }
+
+
+/* V1.9 DEV: original team shield system. Colors and crest travel together. */
+.team-header-identity{display:flex;align-items:center;gap:5px;margin-top:4px;min-width:0}
+.team-header-identity .team-name-display{margin:0;min-width:0;max-width:190px}
+.team-header-crest{display:block;width:19px;height:22px;flex:0 0 19px}
+.team-header-crest svg{height:100%;width:100%;display:block}
+.team-preview .preview-crest{clip-path:none;background:transparent;border:0;width:70px;height:80px;box-shadow:none;display:grid;place-items:center;flex:none}
+.large-team-crest{width:70px;height:80px;filter:drop-shadow(0 2px 5px #0008);display:block}
+.team-crest-studio{min-width:0;margin:0;padding:10px 9px 9px;border:1px solid #536b9d;border-radius:11px}
+.team-crest-studio legend{font-weight:950;color:#d9e7ff;letter-spacing:.1em;font-size:10px;padding:0 6px}
+.crest-studio-description{font-size:10px;color:#a8bfdb;line-height:1.35;margin:0 0 10px}
+.team-crest-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.team-crest-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 4px;min-width:0;min-height:99px;border:1px solid #536b93;border-radius:9px;background:#081c38;color:#e6f1ff}
+.team-crest-choice:hover{border-color:#c5dbff;background:#15365b}
+.team-crest-choice[aria-pressed="true"]{border:2px solid var(--team-highlight);background:#25406c;box-shadow:0 0 13px #92baff30;padding:6px 3px}
+.team-crest-choice:focus-visible{outline:2px solid white;outline-offset:2px}
+.crest-choice-preview{display:grid;place-items:center;width:45px;height:57px}
+.option-team-crest{width:45px;height:55px;filter:drop-shadow(0 1px 3px #0008);display:block}
+.team-crest-choice strong{font-size:9px;font-weight:950;line-height:1.15;letter-spacing:.025em;text-align:center}
+@media(max-width:390px){
+ .team-crest-options{gap:4px}
+ .team-crest-studio{padding:8px 6px}
+ .team-crest-choice{min-height:83px;padding:5px 3px}
+ .team-crest-choice[aria-pressed="true"]{padding:4px 2px}
+ .crest-choice-preview{width:39px;height:48px}
+ .option-team-crest{width:38px;height:46px}
+ .team-crest-choice strong{font-size:8px}
+ .team-preview .preview-crest{width:60px;height:73px}
+ .large-team-crest{width:60px;height:70px}
+ .team-header-identity .team-name-display{max-width:156px}
+}
+@media(max-height:700px){
+ .team-crest-choice{min-height:75px;gap:2px}
+ .crest-choice-preview{height:41px}
+ .option-team-crest{height:40px}
+ .crest-studio-description{margin-bottom:6px}
+}
