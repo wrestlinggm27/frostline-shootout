@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#071523">
   <meta name="description" content="Frostline Shootout — a 30-second, flick-to-shoot hockey arcade game.">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=1.3">
-  <script src="game.js?v=1.3" defer></script>
+  <link rel="stylesheet" href="style.css?v=1.4">
+  <script src="game.js?v=1.4" defer></script>
 </head>
 <body>
   <main class="app" aria-label="Frostline Shootout hockey game">
@@ -49,13 +49,22 @@
           <h2 id="overlayTitle">THIRTY SECONDS.<br><em>ONE NET.</em></h2>
           <p id="overlayCopy" class="overlay-copy">Pull back from the puck to aim, then let go to rip it. You can also flick it forward. Beat the goalie before the buzzer.</p>
           <div id="endSummary" class="end-summary" hidden></div>
+          <div class="difficulty-select" role="group" aria-label="Choose goalie difficulty">
+            <p class="difficulty-label">PICK YOUR LEAGUE</p>
+            <div class="difficulty-options">
+              <button class="difficulty-choice" type="button" data-difficulty="pond" aria-pressed="false"><span>POND HOCKEY</span><small>EASY</small></button>
+              <button class="difficulty-choice" type="button" data-difficulty="beer" aria-pressed="true"><span>BEER LEAGUE</span><small>MEDIUM</small></button>
+              <button class="difficulty-choice" type="button" data-difficulty="show" aria-pressed="false"><span>THE SHOW</span><small>HARD</small></button>
+            </div>
+            <p class="difficulty-description" id="difficultyDescription">A competitive goalie. A fair challenge.</p>
+          </div>
           <button id="playButton" class="play-button" type="button">START GAME <span aria-hidden="true">↗</span></button>
-          <span id="overlayHint" class="overlay-hint">30 SECONDS · UNLIMITED PUCKS · ONE HIGH SCORE</span>
+          <span id="overlayHint" class="overlay-hint">30 SECONDS · UNLIMITED PUCKS · 3 LEAGUES</span>
         </div>
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span class="footer-version">V1.3</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.4</span></footer>
   </main>
 </body>
 </html>
