@@ -1,4 +1,4 @@
-# Frostline Shootout — Version 1.7
+# Frostline Shootout — Version 1.7.1
 
 ## Stable and Development environments
 
@@ -58,6 +58,12 @@ python -m http.server 8000
 Then open http://localhost:8000 in your browser.
 
 **Playing on a phone:** Put the same files on any simple static web host (for example GitHub Pages) and open that link in your mobile browser. If you want to test from a phone on the same Wi-Fi network as a computer, run a local server on the computer, allow access through the firewall if needed, and visit the computer's LAN IP and port from the phone.
+
+## Stable logo selection (V1.7.1)
+
+Approved **Ice Cut F (Logo Lab option C)** as the official Frostline header mark. The top-left arcade badge keeps its original red/blue glow, shield and slant, while the old three diagonal strokes have been replaced with an original angular two-bar **F**, implemented as an inline SVG. There is **no Logo Lab selector in Stable**.
+
+Only the Stable header logo, its related CSS and this README were updated. Gameplay, sound, player profiles, team customization, local records and the separate DEV site stay the same. The Logo Lab and other experiments remain in the DEV branch and `/dev/` preview.
 
 ## Compact arcade layout (V1.7)
 

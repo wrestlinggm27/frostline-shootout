@@ -281,3 +281,8 @@ h1 span{color:var(--team-highlight)}
  .menu-utility-actions .customize-button{font-size:8px}
  .overlay-hint{font-size:7px}
 }
+
+/* V1.7.1 Stable: approved Ice Cut F (option C), replacing the old three-stroke emblem.
+   Retains the original arcade badge border, slant, glow and team trim color. */
+.brand-mark{display:grid;place-items:center;color:var(--team-trim,#ffffff)}
+.brand-glyph{display:block;width:26px;height:26px;overflow:visible}
