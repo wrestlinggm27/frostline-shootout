@@ -551,3 +551,38 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .goalie-swatch-jersey{position:relative;display:block;flex:0 0 29px;width:29px;height:30px;border:2px solid var(--goalie-trim);border-radius:9px 9px 5px 5px;background:var(--goalie-primary);box-shadow:0 2px 6px #0006}
 .goalie-swatch-jersey::before{content:"";position:absolute;left:2px;right:2px;top:15px;height:5px;background:var(--goalie-secondary);border-top:1px solid var(--goalie-trim);border-bottom:1px solid var(--goalie-trim)}
 @media(max-width:390px){.goalie-palette-options{gap:5px;padding:0 6px 8px}.goalie-palette-choice{min-height:41px;padding:4px;gap:5px}.goalie-palette-choice[aria-pressed="true"]{padding:3px}.goalie-palette-choice span:last-child{font-size:10px}.goalie-swatch-jersey{flex-basis:26px;width:26px;height:27px}}
+
+/* DEV startup/intro state scaffold. No new records, gameplay or external assets. */
+.startup-screen{
+  position:fixed;inset:0;z-index:100;display:grid;place-items:center;
+  padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));
+  background:radial-gradient(ellipse at 50% 44%,#153b5c 0%,#07192d 40%,#020812 82%);
+  color:#f4f9ff;text-align:center;overflow:auto;
+}
+.startup-screen[hidden],.startup-panel[hidden]{display:none}
+.startup-panel{
+  width:min(100%,430px);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:18px;padding:28px 12px;animation:startup-appear .42s ease-out both;
+}
+.startup-ice-f{display:block;width:90px;height:90px;padding:17px;border:2px solid #b2e9ff;border-radius:22px;
+  color:#f2fbff;background:linear-gradient(145deg,#1c6490,#09213e);
+  box-shadow:0 0 0 6px #ffffff09,0 0 44px #58c6f755}
+.startup-kicker{margin:0;color:#93ceee;font-size:11px;font-weight:900;letter-spacing:.24em}
+.startup-title{margin:0;font-size:clamp(26px,8vw,44px);font-weight:1000;line-height:1.02;
+  letter-spacing:-.04em;text-shadow:0 4px 22px #000a}
+.startup-title span{display:block;color:#aee9ff}
+.startup-caption{margin:0;color:#bed4e6;font-size:10px;font-weight:800;letter-spacing:.11em}
+.startup-primary{min-width:170px;min-height:48px;padding:11px 22px;margin-top:5px;
+  border:1px solid #d9f6ff;border-radius:10px;background:#caefff;color:#06223a;
+  font-size:13px;font-weight:1000;letter-spacing:.09em;cursor:pointer}
+.startup-primary:hover,.startup-primary:focus-visible{background:#fff;outline:2px solid #5abff0;outline-offset:3px}
+.startup-credit{margin:0;font-size:clamp(17px,5vw,23px);letter-spacing:.1em;line-height:1.4}
+.startup-credit strong{display:block;font-size:clamp(23px,6vw,32px);letter-spacing:.045em}
+.startup-intro-f{width:66px;height:66px;padding:13px;border-radius:15px}
+.startup-skip{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));
+  z-index:1;padding:9px 12px;border:1px solid #7e9db4;border-radius:8px;background:#102a43d9;
+  color:#eff9ff;font-size:11px;font-weight:850;letter-spacing:.07em;cursor:pointer}
+.startup-skip:hover,.startup-skip:focus-visible{border-color:#fff;background:#204563}
+@keyframes startup-appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.startup-panel{animation:none}}
+@media(max-height:480px){.startup-panel{gap:10px;padding:10px}.startup-ice-f{width:62px;height:62px;padding:12px}.startup-intro-f{width:48px;height:48px}}
