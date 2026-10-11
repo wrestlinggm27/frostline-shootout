@@ -187,6 +187,53 @@
       { d: 'M27 39 L23 49 M77 39 L73 49 M31 53 L27 62 M69 53 L73 62', mode: 'stroke', width: 3 },
       { d: 'M23 81 Q35 69 47 81 T77 81', mode: 'trim-stroke', width: 4.1 },
       { d: 'M24 88 Q37 80 50 88 T77 88', mode: 'accent-stroke', width: 3.2 }
+    ] },
+    // Batch four: original takes on the warning siren, rally rat, electric
+    // arena intro, and cowboy-hat tradition. No official marks are used.
+    carSiren: { label: 'Carolina Hurricane Warning Siren', shapes: [
+      // Sweeping twin alarm waves behind the loudspeaker dome.
+      { d: 'M29 36 Q18 49 26 64 M71 36 Q82 49 74 64', mode: 'stroke', width: 3.8 },
+      { d: 'M34 40 Q27 48 31 57 M66 40 Q73 48 69 57', mode: 'stroke', width: 2.5 },
+      { d: 'M46 27 L54 27 L57 35 H43 Z', mode: 'trim' },
+      { d: 'M29 55 L34 46 Q50 33 66 46 L71 55 Z', mode: 'trim' },
+      { d: 'M35 53 L65 53 L61 60 H39 Z', mode: 'accent' },
+      { d: 'M29 61 H71 V70 H29 Z', mode: 'trim' },
+      { d: 'M38 64 V68 M44 64 V68 M50 64 V68 M56 64 V68 M62 64 V68', mode: 'base-stroke', width: 2.6 },
+      { d: 'M46 70 H54 L56 83 H44 Z', mode: 'trim' },
+      { d: 'M38 84 H62 M32 88 H68', mode: 'stroke', width: 3.1 }
+    ] },
+    flaRat: { label: 'Florida Blue Rally Rat', shapes: [
+      // Navy-blue rat mascot, curved tail and white whiskers: entirely original.
+      { d: 'M32 53 Q24 42 29 35 Q34 29 43 41 Q54 35 61 43 Q68 31 74 37 Q79 43 68 55 Q71 64 77 70 L72 78 Q57 86 44 82 Q30 78 29 65 Q28 59 32 53 Z', mode: 'accent' },
+      { d: 'M33 40 Q37 38 41 47 M68 41 Q64 40 62 48', mode: 'stroke', width: 2.8 },
+      { d: 'M42 58 Q46 54 50 58 Q54 54 58 58', mode: 'stroke', width: 2.7 },
+      { d: 'M44 64 A3 3 0 1 0 50 64 A3 3 0 1 0 44 64 Z M55 64 A3 3 0 1 0 61 64 A3 3 0 1 0 55 64 Z', mode: 'gold' },
+      { d: 'M60 72 L65 70 L63 75 Z', mode: 'gold' },
+      { d: 'M63 74 L78 72 M61 77 L77 80 M42 73 L26 70 M42 77 L24 79', mode: 'stroke', width: 2.2 },
+      { d: 'M37 81 Q22 90 22 76 Q23 68 29 68', mode: 'gold-stroke', width: 3.7 },
+      { d: 'M46 83 Q56 89 66 83', mode: 'stroke', width: 2.5 }
+    ] },
+    tamCoil: { label: 'Tampa Tesla Coil Intro', shapes: [
+      // Electric arc forks above a freestanding induction coil tower.
+      { d: 'M36 35 L28 26 L33 42 L23 45 L35 49 M64 35 L72 26 L67 42 L77 45 L65 49', mode: 'stroke', width: 3.1 },
+      { d: 'M50 23 L44 36 H52 L47 47 L61 30 H53 L58 23 Z', mode: 'trim' },
+      { d: 'M42 47 H58 L62 54 L59 63 H41 L38 54 Z', mode: 'trim' },
+      { d: 'M39 53 H61 M40 59 H60', mode: 'base-stroke', width: 3.5 },
+      { d: 'M44 63 H56 V76 H44 Z', mode: 'trim' },
+      { d: 'M44 67 H56 M44 72 H56', mode: 'base-stroke', width: 2.8 },
+      { d: 'M39 77 H61 L64 84 H36 Z', mode: 'trim' },
+      { d: 'M31 87 H69', mode: 'stroke', width: 3.4 },
+      { d: 'M29 55 L21 61 L30 64 M71 55 L79 61 L70 64', mode: 'stroke', width: 2.7 }
+    ] },
+    dalHat: { label: 'Dallas Cowboy Hat', shapes: [
+      // Wide swept-up Western hat with a distinct crown and woven band.
+      { d: 'M33 61 Q38 55 37 40 Q39 35 45 41 Q50 46 55 41 Q61 35 64 41 L67 61 Q53 67 33 61 Z', mode: 'trim' },
+      { d: 'M38 56 Q49 61 63 56 L64 62 Q51 67 36 62 Z', mode: 'accent' },
+      { d: 'M22 67 Q25 63 34 64 Q50 72 66 64 Q76 61 80 67 Q72 82 50 82 Q28 82 22 67 Z', mode: 'trim' },
+      { d: 'M26 68 Q50 82 75 68', mode: 'base-stroke', width: 3 },
+      { d: 'M50 55 L52 59 L57 59 L53 63 L55 67 L50 64 L45 67 L47 63 L43 59 L48 59 Z', mode: 'trim' },
+      { d: 'M36 87 H64', mode: 'stroke', width: 3 },
+      { d: 'M42 91 H58', mode: 'stroke', width: 2.5 }
     ] }
   };
   const CITY_CLUBS = {
@@ -201,7 +248,11 @@
     philadelphia: { name: 'Philly Bellline', location: 'Philadelphia', primary: '#f74902', secondary: '#000000', trim: '#ffffff', crest: 'phiBell', club: 'philadelphia' },
     minnesota: { name: 'Minnesota Northwoods', location: 'Minnesota', primary: '#154734', secondary: '#a6192e', trim: '#ddcba4', crest: 'minNorth', club: 'minnesota' },
     nashville: { name: 'Nashville Riff', location: 'Nashville', primary: '#ffb81c', secondary: '#041e42', trim: '#ffffff', crest: 'nasRiff', club: 'nashville' },
-    seattle: { name: 'Seattle Rainline', location: 'Seattle', primary: '#001628', secondary: '#99d9d9', trim: '#ffffff', crest: 'seaRain', club: 'seattle' }
+    seattle: { name: 'Seattle Rainline', location: 'Seattle', primary: '#001628', secondary: '#99d9d9', trim: '#ffffff', crest: 'seaRain', club: 'seattle' },
+    carolina: { name: 'Carolina Warning', location: 'Carolina', primary: '#cc0000', secondary: '#111111', trim: '#ffffff', crest: 'carSiren', club: 'carolina' },
+    florida: { name: 'Florida Blue Rat', location: 'Florida', primary: '#c8102e', secondary: '#041e42', trim: '#ffffff', crest: 'flaRat', club: 'florida' },
+    tampa: { name: 'Tampa Coil', location: 'Tampa Bay', primary: '#002868', secondary: '#101820', trim: '#ffffff', crest: 'tamCoil', club: 'tampa' },
+    dallas: { name: 'Dallas Brimline', location: 'Dallas', primary: '#006847', secondary: '#111111', trim: '#c4ced4', crest: 'dalHat', club: 'dallas' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
@@ -219,11 +270,12 @@
     };
   }
   function artPaint(shape, team) {
+    if (shape.mode === 'gold' || shape.mode === 'gold-stroke') return '#b9975b';
     if (shape.mode === 'accent' || shape.mode === 'cutout' || shape.mode === 'accent-stroke') return team.secondary;
     if (shape.mode === 'base' || shape.mode === 'base-stroke') return team.primary;
     return team.trim;
   }
-  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke'].includes(shape.mode); }
+  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke','gold-stroke'].includes(shape.mode); }
   function makeCrestSvg(team, className = '') {
     const svgNS = 'http://www.w3.org/2000/svg';
     const create = (tag, attrs) => {

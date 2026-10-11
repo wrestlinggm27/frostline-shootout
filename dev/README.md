@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.2: Twelve City Clubs
+# Frostline Shootout — DEV V2.3: Sixteen City Clubs
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,19 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## City clubs — fourth batch (DEV V2.3)
+
+Four additional *original fictional city identities* based on hockey fan traditions bring the DEV team roster to **16 city clubs**, alongside six generic crests. Names, shields and symbols are original; palettes reflect familiar hockey-market colors without including any official team marks.
+
+| City | Original team | Fan tradition / new icon | Team colors |
+|---|---|---|---|
+| Carolina | **Carolina Warning** | A dome-shaped hurricane-warning siren and spinning alert waves | Red `#cc0000`, black `#111111`, white |
+| Florida | **Florida Blue Rat** | Navy blue rally rat with pointed ears, golden eyes/nose and curled tail | Red `#c8102e`, navy `#041e42`, white with gold `#b9975b` artwork details |
+| Tampa Bay | **Tampa Coil** | An induction-coil tower and forked electrical arcs, inspired by the arena's Tesla coil intro | Royal blue `#002868`, midnight `#101820`, white |
+| Dallas | **Dallas Brimline** | Wide-brimmed western cowboy hat and subtle star on a silver/green crest | Green `#006847`, black `#111111`, silver `#c4ced4` |
+
+The **Dallas Brimline** fictional team name avoids shipping the real-world *Stetson* brand name while delivering the requested cowboy-hat design. All four team crests work with the gallery preview, center-ice rendering, per-player DEV persistence, and Save/Cancel behavior. Stable files remain untouched.
 
 ## City clubs — third batch (DEV V2.2)
 
