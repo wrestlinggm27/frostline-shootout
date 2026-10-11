@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.6: Twenty-Four City Teams
+# Frostline Shootout — DEV V2.7: Twenty-Eight City Teams
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,19 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## City Club Batch Seven — DEV V2.7
+
+The DEV club picker now features **28 original fictional teams**, plus six generic crests. Four new independently designed SVG marks represent hockey fan traditions without copying official club logos.
+
+| Hockey market | Fictional club | Fan-tradition design | Colors |
+|---|---|---|---|
+| Utah | **Utah Tusks Up** | Two high-curving tusks frame a high-desert mountain peak in an energetic rally pose | Rock black `#15171a`, ice blue `#79cfe8`, white |
+| Winnipeg | **Winnipeg True North** | A bright compass star above the northern horizon, with echo arcs for the crowd's shouted response | Navy `#041e42`, light blue `#5b92c7`, silver `#d2d9e1` |
+| Anaheim | **Anaheim Rally Flight** | Rising abstract wing and three sharp rally speed trails to celebrate the "Let's Go Ducks" chant | Black `#111111`, orange `#f47a38`, gold `#d6a85e` |
+| Edmonton | **Edmonton Oil Country** | An energy droplet containing an original industrial rig silhouette, with a strong horizon | Navy `#041e42`, orange `#ff4c00`, white |
+
+The collapsed-by-default City Clubs gallery keeps the team customization menu compact as it grows. All 28 city teams load into the live preview, rink crest and existing save/load profiles. The stable V1.7.1 game has not been modified.
 
 ## City Club Batch Six — DEV V2.6
 
