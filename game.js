@@ -2230,7 +2230,7 @@
     startupScreen.dataset.phase = 'ready';
     startupScreen.hidden = true;
     // Onboarding happens only after the opening sequence, never behind it.
-    if (!game.profile) requestAnimationFrame(openPlayerDialog);
+    if (!game.profile) openPlayerDialog();
   }
   function beginStartupIntro() {
     if (startupPhase !== 'start') return;
