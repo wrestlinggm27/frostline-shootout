@@ -334,10 +334,14 @@ test('DEV data normalizes unknown old shield identifiers safely', () => {
 
 test('DEV sixteen city clubs load original crests with intended color palettes and save team', () => {
   assert.equal((html.match(/data-city-club="/g) || []).length, 16);
+  assert.match(html, /<details class="city-club-gallery" id="cityClubGallery">/);
+  assert.match(html, /<summary class="city-club-toggle">/);
+  assert.match(css, /city-club-gallery:not\(\[open\]\)/);
   const t = boot();
   t.frame(16);
   t.elem('playerNameInput').value = 'City Captain';
   t.submit('playerForm');
+  assert.equal(t.elem('cityClubGallery').open, false, 'team setup should start with city clubs collapsed');
   const options = [
     { name: 'Empire Salute', crest: 'nySalute', club: 'newyork', primary:'#0038a8', secondary:'#ce1126' },
     { name: 'Motor City Octopus', crest: 'detOctopus', club: 'detroit', primary:'#ce1126', secondary:'#ffffff' },
@@ -364,6 +368,7 @@ test('DEV sixteen city clubs load original crests with intended color palettes a
     assert.equal(t.elem('teamSecondary').value, expected.secondary);
     assert.equal(t.elem('previewTeamCrest').children.length, 1);
     assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
+    assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
     assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
     // The SVG contains one or more original icon path elements beyond the shield.
     assert.ok(t.elem('previewTeamCrest').children[0].children.length > 4);
@@ -371,12 +376,17 @@ test('DEV sixteen city clubs load original crests with intended color palettes a
     const saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
     for (const key of ['name','crest','club','primary','secondary']) assert.equal(saved[key], expected[key]);
     assert.equal(t.elem('headerTeamCrest').children.length, 1);
+    // Reopening the team editor should always return to the compact state.
+    t.elem('cityClubGallery').open = true;
     t.elem('customizeButton').emit('click');
+    assert.equal(t.elem('cityClubGallery').open, false);
+    assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
   }
 
   // Editing a city palette produces a custom derivative without losing its mark.
   t.elem('teamNameInput').value = 'My Cowboy Hat';
   t.elem('teamNameInput').emit('input');
+  assert.equal(t.elem('cityClubSummary').textContent, 'Browse 16 original city teams');
   t.submit('teamForm');
   let saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
   assert.equal(saved.club, null);
