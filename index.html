@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#071f54">
-  <meta name="description" content="Frostline Shootout — free 30-second hockey arcade with 32 original city teams.">
+  <meta name="description" content="Frostline Shootout — a 30-second hockey arcade with 32 original city clubs, 8 national teams and custom shields.">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.8.1">
-  <script src="game.js?v=2.8.1" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.10">
+  <script src="game.js?v=2.10" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -86,7 +86,7 @@
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.8.1</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.10</span></footer>
   </main>
   <dialog id="logoLabDialog" class="logo-lab-dialog" aria-labelledby="logoLabTitle">
     <div class="logo-lab-content">
@@ -314,6 +314,54 @@
           </section>
         </div>
       </details>
+      <details class="city-club-gallery national-team-gallery" id="nationalTeamGallery">
+        <summary class="city-club-toggle">
+          <span class="city-club-toggle-info">
+            <strong>NATIONAL TEAMS <span class="city-club-count">8</span></strong>
+            <small id="nationalTeamSummary">Browse 8 national teams</small>
+          </span>
+          <span class="city-club-toggle-control" aria-hidden="true">
+            <span class="city-club-show">EXPAND</span><span class="city-club-hide">COLLAPSE</span>
+            <span class="city-club-chevron"></span>
+          </span>
+        </summary>
+        <p class="city-club-intro">Represent your country. Choose its flag and colors, then make the team your own.</p>
+        <div class="national-team-options" role="group" aria-label="Choose a national hockey team">
+          <button class="national-team-choice" type="button" data-national-team="usa" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">US</span><strong>USA</strong><small>Stars and stripes</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#002868"></i><i style="--swatch:#bf0a30"></i><i style="--swatch:#ffffff"></i></span></span>
+          </button>
+          <button class="national-team-choice" type="button" data-national-team="canada" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">CA</span><strong>CANADA</strong><small>Red and white maple leaf</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#d80621"></i><i style="--swatch:#ffffff"></i><i style="--swatch:#ffffff"></i></span></span>
+          </button>
+          <button class="national-team-choice" type="button" data-national-team="sweden" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">SE</span><strong>SWEDEN</strong><small>Blue and yellow Nordic cross</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#006aa7"></i><i style="--swatch:#fecc00"></i><i style="--swatch:#ffffff"></i></span></span>
+          </button>
+          <button class="national-team-choice" type="button" data-national-team="finland" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">FI</span><strong>FINLAND</strong><small>White and blue Nordic cross</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#ffffff"></i><i style="--swatch:#002f6c"></i><i style="--swatch:#002f6c"></i></span></span>
+          </button>
+          <button class="national-team-choice" type="button" data-national-team="czechia" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">CZ</span><strong>CZECHIA</strong><small>White, red and blue triangle</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#ffffff"></i><i style="--swatch:#d7141a"></i><i style="--swatch:#11457e"></i></span></span>
+          </button>
+          <button class="national-team-choice" type="button" data-national-team="slovakia" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">SK</span><strong>SLOVAKIA</strong><small>Tricolor with double cross</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#ffffff"></i><i style="--swatch:#0b4ea2"></i><i style="--swatch:#ee1c25"></i></span></span>
+          </button>
+          <button class="national-team-choice" type="button" data-national-team="germany" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">DE</span><strong>GERMANY</strong><small>Black, red and gold</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#111111"></i><i style="--swatch:#dd0000"></i><i style="--swatch:#ffce00"></i></span></span>
+          </button>
+          <button class="national-team-choice" type="button" data-national-team="switzerland" aria-pressed="false">
+            <span class="national-team-icon" aria-hidden="true"></span>
+            <span class="national-team-detail"><span class="national-team-flag" aria-hidden="true">CH</span><strong>SWITZERLAND</strong><small>White cross on red</small><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#da291c"></i><i style="--swatch:#ffffff"></i><i style="--swatch:#ffffff"></i></span></span>
+          </button>
+        </div>
+      </details>
+      <p class="customizer-source-heading">MAKE IT YOURS · CUSTOM TEAM</p>
       <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
       <input type="text" id="teamNameInput" name="teamName" maxlength="24" placeholder="Your team name" required>
       <p class="customizer-label preset-heading">QUICK COLOR THEMES</p>
