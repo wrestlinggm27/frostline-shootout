@@ -7,8 +7,8 @@
   <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
   <meta name="robots" content="noindex, nofollow">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.3-dev">
-  <script src="game.js?v=2.3-dev" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.4-dev">
+  <script src="game.js?v=2.4-dev" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -87,7 +87,7 @@
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.3-DEV</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.4-DEV</span></footer>
   </main>
   <dialog id="logoLabDialog" class="logo-lab-dialog" aria-labelledby="logoLabTitle">
     <div class="logo-lab-content">
@@ -157,9 +157,18 @@
         <div class="preview-crest" id="previewTeamCrest" aria-label="Live team crest preview" role="img"></div>
         <div><small>HOME TEAM</small><strong id="previewTeamName">BROADWAY BLUES</strong><span class="preview-stripes" aria-hidden="true"></span></div>
       </div>
-      <fieldset class="city-club-gallery">
-        <legend>FROSTLINE CITY CLUBS · SIXTEEN TEAMS</legend>
-        <p class="city-club-intro">Sixteen original hockey crests inspired by city traditions. Select a club to load its name, shield and colors, then customize anything you like.</p>
+      <details class="city-club-gallery" id="cityClubGallery">
+        <summary class="city-club-toggle">
+          <span class="city-club-toggle-info">
+            <strong>FROSTLINE CITY CLUBS <span class="city-club-count">16</span></strong>
+            <small id="cityClubSummary">Browse 16 original city teams</small>
+          </span>
+          <span class="city-club-toggle-control" aria-hidden="true">
+            <span class="city-club-show">EXPAND</span><span class="city-club-hide">COLLAPSE</span>
+            <span class="city-club-chevron"></span>
+          </span>
+        </summary>
+        <p class="city-club-intro">Choose a city-inspired shield to load its team name and colors, then customize it if you like.</p>
         <div class="city-club-options" role="group" aria-label="Choose a city-inspired hockey team">
           <button class="city-club-choice" type="button" data-city-club="newyork" aria-pressed="false">
             <span class="city-club-icon" aria-hidden="true"></span>
@@ -229,7 +238,7 @@
             <span class="city-club-detail"><small>DALLAS</small><strong>DALLAS BRIMLINE</strong><em>Western cowboy hat</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#006847"></i><i style="--swatch:#111111"></i><i style="--swatch:#c4ced4"></i></span></span>
           </button>
         </div>
-      </fieldset>
+      </details>
       <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
       <input type="text" id="teamNameInput" name="teamName" maxlength="24" placeholder="Your team name" required>
       <p class="customizer-label preset-heading">QUICK COLOR THEMES</p>
