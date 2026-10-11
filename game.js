@@ -1097,8 +1097,19 @@
     } catch { /* Browsers without Web Audio still play silently. */ }
   }
 
+  function updateSoundButton() {
+    // SVG icons do not reliably implement HTMLElement.hidden. Toggle the real
+    // attribute so both the browser and the [hidden] CSS rule hide the right icon.
+    soundOnIcon.toggleAttribute('hidden', !game.audioEnabled);
+    soundOffIcon.toggleAttribute('hidden', game.audioEnabled);
+    soundButton.setAttribute('aria-label', game.audioEnabled ? 'Mute sound' : 'Turn sound on');
+    soundButton.setAttribute('aria-pressed', String(!game.audioEnabled));
+    soundButton.title = game.audioEnabled ? 'Mute sound' : 'Turn sound on';
+  }
   soundButton.addEventListener('click', () => {
     game.audioEnabled = !game.audioEnabled;
+    // Reflect the state immediately, even if an optional audio API fails.
+    updateSoundButton();
     if (!game.audioEnabled) stopWindup();
     if (arenaAudio.master && game.audioContext) {
       const t = game.audioContext.currentTime;
@@ -1108,11 +1119,8 @@
       const ac = audioReady();
       if (ac) preloadCrowd(ac);
     }
-    soundOnIcon.hidden = !game.audioEnabled;
-    soundOffIcon.hidden = game.audioEnabled;
-    soundButton.setAttribute('aria-label', game.audioEnabled ? 'Mute sound' : 'Turn sound on');
-    soundButton.title = game.audioEnabled ? 'Mute sound' : 'Turn sound on';
   });
+  updateSoundButton();
 
   function updateHUD() {
     scoreEl.textContent = game.goals;
