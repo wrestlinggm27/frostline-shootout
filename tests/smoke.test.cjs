@@ -76,6 +76,8 @@ function boot(seed = {}) {
   const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
   const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
   const cityChoices = ['boston', 'buffalo', 'detroit', 'florida', 'montreal', 'ottawa', 'tampa', 'toronto', 'carolina', 'columbus', 'newjersey', 'islanders', 'newyork', 'philadelphia', 'pittsburgh', 'washington', 'chicago', 'colorado', 'dallas', 'minnesota', 'nashville', 'stlouis', 'utah', 'winnipeg', 'anaheim', 'calgary', 'edmonton', 'losangeles', 'sanjose', 'seattle', 'vancouver', 'vegas'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
+  const nationChoices = ['usa','canada','sweden','finland','czechia','slovakia','germany','switzerland']
+    .map(id => Object.assign(new MockNode(id), { dataset: { nationalTeam: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -86,6 +88,7 @@ function boot(seed = {}) {
       if (selector === '[data-f-logo]') return logoChoices;
       if (selector === '[data-team-crest]') return crestChoices;
       if (selector === '[data-city-club]') return cityChoices;
+      if (selector === '[data-national-team]') return nationChoices;
       return [];
     },
     querySelector(selector) { return elem('query:' + selector); },
@@ -118,7 +121,7 @@ function boot(seed = {}) {
     cb(time);
   }
   function submit(id) { elem(id).emit('submit'); }
-  return { elem, leagues, presets, logoChoices, crestChoices, cityChoices, storage, localStorage, frame, submit, errors, raf };
+  return { elem, leagues, presets, logoChoices, crestChoices, cityChoices, nationChoices, storage, localStorage, frame, submit, errors, raf };
 }
 
 test('UI contains player, team and local record book elements', () => {
@@ -314,8 +317,7 @@ test('Stable custom team shields preview, save and persist separately for each p
   rink.emit('pointermove', { pointerId: 35, clientX: 174, clientY: 653 });
   rink.emit('pointerup', { pointerId: 35, clientX: 174, clientY: 653 });
   assert.equal(reloaded.elem('shots').textContent, 1);
-  assert.ok(reloaded.storage.has('frostline-player-profiles-v1'), 'Stable data must persist');
-  assert.ok(!reloaded.storage.has('frostline-dev:frostline-player-profiles-v1'), 'DEV profiles remain separate');
+  assert.ok(!reloaded.storage.has('frostline-player-profiles-v1'), 'Stable data must remain separate');
 });
 
 test('Stable data normalizes unknown old shield identifiers safely', () => {
@@ -427,89 +429,178 @@ test('Stable thirty-two division-grouped city clubs load original crests with in
 });
 
 
-test('V1.7.1 profiles and existing record books survive the Stable V2.8 promotion', () => {
-  const oldProfile = {
-    players:[{ id:'v1-player', name:'Veteran Fan',
-      team:{ name:'Old Rink Club', primary:'#153371', secondary:'#ca3344', trim:'#fffadd' },
-      difficulty:'show',
-      records:{arcade:{show:{best:12,rounds:7,goals:53,shots:90,saves:21,misses:16}}} }],
-    activeId:'v1-player', legacyClaimed:true
-  };
-  const devBackup = '{"players":[{"id":"dev-player","name":"Different Fan"}]}';
-  const t = boot({
-    'frostline-player-profiles-v1': JSON.stringify(oldProfile),
-    'frostline-shootout-difficulty-v1':'show',
-    'frostline-dev:frostline-player-profiles-v1':devBackup
-  });
-  assert.equal(t.elem('playerDialog').open, false, 'returning player should not be asked to sign up');
-  assert.equal(t.elem('menuPlayerName').textContent, 'VETERAN FAN');
-  assert.equal(t.elem('teamNameDisplay').textContent, 'OLD RINK CLUB');
-  assert.equal(t.elem('best').textContent, 12);
-  let db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
-  assert.equal(db.activeId, 'v1-player');
-  assert.deepEqual(db.players[0].records, oldProfile.players[0].records, 'historic stats should remain intact');
-  assert.equal(db.players[0].team.primary, '#153371');
-  assert.equal(db.players[0].team.crest, 'monogram', 'old team gets a compatible shield');
-  t.elem('customizeButton').emit('click');
-  t.cityChoices.find(b => b.dataset.cityClub === 'newyork').emit('click');
-  t.submit('teamForm');
-  db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
-  assert.equal(db.players[0].team.club, 'newyork');
-  assert.equal(db.players[0].team.crest, 'nySalute');
-  assert.deepEqual(db.players[0].records, oldProfile.players[0].records, 'changing a team must not reset records');
-  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), devBackup, 'DEV data remains untouched');
-  const reloaded = boot(Object.fromEntries(t.storage));
-  assert.equal(reloaded.elem('teamNameDisplay').textContent, 'EMPIRE SALUTE');
-  assert.equal(reloaded.elem('best').textContent, 12);
-});
 
-
-test('V2.8.1 makes Ice Cut the official brand logo for new players without affecting DEV storage', () => {
-  assert.match(html, /<use id="brandLogoUse" href="#frostline-ice"><\/use>/);
-  assert.match(html, /<use id="logoPreviewUse" href="#frostline-ice"><\/use>/);
-  assert.match(html, /V2\.8\.1<\/span>/);
-  const devData = '{"players":[{"id":"dev-profile","logoVariant":"power"}]}';
-  const t = boot({ 'frostline-dev:frostline-player-profiles-v1': devData });
-  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
+test('Stable national teams show eight actual flags, save country identity, draw shields, and permit custom derivatives', () => {
+  assert.equal((html.match(/data-city-club="/g) || []).length, 32, 'city collection stays intact');
+  assert.equal((html.match(/data-national-team="/g) || []).length, 8);
+  assert.match(html, /id="nationalTeamGallery"/);
+  assert.match(html, /MAKE IT YOURS · CUSTOM TEAM/);
+  for (const code of ['US','CA','SE','FI','CZ','SK','DE','CH']) {
+    assert.ok(html.includes('<span class="national-team-flag" aria-hidden="true">' + code + '</span>'), 'country code ' + code);
+  }
+  // Only the original, correct flag geometry should be used in SVG and on ice.
+  assert.match(gameCode, /const NATIONAL_FLAG_VECTORS =/);
+  assert.match(gameCode, /ctx\.clip\(inner\)/);
+  assert.match(gameCode, /create\('clipPath'/);
+  assert.match(gameCode, /Array\.from\(\{length:9\}/);
+  assert.match(gameCode, /length:row%2\?5:6/);
+  assert.match(gameCode, /M233 370\.8/, 'real Slovak arms geometry is included');
+  assert.match(gameCode, /M-19\.7 0h169\.8v480/, 'full Canadian maple leaf and red bars are included');
+  const countries = [
+    { id:'usa', name:'USA', crest:'natUSA', primary:'#002868', secondary:'#bf0a30' },
+    { id:'canada', name:'Canada', crest:'natCanada', primary:'#d80621', secondary:'#ffffff' },
+    { id:'sweden', name:'Sweden', crest:'natSweden', primary:'#006aa7', secondary:'#fecc00' },
+    { id:'finland', name:'Finland', crest:'natFinland', primary:'#ffffff', secondary:'#002f6c' },
+    { id:'czechia', name:'Czechia', crest:'natCzechia', primary:'#ffffff', secondary:'#d7141a' },
+    { id:'slovakia', name:'Slovakia', crest:'natSlovakia', primary:'#ffffff', secondary:'#0b4ea2' },
+    { id:'germany', name:'Germany', crest:'natGermany', primary:'#111111', secondary:'#dd0000' },
+    { id:'switzerland', name:'Switzerland', crest:'natSwitzerland', primary:'#da291c', secondary:'#ffffff' }
+  ];
+  const t = boot();
   t.frame(16);
-  t.elem('playerNameInput').value = 'New Ice Fan';
+  t.elem('playerNameInput').value = 'International Captain';
   t.submit('playerForm');
-  const profile = JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0];
-  assert.equal(profile.logoVariant, 'ice');
-  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), devData);
+  assert.equal(t.elem('nationalTeamGallery').open, false);
+  assert.equal(t.nationChoices.length, 8);
+  for (const country of countries) {
+    t.nationChoices.find(button=>button.dataset.nationalTeam===country.id).emit('click');
+    assert.equal(t.elem('teamNameInput').value, country.name);
+    assert.equal(t.elem('teamPrimary').value, country.primary);
+    assert.equal(t.elem('teamSecondary').value, country.secondary);
+    assert.equal(t.elem('nationalTeamSummary').textContent, 'Selected: ' + country.name);
+    assert.equal(t.elem('cityClubSummary').textContent, 'Browse 32 original city teams');
+    const choice=t.nationChoices.find(button=>button.dataset.nationalTeam===country.id);
+    assert.equal(choice.getAttribute('aria-pressed'), 'true');
+    assert.equal(choice.querySelector('.national-team-icon').children.length, 1);
+    assert.equal(t.elem('previewTeamCrest').children.length, 1);
+    assert.ok(t.elem('previewTeamCrest').children[0].children.length > 4, 'flag geometry on shield');
+    t.submit('teamForm');
+    const saved=JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0].team;
+    assert.equal(saved.nation, country.id);
+    assert.equal(saved.club, null);
+    assert.equal(saved.crest, country.crest);
+    assert.equal(saved.name, country.name);
+    assert.equal(saved.primary, country.primary);
+    assert.equal(t.elem('headerTeamCrest').children.length,1);
+    t.elem('nationalTeamGallery').open=true;
+    t.elem('customizeButton').emit('click');
+    assert.equal(t.elem('nationalTeamGallery').open,false,'reopening starts collapsed');
+    assert.equal(t.elem('nationalTeamSummary').textContent,'Selected: ' + country.name);
+  }
+  // Starting with Switzerland, customize a country palette/name while
+  // retaining its flag-derived crest as a player-owned team.
+  t.elem('teamNameInput').value='My Alpine Crew';
+  t.elem('teamNameInput').emit('input');
+  assert.equal(t.elem('nationalTeamSummary').textContent,'Browse 8 national teams');
+  t.submit('teamForm');
+  let saved=JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.nation,null);
+  assert.equal(saved.crest,'natSwitzerland');
+  assert.equal(saved.name,'My Alpine Crew');
+  const again=boot(Object.fromEntries(t.storage));
+  again.elem('customizeButton').emit('click');
+  assert.equal(again.elem('teamNameInput').value,'My Alpine Crew');
+  assert.equal(again.elem('previewTeamCrest').children.length,1);
+  again.elem('cancelTeam').emit('click');
+  // Selecting a city instead clears the national identity, not the records.
+  again.elem('customizeButton').emit('click');
+  again.cityChoices.find(button=>button.dataset.cityClub==='newyork').emit('click');
+  again.submit('teamForm');
+  saved=JSON.parse(again.storage.get('frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.nation,null);
+  assert.equal(saved.club,'newyork');
+  assert.equal(saved.crest,'nySalute');
+  assert.ok(again.storage.has('frostline-player-profiles-v1'),'Stable stores its own profiles');
+  assert.ok(!again.storage.has('frostline-dev:frostline-player-profiles-v1'),'Stable never changes DEV');
 });
 
-test('existing Stable Power Play defaults switch to Ice Cut once; explicit choices then persist', () => {
-  const oldRecord = { arcade: { show: { best: 27, rounds: 4, goals: 62, shots: 85, saves: 14, misses: 9 } } };
-  const original = {
-    activeId:'old', legacyClaimed: true,
-    players:[
-      { id:'old', name:'Longtime Fan', logoVariant:'power',
-        team:{name:'Legacy Team',primary:'#112244',secondary:'#ee3355',trim:'#ffffff'},difficulty:'show',records:oldRecord },
-      { id:'other', name:'Speed Fan', logoVariant:'speed', team:{name:'Speed Stars'},difficulty:'beer',records:{} }
+test('Stable normalizes removed/unknown national identifiers without breaking old profiles',()=>{
+  const t=boot({'frostline-player-profiles-v1':JSON.stringify({
+    players:[{id:'older',name:'Older Fan',team:{name:'Legacy',primary:'#0038a8',secondary:'#ce1126',trim:'#ffffff',crest:'natFinland',nation:'unknown-nation'},difficulty:'beer',records:{}}],
+    activeId:'older',legacyClaimed:true
+  })});
+  t.elem('customizeButton').emit('click');
+  assert.equal(t.elem('nationalTeamSummary').textContent,'Browse 8 national teams');
+  assert.equal(t.elem('previewTeamCrest').children.length,1);
+});
+
+
+test('national SVG vector detail is preserved in generated previews and saved teams', () => {
+  const t=boot();
+  t.frame(16);
+  t.elem('playerNameInput').value='Flag Inspector';
+  t.submit('playerForm');
+  const expected={
+    usa:53, canada:2, sweden:2, finland:3,
+    czechia:3, slovakia:7, germany:3, switzerland:3
+  };
+  for(const [id,layers] of Object.entries(expected)){
+    t.nationChoices.find(b=>b.dataset.nationalTeam===id).emit('click');
+    const svg=t.elem('previewTeamCrest').children[0];
+    assert.equal(svg.children.length,5,id+': SVG has shield, clip and flag');
+    const flagGroup=svg.children[3].children[0];
+    assert.equal(flagGroup.children.length,layers,id+': authoritative vector layers');
+    assert.equal(svg.children[2].children[0].getAttribute('id').startsWith('frostline-national-clip-'),true);
+    const cardSvg=t.nationChoices.find(b=>b.dataset.nationalTeam===id).querySelector('.national-team-icon').children[0];
+    assert.equal(cardSvg.children.length,5,id+': picker also uses accurate flag');
+  }
+  const usa=t.nationChoices.find(b=>b.dataset.nationalTeam==='usa');
+  usa.emit('click');
+  const flagsSvg=t.elem('previewTeamCrest').children[0];
+  assert.equal(flagsSvg.children[3].children[0].children.length,53,'USA must have 50 actual star paths plus 3 flag layers');
+});
+
+test('Stable 2.10 preserves V1.7.1 records and Ice Cut branding while adding accurate national shields',()=>{
+  const records={arcade:{show:{best:12,rounds:7,goals:53,shots:90,saves:21,misses:16}}};
+  const old={
+    activeId:'legacy',legacyClaimed:true,players:[{
+      id:'legacy',name:'Veteran Fan',team:{name:'Veteran Club',primary:'#113377',secondary:'#c52244',trim:'#ffffff'},
+      difficulty:'show',records
+    }]
+  };
+  const devSaved='{"activeId":"preview","players":[{"id":"preview","name":"Dev Player"}]}';
+  const t=boot({
+    'frostline-player-profiles-v1':JSON.stringify(old),
+    'frostline-shootout-difficulty-v1':'show',
+    'frostline-dev:frostline-player-profiles-v1':devSaved
+  });
+  assert.equal(t.elem('playerDialog').open,false);
+  assert.equal(t.elem('menuPlayerName').textContent,'VETERAN FAN');
+  assert.equal(t.elem('teamNameDisplay').textContent,'VETERAN CLUB');
+  assert.equal(t.elem('best').textContent,12);
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'),'#frostline-ice');
+  t.elem('customizeButton').emit('click');
+  t.nationChoices.find(button=>button.dataset.nationalTeam==='canada').emit('click');
+  t.submit('teamForm');
+  let profile=JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0];
+  assert.equal(profile.team.nation,'canada');
+  assert.equal(profile.team.crest,'natCanada');
+  assert.deepEqual(profile.records,records);
+  assert.equal(profile.logoVariant,'ice');
+  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'),devSaved);
+  const restarted=boot(Object.fromEntries(t.storage));
+  assert.equal(restarted.elem('teamNameDisplay').textContent,'CANADA');
+  assert.equal(restarted.elem('brandLogoUse').getAttribute('href'),'#frostline-ice');
+  assert.equal(restarted.elem('best').textContent,12);
+});
+
+test('the original V2.8 Power Play default migrates to Ice Cut only once',()=>{
+  const old={
+    activeId:'v2',legacyClaimed:true,players:[
+      {id:'v2',name:'Old Default',logoVariant:'power',team:{name:'Hockey Team'},difficulty:'beer',records:{}},
+      {id:'speed',name:'Speed Fan',logoVariant:'speed',team:{name:'Fast Team'},difficulty:'beer',records:{}}
     ]
   };
-  const devOriginal = JSON.stringify({ players:[{ id:'dev', name:'Preview Player', logoVariant:'power' }] });
-  const seeded = {
-    'frostline-player-profiles-v1':JSON.stringify(original),
-    'frostline-dev:frostline-player-profiles-v1':devOriginal,
-    'frostline-shootout-difficulty-v1':'show'
-  };
-  const t = boot(seeded);
-  let db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
-  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
-  assert.equal(db.players[0].logoVariant, 'ice', 'previous automatically assigned Power Play must migrate');
-  assert.equal(db.players[1].logoVariant, 'speed', 'other saved variants should be retained');
-  assert.deepEqual(db.players[0].records, oldRecord, 'records must remain intact');
-  assert.equal(db.players[0].team.name, 'Legacy Team', 'team must remain intact');
-  assert.equal(t.storage.get('frostline-icecut-official-logo-v1'), '1');
-  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), devOriginal);
+  const t=boot({'frostline-player-profiles-v1':JSON.stringify(old)});
+  let db=JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(db.players[0].logoVariant,'ice');
+  assert.equal(db.players[1].logoVariant,'speed');
+  assert.equal(t.storage.get('frostline-icecut-official-logo-v1'),'1');
   t.elem('logoLabButton').emit('click');
   t.logoChoices[0].emit('click');
   t.elem('saveLogoLab').emit('click');
-  db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
-  assert.equal(db.players[0].logoVariant, 'power', 'player can deliberately select Power Play afterward');
-  const again = boot(Object.fromEntries(t.storage));
-  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-power', 'migration must not repeat');
-  assert.equal(JSON.parse(again.storage.get('frostline-player-profiles-v1')).players[0].logoVariant, 'power');
+  db=JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(db.players[0].logoVariant,'power');
+  const again=boot(Object.fromEntries(t.storage));
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'),'#frostline-power','explicitly chosen Power Play remains valid');
 });
