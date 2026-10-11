@@ -20,7 +20,7 @@ async function inspect(page) {
     const card = document.querySelector('.overlay-card').getBoundingClientRect();
     const selectors = [
       '#overlayTitle', '#endSummary:not([hidden])', '.difficulty-select',
-      '.menu-utility-actions', '#playButton', '#overlayHint', '.player-bar'
+      '.menu-utility-actions', '#playButton', '#resultsMenuButton:not([hidden])', '#overlayHint', '.player-bar'
     ];
     const pad = 1.5;
     const fits = b => b.left >= frame.left - pad && b.right <= frame.right + pad
@@ -31,7 +31,7 @@ async function inspect(page) {
         const rect = element.getBoundingClientRect();
         return { selector, fits: fits(rect), width: Math.round(rect.width), height: Math.round(rect.height) };
       });
-    const buttons = [...document.querySelectorAll('.difficulty-choice, .menu-utility-actions button')];
+    const buttons = [...document.querySelectorAll('.difficulty-choice, .menu-utility-actions button, .results-menu-button:not([hidden])')];
     return {
       cardFits: fits(card),
       visible,
@@ -203,6 +203,34 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.ok(start.visible.every(v => v.fits), viewport.label + ': start content escaped rink, ' + JSON.stringify(start));
       assert.ok(start.overflow.every(v => !v.exceeds), viewport.label + ': start button overflow, ' + JSON.stringify(start));
 
+      // Verify the return-to-menu button is compact, centered, and works during a game.
+      await page.locator('#playButton').click();
+      assert.equal(await page.locator('#mainMenuButton').isVisible(), true,
+        viewport.label + ': in-game menu missing');
+      const menuFits = await page.evaluate(() => {
+        const button = document.getElementById('mainMenuButton').getBoundingClientRect();
+        const rink = document.getElementById('rinkFrame').getBoundingClientRect();
+        return button.left >= rink.left && button.right <= rink.right &&
+          button.top >= rink.top && button.bottom <= rink.bottom;
+      });
+      assert.ok(menuFits, viewport.label + ': menu button outside rink');
+      assert.equal((await page.locator('#mainMenuButton').textContent()).trim(), 'MENU');
+      const compactMenu = await page.locator('#mainMenuButton').evaluate(button => {
+        const size = button.getBoundingClientRect();
+        const style = getComputedStyle(button);
+        return { width: size.width, height: size.height, display: style.display,
+          alignItems: style.alignItems, justifyContent: style.justifyContent };
+      });
+      assert.ok(compactMenu.width <= 50 && compactMenu.height <= 26,
+        viewport.label + ': in-game Menu button should be compact, ' + JSON.stringify(compactMenu));
+      assert.equal(compactMenu.display, 'flex');
+      assert.equal(compactMenu.alignItems, 'center');
+      assert.equal(compactMenu.justifyContent, 'center');
+      await page.locator('#mainMenuButton').click();
+      assert.equal(await page.locator('#overlay').isVisible(), true,
+        viewport.label + ': returning to menu should show overlay');
+      assert.match(await page.locator('#playButton').textContent(), /START GAME/);
+
       await page.evaluate(() => {
         const overlay = document.getElementById('overlay');
         overlay.classList.add('results');
@@ -214,6 +242,7 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
           + '<div><span>SHOTS</span><strong>9</strong></div>'
           + '<div><span>ACCURACY</span><strong>56%</strong></div>';
         document.getElementById('playButton').innerHTML = 'PLAY AGAIN <span aria-hidden="true">↗</span>';
+        document.getElementById('resultsMenuButton').hidden = false;
         document.getElementById('overlayHint').textContent = 'ARCADE SHOOTOUT · MORE MODES COMING';
         window.dispatchEvent(new Event('resize'));
       });
@@ -221,6 +250,11 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.ok(result.cardFits, viewport.label + ': result menu escaped rink, ' + JSON.stringify(result));
       assert.ok(result.visible.every(v => v.fits), viewport.label + ': results escaped rink, ' + JSON.stringify(result));
       assert.ok(result.overflow.every(v => !v.exceeds), viewport.label + ': results button overflow, ' + JSON.stringify(result));
+      assert.equal((await page.locator('#resultsMenuButton').textContent()).trim(), 'MAIN MENU',
+        viewport.label + ': results button should have no arrow');
+      await page.locator('#resultsMenuButton').click();
+      assert.equal(await page.locator('#resultsMenuButton').isVisible(), false);
+      assert.match(await page.locator('#overlayTitle').textContent(), /THIRTY SECONDS/);
       assert.deepEqual(errors, [], viewport.label + ': browser errors');
       console.log(viewport.label + ': start and result fit, scale=' + result.fitScale);
       await context.close();
