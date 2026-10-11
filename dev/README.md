@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V1.9: Team Crest Studio
+# Frostline Shootout — DEV V2.0: City Club Prototype
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,21 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## The first four city clubs — DEV V2.0
+
+Players may choose one of four **fictional city-inspired hockey clubs** from **Customize Team → Frostline City Clubs**. Each club has a new original vector emblem, a team name, and a city-inspired professional hockey color palette. No official NHL logos, names, or reproduced team marks ship with the game.
+
+| City | Fictional club name | Inspiration | Primary / secondary / trim |
+|---|---|---|---|
+| New York | **Empire Salute** | Two raised hockey sticks framing a skyscraper skyline, inspired by center-ice stick salutes | Royal blue `#0038a8`, red `#ce1126`, white |
+| Detroit | **Motor City Octopus** | A playful octopus with curling tentacles and expressive face | Red `#ce1126`, white |
+| Chicago | **Chicago Curve** | A large forward-sweeping curved stick blade with original star details | Black `#121318`, red `#cf0a2c`, cream `#f4e9d8` |
+| Calgary | **Prairie Fire** | A bold ring of gold flames surrounding a hockey puck | Red `#c8102e`, gold `#f1be48`, white |
+
+Select any club to load its name, palette and crest into the **live team preview**. The existing name field, color pickers and six original generic shields remain usable. **Save My Team** persists a team identity including its optional `club` id and `crest` id in the current DEV browser profile; changing the name or colors clears the club affiliation but preserves the chosen original graphic.
+
+The identity appears in the header and on center ice, and remains a single serializable object for potential future player matchups. Head-to-head goalie control, online multiplayer, and shared uploads are **not implemented**. Stable V1.7.1 stays unchanged.
 
 ## Team Crest Studio — DEV V1.9
 
