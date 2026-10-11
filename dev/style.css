@@ -586,3 +586,30 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @keyframes startup-appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.startup-panel{animation:none}}
 @media(max-height:480px){.startup-panel{gap:10px;padding:10px}.startup-ice-f{width:62px;height:62px;padding:12px}.startup-intro-f{width:48px;height:48px}}
+
+/* Ice builds from the corners at PRESS START, then stays through gameplay.
+   Decorative only: never intercepts taps, drags, menu buttons or dialogs. */
+.frost-edge-overlay{
+  position:fixed;inset:0;z-index:110;overflow:hidden;pointer-events:none;
+  isolation:isolate;
+}
+.frost-corner{
+  position:absolute;display:block;
+  width:clamp(96px,28vmin,185px);height:clamp(96px,28vmin,185px);
+  opacity:0;
+  filter:drop-shadow(0 0 8px #a8e7ff55);
+  transition:opacity 1.45s ease-out,transform 1.35s cubic-bezier(.16,.64,.25,1);
+  will-change:opacity,transform;
+}
+.frost-top-left{top:0;left:0;transform:rotate(0deg) scale(.35);transform-origin:top left}
+.frost-top-right{top:0;right:0;transform:rotate(90deg) scale(.35);transform-origin:center}
+.frost-bottom-right{bottom:0;right:0;transform:rotate(180deg) scale(.35);transform-origin:center}
+.frost-bottom-left{bottom:0;left:0;transform:rotate(270deg) scale(.35);transform-origin:center}
+.frost-edge-overlay[data-frost="on"] .frost-corner{opacity:1}
+.frost-edge-overlay[data-frost="on"] .frost-top-left{transform:rotate(0deg) scale(1)}
+.frost-edge-overlay[data-frost="on"] .frost-top-right{transform:rotate(90deg) scale(1)}
+.frost-edge-overlay[data-frost="on"] .frost-bottom-right{transform:rotate(180deg) scale(1)}
+.frost-edge-overlay[data-frost="on"] .frost-bottom-left{transform:rotate(270deg) scale(1)}
+@media(prefers-reduced-motion:reduce){
+  .frost-corner{transition:none;will-change:auto}
+}
