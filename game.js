@@ -2216,6 +2216,10 @@
   const startupIntro = $('startupIntro');
   let startupPhase = 'start';
   let startupTimer = null;
+  startupScreen.dataset.phase = 'start';
+  startupScreen.hidden = false;
+  startupWelcome.hidden = false;
+  startupIntro.hidden = true;
   function finishStartup() {
     if (startupPhase === 'ready') return;
     if (startupTimer !== null) {
