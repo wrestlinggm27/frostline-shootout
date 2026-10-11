@@ -176,6 +176,67 @@ test('DEV sound toggle switches SVG icons and mutes/unmutes the audio bus', () =
   assert.ok(!t.storage.has('frostline-player-profiles-v1'), 'DEV must not alter Stable records');
 });
 
+test('DEV Main Menu abandons a round safely and can start a clean game or new profile', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'First Skater';
+  t.submit('playerForm');
+  t.submit('teamForm');
+  const original = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(original.players.length, 1);
+  assert.equal(t.elem('mainMenuButton').hidden, true);
+  assert.equal(t.elem('resultsMenuButton').hidden, true);
+
+  t.elem('playButton').emit('click');
+  assert.equal(t.elem('mainMenuButton').hidden, false);
+  assert.equal(t.elem('overlay').hidden, true);
+  const rink = t.elem('rink');
+  rink.emit('pointerdown', { pointerId: 52, clientX: 210, clientY: 563 });
+  rink.emit('pointermove', { pointerId: 52, clientX: 170, clientY: 645 });
+  rink.emit('pointerup', { pointerId: 52, clientX: 170, clientY: 645 });
+  assert.equal(t.elem('shots').textContent, 1);
+
+  t.elem('mainMenuButton').emit('click');
+  assert.equal(t.elem('mainMenuButton').hidden, true);
+  assert.equal(t.elem('resultsMenuButton').hidden, true);
+  assert.equal(t.elem('overlay').hidden, false);
+  assert.match(t.elem('overlayTitle').innerHTML, /THIRTY SECONDS/);
+  assert.equal(t.elem('shots').textContent, 0);
+  assert.equal(t.elem('score').textContent, 0);
+  assert.match(t.elem('time').innerHTML, /30\.0/);
+  assert.equal(t.elem('menuPlayerName').textContent, 'FIRST SKATER');
+  t.frame(50000); // Abandoned round must not finish after returning to menu.
+  assert.equal(t.elem('overlay').hidden, false);
+  let saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players.length, 1);
+  assert.equal(saved.players[0].records.arcade.beer.rounds, 0);
+
+  t.elem('playButton').emit('click');
+  assert.equal(t.elem('mainMenuButton').hidden, false);
+  assert.equal(t.elem('shots').textContent, 0);
+  for (let i = 0; i < 350; i++) t.frame(100);
+  assert.equal(t.elem('overlay').hidden, false, 'finished round displays results');
+  assert.equal(t.elem('mainMenuButton').hidden, true);
+  assert.equal(t.elem('resultsMenuButton').hidden, false);
+  assert.match(t.elem('playButton').innerHTML, /PLAY AGAIN/);
+
+  t.elem('resultsMenuButton').emit('click');
+  assert.match(t.elem('overlayTitle').innerHTML, /THIRTY SECONDS/);
+  assert.equal(t.elem('resultsMenuButton').hidden, true);
+  assert.match(t.elem('playButton').innerHTML, /START GAME/);
+  t.elem('switchPlayerButton').emit('click');
+  assert.equal(t.elem('playerDialog').open, true);
+  t.elem('playerNameInput').value = 'Second Skater';
+  t.submit('playerForm');
+  saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players.length, 2);
+  assert.equal(saved.players[0].name, 'First Skater');
+  assert.equal(saved.players[0].records.arcade.beer.rounds, 1);
+  assert.equal(saved.players[1].name, 'Second Skater');
+  assert.equal(saved.players[1].records.arcade.beer.best, 0);
+  assert.equal(t.storage.has('frostline-player-profiles-v1'), false, 'Stable player storage untouched');
+});
+
 test('first visit requests name, leads to team setup, saves separate player records', () => {
   const t = boot();
   t.frame(16); // first requestAnimationFrame opens onboarding
