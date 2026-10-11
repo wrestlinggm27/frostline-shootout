@@ -154,6 +154,39 @@
       { d: 'M39 52 L45 46 H55 L61 52 L68 55 L63 65 L59 63 V73 H41 V63 L37 65 L32 55 Z', mode: 'trim' },
       { d: 'M45 52 H55 M43 61 H57', mode: 'base-stroke', width: 2.8 },
       { d: 'M41 75 H59', mode: 'stroke', width: 2.5 }
+    ] },
+    // Batch three: original civic bell, northwoods, live music, and coastal rain.
+    phiBell: { label: 'Philadelphia Bellline', shapes: [
+      { d: 'M50 30 C43 30 40 35 40 43 V57 C40 64 36 68 31 72 H69 C64 68 60 64 60 57 V43 C60 35 57 30 50 30 Z', mode: 'accent' },
+      { d: 'M44 73 C45 83 55 83 56 73 Z', mode: 'trim' },
+      { d: 'M50 28 V25 M34 76 H66', mode: 'stroke', width: 3.7 },
+      { d: 'M48 44 L52 50 L48 55 L54 64', mode: 'stroke', width: 2.7 },
+      { d: 'M32 83 H68', mode: 'stroke', width: 3.3 },
+      { d: 'M41 87 H59', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    minNorth: { label: 'Minnesota Northwoods', shapes: [
+      { d: 'M51 26 L55 34 L63 35 L57 41 L59 49 L51 45 L43 49 L45 41 L39 35 L47 34 Z', mode: 'accent' },
+      { d: 'M51 46 L39 60 H45 L33 73 H69 L57 60 H63 Z', mode: 'trim' },
+      { d: 'M47 70 H55 V83 H47 Z', mode: 'trim' },
+      { d: 'M26 83 Q35 78 44 83 T62 83 T78 83', mode: 'accent-stroke', width: 3.5 },
+      { d: 'M29 89 Q39 85 49 89 T71 89', mode: 'stroke', width: 2.7 }
+    ] },
+    nasRiff: { label: 'Nashville Music City Riff', shapes: [
+      { d: 'M45 29 L56 29 V53 L60 58 L58 67 L45 67 L42 60 L45 54 Z', mode: 'accent' },
+      { d: 'M45 30 L38 27 M45 38 L37 38 M56 31 L63 27 M56 39 L65 39', mode: 'stroke', width: 2.8 },
+      { d: 'M48 32 V59 M51 32 V59 M54 32 V59', mode: 'trim-stroke', width: 1.7 },
+      { d: 'M45 67 L45 81 Q46 87 54 87 H73 Q78 87 78 80 H62 Q57 80 56 75 L56 67 Z', mode: 'accent' },
+      { d: 'M60 81 H75', mode: 'trim-stroke', width: 2.3 },
+      { d: 'M27 48 V66 M32 52 V63 M73 45 V60 M79 49 V56', mode: 'stroke', width: 2.6 }
+    ] },
+    seaRain: { label: 'Seattle Rainline', shapes: [
+      { d: 'M50 27 L54 39 H46 Z', mode: 'trim' },
+      { d: 'M50 35 V75', mode: 'accent-stroke', width: 4.4 },
+      { d: 'M35 47 H65 L58 54 H42 Z', mode: 'trim' },
+      { d: 'M45 55 H55 L58 76 H42 Z', mode: 'accent' },
+      { d: 'M27 39 L23 49 M77 39 L73 49 M31 53 L27 62 M69 53 L73 62', mode: 'stroke', width: 3 },
+      { d: 'M23 81 Q35 69 47 81 T77 81', mode: 'trim-stroke', width: 4.1 },
+      { d: 'M24 88 Q37 80 50 88 T77 88', mode: 'accent-stroke', width: 3.2 }
     ] }
   };
   const CITY_CLUBS = {
@@ -164,7 +197,11 @@
     boston: { name: 'Boston Banner', location: 'Boston', primary: '#101010', secondary: '#ffb81c', trim: '#ffffff', crest: 'bosBanner', club: 'boston' },
     toronto: { name: 'Toronto Grind', location: 'Toronto', primary: '#00205b', secondary: '#ffffff', trim: '#ffffff', crest: 'torGrind', club: 'toronto' },
     montreal: { name: 'Montreal Olé', location: 'Montreal', primary: '#af1e2d', secondary: '#192168', trim: '#ffffff', crest: 'monChant', club: 'montreal' },
-    pittsburgh: { name: 'Pittsburgh Gear', location: 'Pittsburgh', primary: '#111111', secondary: '#fcb514', trim: '#ffffff', crest: 'pitGear', club: 'pittsburgh' }
+    pittsburgh: { name: 'Pittsburgh Gear', location: 'Pittsburgh', primary: '#111111', secondary: '#fcb514', trim: '#ffffff', crest: 'pitGear', club: 'pittsburgh' },
+    philadelphia: { name: 'Philly Bellline', location: 'Philadelphia', primary: '#f74902', secondary: '#000000', trim: '#ffffff', crest: 'phiBell', club: 'philadelphia' },
+    minnesota: { name: 'Minnesota Northwoods', location: 'Minnesota', primary: '#154734', secondary: '#a6192e', trim: '#ddcba4', crest: 'minNorth', club: 'minnesota' },
+    nashville: { name: 'Nashville Riff', location: 'Nashville', primary: '#ffb81c', secondary: '#041e42', trim: '#ffffff', crest: 'nasRiff', club: 'nashville' },
+    seattle: { name: 'Seattle Rainline', location: 'Seattle', primary: '#001628', secondary: '#99d9d9', trim: '#ffffff', crest: 'seaRain', club: 'seattle' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
@@ -186,7 +223,7 @@
     if (shape.mode === 'base' || shape.mode === 'base-stroke') return team.primary;
     return team.trim;
   }
-  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke'].includes(shape.mode); }
+  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke'].includes(shape.mode); }
   function makeCrestSvg(team, className = '') {
     const svgNS = 'http://www.w3.org/2000/svg';
     const create = (tag, attrs) => {
