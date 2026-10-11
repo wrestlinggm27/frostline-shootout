@@ -404,3 +404,14 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
  .city-club-swatches{margin-top:2px}
  .city-club-swatches i{height:6px;width:11px}
 }
+
+
+/* V2.1 DEV: eight original city clubs, grouped in easy-to-scan batches. */
+.city-club-group-label{
+  grid-column:1 / -1;margin:4px 0 0;padding:7px 3px 3px;
+  border-top:1px solid #9bbbea5c;color:#b9d4f4;
+  font-size:9px;font-weight:950;letter-spacing:.12em;
+}
+@media(max-width:390px){
+  .city-club-group-label{font-size:8px;padding-top:6px}
+}
