@@ -723,6 +723,8 @@
   const soundButton = $('soundButton');
   const soundOnIcon = $('soundOnIcon');
   const soundOffIcon = $('soundOffIcon');
+  const mainMenuButton = $('mainMenuButton');
+  const resultsMenuButton = $('resultsMenuButton');
 
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -1192,6 +1194,8 @@
     resetPuck();
     overlay.hidden = true;
     overlay.classList.remove('results');
+    mainMenuButton.hidden = false;
+    resultsMenuButton.hidden = true;
     toast.className = 'shot-toast';
     toast.textContent = '';
     $('controlHint').textContent = 'PULL BACK & RELEASE  ·  OR FLICK FORWARD';
@@ -1231,6 +1235,8 @@
       `<div><span>SHOTS</span><strong>${game.shots}</strong></div>` +
       `<div><span>ACCURACY</span><strong>${game.shots ? Math.round(100 * game.goals / game.shots) : 0}%</strong></div>`;
     $('playButton').innerHTML = 'PLAY AGAIN <span aria-hidden="true">↗</span>';
+    mainMenuButton.hidden = true;
+    resultsMenuButton.hidden = false;
     overlay.hidden = false;
     $('controlHint').textContent = 'ROUND COMPLETE  ·  BEAT YOUR RECORD';
     updateHUD();
@@ -1933,6 +1939,12 @@
   function returnToArcadeMenu() {
     stopWindup();
     game.mode = 'idle';
+    // Abandon only the active round. Never erase saved profiles or record books.
+    if (game.aiming && canvas.hasPointerCapture(game.aiming.pointerId)) {
+      canvas.releasePointerCapture(game.aiming.pointerId);
+    }
+    mainMenuButton.hidden = true;
+    resultsMenuButton.hidden = true;
     game.remaining = ROUND_SECONDS;
     game.elapsed = 0;
     game.goals = 0; game.shots = 0; game.saves = 0; game.misses = 0;
@@ -1959,6 +1971,8 @@
     updateHUD();
     fitOverlayCard();
   }
+  mainMenuButton.addEventListener('click', returnToArcadeMenu);
+  resultsMenuButton.addEventListener('click', returnToArcadeMenu);
 
   function activateProfile(profile) {
     game.profile = profile;
