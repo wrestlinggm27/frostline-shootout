@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#071f54">
   <meta name="description" content="Frostline Shootout — a 30-second hockey arcade with 32 original city clubs, 8 national teams and custom shields.">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.10-main-menu">
-  <script src="game.js?v=2.10-main-menu" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.11-goalie-colors">
+  <script src="game.js?v=2.11-goalie-colors" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -363,6 +363,21 @@
           </button>
         </div>
       </details>
+      <details class="city-club-gallery goalie-palette-gallery" id="goaliePaletteGallery">
+        <summary class="city-club-toggle">
+          <span class="city-club-toggle-info">
+            <strong>OPPONENT GOALIE COLORS <span class="city-club-count">32</span></strong>
+            <small id="goaliePaletteSummary">Selected: Frostline Original</small>
+          </span>
+          <span class="city-club-toggle-control" aria-hidden="true">
+            <span class="city-club-show">EXPAND</span><span class="city-club-hide">COLLAPSE</span>
+            <span class="city-club-chevron"></span>
+          </span>
+        </summary>
+        <p class="goalie-palette-intro">Score on your favorite rival! Pick a pro-hockey city palette, or stay with the original Frostline colors. These are original uniforms, not official team jerseys.</p>
+        <div class="goalie-palette-preview">OPPONENT IN NET: <strong id="goaliePalettePreview">FROSTLINE ORIGINAL</strong></div>
+        <div class="goalie-palette-options" id="goaliePaletteOptions" role="group" aria-label="Choose opponent goalie colors"></div>
+      </details>
       <p class="customizer-source-heading">MAKE IT YOURS · CUSTOM TEAM</p>
       <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
       <input type="text" id="teamNameInput" name="teamName" maxlength="24" placeholder="Your team name" required>
@@ -390,7 +405,7 @@
           <button type="button" class="team-crest-choice" data-team-crest="mountain" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>SUMMIT</strong></button>
         </div>
       </fieldset>
-      <p class="customizer-note">Your team name, colors and shield save with this player on this device. Arcade gameplay and difficulty stay the same.</p>
+      <p class="customizer-note">Your team, shield and opponent goalie colors save with this player on this device. Goalie difficulty and gameplay stay the same.</p>
       <div class="customizer-actions"><button id="cancelTeam" type="button" class="cancel-team">CANCEL</button><button type="submit" class="save-team">SAVE MY TEAM</button></div>
     </form>
   </dialog>
