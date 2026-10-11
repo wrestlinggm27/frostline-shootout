@@ -56,15 +56,17 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#createPlayerButton').click();
       await page.waitForSelector('#teamDialog[open]', { timeout:3000 });
       assert.equal(await page.locator('[data-team-crest]').count(), 6, viewport.label + ': six shield designs');
-      assert.equal(await page.locator('[data-city-club]').count(), 12, viewport.label + ': twelve city clubs');
-      assert.equal(await page.locator('.city-club-icon svg').count(), 12, viewport.label + ': twelve original SVG crests');
+      assert.equal(await page.locator('[data-city-club]').count(), 16, viewport.label + ': sixteen city clubs');
+      assert.equal(await page.locator('.city-club-icon svg').count(), 16, viewport.label + ': sixteen original SVG crests');
       assert.equal(await page.locator('#previewTeamCrest svg').count(), 1, viewport.label + ': shield SVG preview');
       for (const [id, name] of [['newyork','Empire Salute'], ['detroit','Motor City Octopus'],
         ['chicago','Chicago Curve'], ['calgary','Prairie Fire'],
         ['boston','Boston Banner'], ['toronto','Toronto Grind'],
         ['montreal','Montreal Olé'], ['pittsburgh','Pittsburgh Gear'],
         ['philadelphia','Philly Bellline'], ['minnesota','Minnesota Northwoods'],
-        ['nashville','Nashville Riff'], ['seattle','Seattle Rainline']]) {
+        ['nashville','Nashville Riff'], ['seattle','Seattle Rainline'],
+        ['carolina','Carolina Warning'], ['florida','Florida Blue Rat'],
+        ['tampa','Tampa Coil'], ['dallas','Dallas Brimline']]) {
         await page.locator('[data-city-club="' + id + '"]').click();
         assert.equal(await page.locator('#teamNameInput').inputValue(), name, viewport.label + ': chosen club name');
         assert.equal(await page.locator('[data-city-club="' + id + '"]').getAttribute('aria-pressed'), 'true');
@@ -102,7 +104,7 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.equal(selectedCity.club, 'detroit', viewport.label + ': city club identity saved');
       assert.equal(selectedCity.primary, '#ce1126', viewport.label + ': Detroit color saved');
       await page.locator('#customizeButton').click();
-      await page.locator('[data-city-club="seattle"]').click();
+      await page.locator('[data-city-club="dallas"]').click();
       await page.locator('#cancelTeam').click();
       const afterCancel = await page.evaluate(() => JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1')).players[0].team);
       assert.equal(afterCancel.club, 'detroit', viewport.label + ': cancelling city selection must not overwrite saved club');
