@@ -537,3 +537,17 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .results-menu-button{min-height:24px;font-size:9px;padding:3px 8px;margin-top:5px}
   .rink-menu-button{width:44px;height:23px;font-size:8px}
 }
+
+/* V2.11: compact opponent-goalie city palette picker. */
+.goalie-palette-gallery{border-color:#7b9cc0;background:#0b2545}
+.goalie-palette-intro{padding:0 12px;margin:5px 0 10px;font-size:11px;line-height:1.5;color:#c2d3ea}
+.goalie-palette-preview{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 10px 9px;padding:8px 10px;background:#06152dc9;border:1px solid #6685ac;border-radius:9px;color:#acc7e8;font-size:9px;font-weight:900;letter-spacing:.05em}
+.goalie-palette-preview strong{min-width:0;text-align:right;color:var(--team-highlight);overflow-wrap:anywhere}
+.goalie-palette-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 9px 10px}
+.goalie-palette-choice{display:flex;align-items:center;gap:8px;min-width:0;min-height:44px;padding:6px;border:1px solid #5a79a2;border-radius:9px;background:#081a36;color:#f0f5ff;text-align:left;cursor:pointer}
+.goalie-palette-choice span:last-child{min-width:0;overflow-wrap:anywhere;font-size:11px;line-height:1.15;font-weight:900}
+.goalie-palette-choice[aria-pressed="true"]{border:2px solid var(--team-highlight);padding:5px;background:#25486a}
+.goalie-palette-choice:focus-visible{outline:2px solid white;outline-offset:2px}
+.goalie-swatch-jersey{position:relative;display:block;flex:0 0 29px;width:29px;height:30px;border:2px solid var(--goalie-trim);border-radius:9px 9px 5px 5px;background:var(--goalie-primary);box-shadow:0 2px 6px #0006}
+.goalie-swatch-jersey::before{content:"";position:absolute;left:2px;right:2px;top:15px;height:5px;background:var(--goalie-secondary);border-top:1px solid var(--goalie-trim);border-bottom:1px solid var(--goalie-trim)}
+@media(max-width:390px){.goalie-palette-options{gap:5px;padding:0 6px 8px}.goalie-palette-choice{min-height:41px;padding:4px;gap:5px}.goalie-palette-choice[aria-pressed="true"]{padding:3px}.goalie-palette-choice span:last-child{font-size:10px}.goalie-swatch-jersey{flex-basis:26px;width:26px;height:27px}}
