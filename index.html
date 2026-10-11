@@ -7,8 +7,8 @@
   <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
   <meta name="robots" content="noindex, nofollow">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=1.9-dev">
-  <script src="game.js?v=1.9-dev" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.0-dev">
+  <script src="game.js?v=2.0-dev" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -31,7 +31,7 @@
           <svg class="brand-glyph" viewBox="0 0 32 32" aria-hidden="true"><use id="brandLogoUse" href="#frostline-power"></use></svg>
         </button>
         <div>
-          <p class="eyebrow">DEV BUILD · TEAM CREST STUDIO</p>
+          <p class="eyebrow">DEV BUILD · CITY CLUBS</p>
           <h1>FROSTLINE<span> SHOOTOUT</span></h1>
           <div class="team-header-identity"><span id="headerTeamCrest" class="team-header-crest" aria-hidden="true"></span><p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p></div>
         </div>
@@ -87,7 +87,7 @@
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.9-DEV</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.0-DEV</span></footer>
   </main>
   <dialog id="logoLabDialog" class="logo-lab-dialog" aria-labelledby="logoLabTitle">
     <div class="logo-lab-content">
@@ -157,6 +157,28 @@
         <div class="preview-crest" id="previewTeamCrest" aria-label="Live team crest preview" role="img"></div>
         <div><small>HOME TEAM</small><strong id="previewTeamName">BROADWAY BLUES</strong><span class="preview-stripes" aria-hidden="true"></span></div>
       </div>
+      <fieldset class="city-club-gallery">
+        <legend>FROSTLINE CITY CLUBS · FIRST FOUR</legend>
+        <p class="city-club-intro">Four original hockey crests inspired by city traditions. Select a club to load its name, shield and colors, then customize anything you like.</p>
+        <div class="city-club-options" role="group" aria-label="Choose a city-inspired hockey team">
+          <button class="city-club-choice" type="button" data-city-club="newyork" aria-pressed="false">
+            <span class="city-club-icon" aria-hidden="true"></span>
+            <span class="city-club-detail"><small>NEW YORK</small><strong>EMPIRE SALUTE</strong><em>Center-ice stick salute</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#0038a8"></i><i style="--swatch:#ce1126"></i><i style="--swatch:#ffffff"></i></span></span>
+          </button>
+          <button class="city-club-choice" type="button" data-city-club="detroit" aria-pressed="false">
+            <span class="city-club-icon" aria-hidden="true"></span>
+            <span class="city-club-detail"><small>DETROIT</small><strong>MOTOR CITY OCTOPUS</strong><em>Hockey's octopus tradition</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#ce1126"></i><i style="--swatch:#ffffff"></i></span></span>
+          </button>
+          <button class="city-club-choice" type="button" data-city-club="chicago" aria-pressed="false">
+            <span class="city-club-icon" aria-hidden="true"></span>
+            <span class="city-club-detail"><small>CHICAGO</small><strong>CHICAGO CURVE</strong><em>Curved hockey stick</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#cf0a2c"></i><i style="--swatch:#121318"></i><i style="--swatch:#f4e9d8"></i></span></span>
+          </button>
+          <button class="city-club-choice" type="button" data-city-club="calgary" aria-pressed="false">
+            <span class="city-club-icon" aria-hidden="true"></span>
+            <span class="city-club-detail"><small>CALGARY</small><strong>PRAIRIE FIRE</strong><em>Ring of fire and a puck</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#c8102e"></i><i style="--swatch:#f1be48"></i><i style="--swatch:#ffffff"></i></span></span>
+          </button>
+        </div>
+      </fieldset>
       <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
       <input type="text" id="teamNameInput" name="teamName" maxlength="24" placeholder="Your team name" required>
       <p class="customizer-label preset-heading">QUICK COLOR THEMES</p>
@@ -172,7 +194,7 @@
         <label for="teamTrim">TRIM <input id="teamTrim" name="trim" type="color" value="#ffffff"></label>
       </div>
       <fieldset class="team-crest-studio">
-        <legend>CHOOSE YOUR TEAM SHIELD</legend>
+        <legend>OR CHOOSE A FROSTLINE ORIGINAL SHIELD</legend>
         <p class="crest-studio-description">Your shield is your team's identity. Pick one for now; it will represent you in future showdowns.</p>
         <div class="team-crest-options" role="group" aria-label="Team crest designs">
           <button type="button" class="team-crest-choice" data-team-crest="monogram" aria-pressed="true"><span class="crest-choice-preview" aria-hidden="true"></span><strong>CAPTAIN</strong></button>
