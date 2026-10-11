@@ -56,6 +56,44 @@
     aurora: { name: 'Aurora', primary: '#5c2590', secondary: '#41d4df', trim: '#ffffff' },
     black: { name: 'Black Ice', primary: '#202837', secondary: '#f4b942', trim: '#ffffff' }
   };
+  // Original goalie artwork recolored with 32 current pro-hockey-market palettes.
+  // No official team names, crests, uniforms or NHL-owned artwork are used.
+  const GOALIE_PALETTES = {
+    original: { name: 'Frostline Original', primary: '#1b6b83', secondary: '#b3f0e8', trim: '#f8ffff' },
+    anaheim: { name: 'Anaheim', primary: '#f47a38', secondary: '#111111', trim: '#ffffff' },
+    boston: { name: 'Boston', primary: '#111111', secondary: '#ffb81c', trim: '#ffffff' },
+    buffalo: { name: 'Buffalo', primary: '#003087', secondary: '#ffb81c', trim: '#ffffff' },
+    calgary: { name: 'Calgary', primary: '#c8102e', secondary: '#f1be48', trim: '#ffffff' },
+    carolina: { name: 'Carolina', primary: '#cc0000', secondary: '#111111', trim: '#ffffff' },
+    chicago: { name: 'Chicago', primary: '#cf0a2c', secondary: '#111111', trim: '#ffffff' },
+    colorado: { name: 'Colorado', primary: '#6f263d', secondary: '#236192', trim: '#ffffff' },
+    columbus: { name: 'Columbus', primary: '#002654', secondary: '#ce1126', trim: '#ffffff' },
+    dallas: { name: 'Dallas', primary: '#006847', secondary: '#111111', trim: '#ffffff' },
+    detroit: { name: 'Detroit', primary: '#ce1126', secondary: '#ffffff', trim: '#ffffff' },
+    edmonton: { name: 'Edmonton', primary: '#041e42', secondary: '#ff4c00', trim: '#ffffff' },
+    florida: { name: 'Florida', primary: '#c8102e', secondary: '#041e42', trim: '#b9975b' },
+    losangeles: { name: 'Los Angeles', primary: '#111111', secondary: '#a2aaad', trim: '#ffffff' },
+    minnesota: { name: 'Minnesota', primary: '#154734', secondary: '#a6192e', trim: '#ddcba4' },
+    montreal: { name: 'Montreal', primary: '#af1e2d', secondary: '#192168', trim: '#ffffff' },
+    nashville: { name: 'Nashville', primary: '#ffb81c', secondary: '#041e42', trim: '#ffffff' },
+    newjersey: { name: 'New Jersey', primary: '#ce1126', secondary: '#111111', trim: '#ffffff' },
+    islanders: { name: 'Long Island', primary: '#00539b', secondary: '#f47d30', trim: '#ffffff' },
+    newyork: { name: 'New York', primary: '#0038a8', secondary: '#ce1126', trim: '#ffffff' },
+    ottawa: { name: 'Ottawa', primary: '#111111', secondary: '#c52032', trim: '#c2912c' },
+    philadelphia: { name: 'Philadelphia', primary: '#f74902', secondary: '#111111', trim: '#ffffff' },
+    pittsburgh: { name: 'Pittsburgh', primary: '#111111', secondary: '#fcb514', trim: '#ffffff' },
+    sanjose: { name: 'San Jose', primary: '#006d75', secondary: '#111111', trim: '#ffffff' },
+    seattle: { name: 'Seattle', primary: '#001628', secondary: '#99d9d9', trim: '#e9072b' },
+    stlouis: { name: 'St. Louis', primary: '#002f87', secondary: '#fcb514', trim: '#ffffff' },
+    tampa: { name: 'Tampa Bay', primary: '#002868', secondary: '#ffffff', trim: '#ffffff' },
+    toronto: { name: 'Toronto', primary: '#00205b', secondary: '#ffffff', trim: '#ffffff' },
+    utah: { name: 'Utah', primary: '#121d2e', secondary: '#71b8e8', trim: '#d2a86d' },
+    vancouver: { name: 'Vancouver', primary: '#00205b', secondary: '#00843d', trim: '#ffffff' },
+    vegas: { name: 'Vegas', primary: '#333f42', secondary: '#b4975a', trim: '#ffffff' },
+    washington: { name: 'Washington', primary: '#c8102e', secondary: '#041e42', trim: '#ffffff' },
+    winnipeg: { name: 'Winnipeg', primary: '#041e42', secondary: '#7bafd4', trim: '#ffffff' }
+  };
+  const normalizeGoaliePalette = value => Object.hasOwn(GOALIE_PALETTES, value) ? value : 'original';
   // Original hockey crests. Each team's identity is a serializable design ID
   // and palette, reusable later when opponents are introduced.
   const CREST_ART = {
@@ -741,6 +779,7 @@
       const players = data.players.filter(p => p && typeof p.id === 'string' && cleanPlayerName(p.name)).map(p => ({
         id: p.id, name: cleanPlayerName(p.name),
         team: normalizeTeam(p.team),
+        goaliePalette: normalizeGoaliePalette(p.goaliePalette),
         logoVariant: typeof p.logoVariant === 'string' && ['power','speed','ice'].includes(p.logoVariant)
           ? p.logoVariant : 'ice',
         difficulty: Object.hasOwn(DIFFICULTIES, p.difficulty) ? p.difficulty : 'beer',
@@ -811,7 +850,7 @@
 
   const game = {
     mode: 'idle', remaining: ROUND_SECONDS, elapsed: 0, bestAtStart: 0,
-    difficulty: initialDifficulty, team: loadTeam(), profile: null,
+    difficulty: initialDifficulty, team: loadTeam(), profile: null, goaliePalette: 'original',
     goals: 0, shots: 0, saves: 0, misses: 0, best: 0,
     puck: { ...PUCK_START, moving: false, vx: 0, vy: 0, trail: [] },
     goalie: { x: 210, targetX: 210, lean: 0, flash: 0 },
@@ -1640,6 +1679,8 @@
 
   function drawGoalie() {
     const g = game.goalie;
+    const jersey = GOALIE_PALETTES[game.goaliePalette];
+    const classic = game.goaliePalette === 'original';
     ctx.save(); ctx.translate(g.x, GOALIE_LINE + 3);
     ctx.rotate(g.lean * .065);
     ellipse(0, 17, 47, 15, '#28719342');
@@ -1648,22 +1689,22 @@
     rr(8, 14, 18, 24, 5, '#122c42', '#54839b', 2);
     rr(-30, 5, 22, 31, 5, '#f8ffff', '#678ea7', 2);
     rr(8, 5, 22, 31, 5, '#f8ffff', '#678ea7', 2);
-    ctx.strokeStyle = '#d45557'; ctx.lineWidth = 3;
+    ctx.strokeStyle = classic ? '#d45557' : jersey.secondary; ctx.lineWidth = 3;
     for (const x of [-22, 16]) {
       ctx.beginPath(); ctx.moveTo(x, 12); ctx.lineTo(x + 5, 29); ctx.stroke();
     }
     // Body and shoulder pads.
-    ellipse(-28, -2, 14, 16, '#16394f', '#0c2538', 2);
-    ellipse(28, -2, 14, 16, '#16394f', '#0c2538', 2);
-    rr(-24, -24, 48, 40, 13, g.flash ? '#d1fff6' : '#1b6b83', '#0b344b', 2);
-    ctx.fillStyle = '#b3f0e8'; ctx.fillRect(-17, -5, 34, 5);
-    ctx.fillStyle = '#ffffff'; ctx.font = '950 14px system-ui, sans-serif';
+    ellipse(-28, -2, 14, 16, classic ? '#16394f' : jersey.primary, classic ? '#0c2538' : jersey.trim, 2);
+    ellipse(28, -2, 14, 16, classic ? '#16394f' : jersey.primary, classic ? '#0c2538' : jersey.trim, 2);
+    rr(-24, -24, 48, 40, 13, g.flash ? '#d1fff6' : jersey.primary, classic ? '#0b344b' : jersey.trim, 2);
+    ctx.fillStyle = jersey.secondary; ctx.fillRect(-17, -5, 34, 5);
+    ctx.fillStyle = classic ? '#ffffff' : jersey.secondary; ctx.font = '950 14px system-ui, sans-serif';
     ctx.textAlign = 'center'; ctx.fillText('1', 0, 6);
     // Catcher glove & blocker. Bigger visually than collision circle.
     ellipse(-35, 1, 12, 12, '#f8fbf9', '#547e9c', 2);
     rr(27, -9, 17, 22, 5, '#fffefa', '#547e9c', 2);
     // Mask and face cage.
-    ellipse(0, -29, 15, 17, '#fdfefa', '#5c88a3', 2);
+    ellipse(0, -29, 15, 17, '#fdfefa', classic ? '#5c88a3' : jersey.secondary, 2);
     ctx.strokeStyle = '#32536b'; ctx.lineWidth = 1.5;
     for (const i of [-7, 0, 7]) {
       ctx.beginPath(); ctx.moveTo(i, -40); ctx.lineTo(i, -18); ctx.stroke();
@@ -1832,6 +1873,47 @@
     cityClubGallery.open = false;
     updateTeamPreview();
   }));
+  // An independent opponent choice: changing the goalie never changes your own team.
+  const goaliePaletteGallery = $('goaliePaletteGallery');
+  const goaliePaletteOptions = $('goaliePaletteOptions');
+  const goaliePaletteSummary = $('goaliePaletteSummary');
+  const goaliePalettePreview = $('goaliePalettePreview');
+  let goalieDraft = 'original';
+  const goalieButtons = [];
+  function updateGoaliePalettePreview() {
+    const selection = GOALIE_PALETTES[normalizeGoaliePalette(goalieDraft)];
+    goaliePaletteSummary.textContent = 'Selected: ' + selection.name;
+    goaliePalettePreview.textContent = selection.name.toUpperCase();
+    goaliePalettePreview.style.setProperty('--goalie-primary', selection.primary);
+    goaliePalettePreview.style.setProperty('--goalie-secondary', selection.secondary);
+    goaliePalettePreview.style.setProperty('--goalie-trim', selection.trim);
+    for (const button of goalieButtons) {
+      button.setAttribute('aria-pressed', String(button.dataset.goaliePalette === goalieDraft));
+    }
+  }
+  for (const [id, palette] of Object.entries(GOALIE_PALETTES)) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'goalie-palette-choice';
+    button.dataset.goaliePalette = id;
+    button.setAttribute('aria-label', palette.name + ' goalie colors');
+    button.setAttribute('aria-pressed', 'false');
+    const jersey = document.createElement('span');
+    jersey.className = 'goalie-swatch-jersey';
+    jersey.setAttribute('aria-hidden', 'true');
+    jersey.style.setProperty('--goalie-primary', palette.primary);
+    jersey.style.setProperty('--goalie-secondary', palette.secondary);
+    jersey.style.setProperty('--goalie-trim', palette.trim);
+    const label = document.createElement('span');
+    label.textContent = palette.name;
+    button.append(jersey, label);
+    button.addEventListener('click', () => {
+      goalieDraft = id;
+      updateGoaliePalettePreview();
+    });
+    goalieButtons.push(button);
+    goaliePaletteOptions.append(button);
+  }
   function applyTeam(team) {
     game.team = normalizeTeam(team);
     if (game.profile) {
@@ -1898,6 +1980,9 @@
     $('teamDialogTitle').textContent = firstTime ? 'BUILD YOUR TEAM' : 'CUSTOMIZE TEAM';
     $('cancelTeam').textContent = firstTime ? 'KEEP THIS TEAM' : 'CANCEL';
     const team = game.team;
+    goalieDraft = normalizeGoaliePalette(game.goaliePalette);
+    goaliePaletteGallery.open = false;
+    updateGoaliePalettePreview();
     teamNameInput.value = team.name;
     teamPrimary.value = team.primary;
     teamSecondary.value = team.secondary;
@@ -1938,6 +2023,11 @@
     event.preventDefault();
     const team = currentEditorTeam();
     applyTeam(team);
+    game.goaliePalette = normalizeGoaliePalette(goalieDraft);
+    if (game.profile) {
+      game.profile.goaliePalette = game.goaliePalette;
+      saveProfileDB();
+    }
     // Profile-specific team saves replace the old one-team-per-browser key.
     closeTeamEditor();
     resizeCanvas();
@@ -1990,6 +2080,7 @@
     game.profile = profile;
     profileDB.activeId = profile.id;
     applyTeam(profile.team);
+    game.goaliePalette = normalizeGoaliePalette(profile.goaliePalette);
     applyLogo(normalizeLogo(profile.logoVariant));
     $('menuPlayerName').textContent = profile.name.toUpperCase();
     setDifficulty(profile.difficulty);
@@ -2043,6 +2134,7 @@
       id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9),
       name,
       team: firstProfile ? loadTeam() : normalizeTeam(null),
+      goaliePalette: 'original',
       logoVariant: 'ice',
       difficulty: firstProfile ? initialDifficulty : 'beer',
       records: { arcade: {} }
