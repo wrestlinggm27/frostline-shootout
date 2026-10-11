@@ -198,6 +198,37 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.equal(nationalSaved.crest,'natSweden',viewport.label+': personalized nation keeps artwork');
       assert.equal(nationalSaved.name,'My Sweden Crew');
 
+      // Opponent selection is a separate collapsible catalog, not an NHL logo library.
+      await page.locator('#customizeButton').click();
+      assert.equal(await page.locator('#goaliePaletteGallery').evaluate(el=>el.open), false,
+        viewport.label + ': goalie catalog starts collapsed');
+      assert.equal(await page.locator('[data-goalie-palette]').count(), 33,
+        viewport.label + ': 32 cities plus Frostline original');
+      await page.locator('#goaliePaletteGallery > summary').click();
+      assert.equal(await page.locator('.goalie-palette-choice').first().isVisible(), true);
+      await page.locator('[data-goalie-palette="boston"]').click();
+      assert.equal(await page.locator('[data-goalie-palette="boston"]').getAttribute('aria-pressed'), 'true');
+      assert.equal(await page.locator('#goaliePaletteSummary').textContent(), 'Selected: Boston');
+      const paletteFit = await page.locator('#goaliePaletteOptions').evaluate(root => {
+        const bounds = root.getBoundingClientRect();
+        const tolerance = 2;
+        return [...root.querySelectorAll('button')].every(button=>{
+          const b=button.getBoundingClientRect();
+          return b.left>=bounds.left-tolerance && b.right<=bounds.right+tolerance;
+        });
+      });
+      assert.ok(paletteFit, viewport.label + ': goalie palette buttons overflow editor');
+      await page.locator('#teamForm button[type="submit"]').click();
+      const savedGoalie = await page.evaluate(()=>{
+        const profiles=JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1'));
+        return profiles.players[0].goaliePalette;
+      });
+      assert.equal(savedGoalie,'boston', viewport.label + ': Boston rival goalie selection saved');
+      await page.locator('#customizeButton').click();
+      assert.equal(await page.locator('#goaliePaletteSummary').textContent(),'Selected: Boston');
+      assert.equal(await page.locator('#goaliePaletteGallery').evaluate(el=>el.open),false);
+      await page.locator('#cancelTeam').click();
+
       const start = await inspect(page);
       assert.ok(start.cardFits, viewport.label + ': start menu escaped rink, ' + JSON.stringify(start));
       assert.ok(start.visible.every(v => v.fits), viewport.label + ': start content escaped rink, ' + JSON.stringify(start));
