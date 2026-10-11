@@ -42,6 +42,12 @@ class MockNode {
   replaceChildren(...nodes) { this.children = [...nodes]; }
   setAttribute(name, value) { this.attrs[name] = String(value); }
   getAttribute(name) { return this.attrs[name]; }
+  toggleAttribute(name, force) {
+    const next = force === undefined ? !Object.hasOwn(this.attrs, name) : Boolean(force);
+    if (next) this.setAttribute(name, '');
+    else delete this.attrs[name];
+    return next;
+  }
   querySelector() { return this.queryNode ||= new MockNode('query'); }
   showModal() { this.open = true; }
   close() { this.open = false; }
@@ -51,7 +57,7 @@ class MockNode {
   getBoundingClientRect() { return { left: 0, top: 0, width: 420, height: 680 }; }
 }
 
-function boot(seed = {}) {
+function boot(seed = {}, options = {}) {
   const storage = new Map(Object.entries(seed));
   const nodes = new Map();
   const raf = [];
@@ -105,7 +111,7 @@ function boot(seed = {}) {
   let time = 1000;
   const sandbox = {
     document, localStorage, console,
-    window: { addEventListener: noop, devicePixelRatio: 1 },
+    window: { addEventListener: noop, devicePixelRatio: 1, AudioContext: options.AudioContext },
     performance: { now: () => time },
     requestAnimationFrame: fn => raf.push(fn),
     ResizeObserver: class { observe() {} },
@@ -132,6 +138,42 @@ test('UI contains player, team and local record book elements', () => {
   }
   assert.ok(css.includes('.profile-dialog'));
   assert.ok(html.includes('ARCADE SHOOTOUT'));
+});
+
+test('DEV sound toggle switches SVG icons and mutes/unmutes the audio bus', () => {
+  const volumeChanges = [];
+  class FakeAudioContext {
+    constructor() { this.state = 'running'; this.currentTime = 4; this.destination = {}; }
+    createDynamicsCompressor() {
+      const param = () => ({ value: 0 });
+      return { threshold: param(), knee: param(), ratio: param(), attack: param(), release: param(), connect() {} };
+    }
+    createGain() {
+      return { gain: { value: 1, setTargetAtTime(value) { volumeChanges.push(value); } }, connect() {} };
+    }
+  }
+  const t = boot({}, { AudioContext: FakeAudioContext });
+  const on = t.elem('soundOnIcon'), off = t.elem('soundOffIcon');
+  const button = t.elem('soundButton');
+  assert.equal(on.getAttribute('hidden'), undefined, 'speaker icon visible initially');
+  assert.equal(off.getAttribute('hidden'), '', 'muted icon hidden initially');
+  assert.equal(button.getAttribute('aria-pressed'), 'false');
+
+  button.emit('click');
+  assert.equal(on.getAttribute('hidden'), '', 'speaker icon must hide when muted');
+  assert.equal(off.getAttribute('hidden'), undefined, 'muted icon must become visible');
+  assert.equal(button.getAttribute('aria-label'), 'Turn sound on');
+  assert.equal(button.getAttribute('aria-pressed'), 'true');
+
+  button.emit('click'); // Unmuting unlocks and initializes Web Audio.
+  assert.equal(on.getAttribute('hidden'), undefined);
+  assert.equal(off.getAttribute('hidden'), '');
+  assert.equal(button.getAttribute('aria-label'), 'Mute sound');
+  button.emit('click'); // Now the existing master bus must actually mute.
+  assert.equal(volumeChanges.at(-1), 0);
+  button.emit('click');
+  assert.equal(volumeChanges.at(-1), .74);
+  assert.ok(!t.storage.has('frostline-player-profiles-v1'), 'DEV must not alter Stable records');
 });
 
 test('first visit requests name, leads to team setup, saves separate player records', () => {
