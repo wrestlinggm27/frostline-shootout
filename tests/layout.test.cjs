@@ -56,7 +56,24 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#createPlayerButton').click();
       await page.waitForSelector('#teamDialog[open]', { timeout:3000 });
       assert.equal(await page.locator('[data-team-crest]').count(), 6, viewport.label + ': six shield designs');
+      assert.equal(await page.locator('[data-city-club]').count(), 4, viewport.label + ': four city clubs');
+      assert.equal(await page.locator('.city-club-icon svg').count(), 4, viewport.label + ': four original SVG crests');
       assert.equal(await page.locator('#previewTeamCrest svg').count(), 1, viewport.label + ': shield SVG preview');
+      for (const [id, name] of [['newyork','Empire Salute'], ['detroit','Motor City Octopus'],
+        ['chicago','Chicago Curve'], ['calgary','Prairie Fire']]) {
+        await page.locator('[data-city-club="' + id + '"]').click();
+        assert.equal(await page.locator('#teamNameInput').inputValue(), name, viewport.label + ': chosen club name');
+        assert.equal(await page.locator('[data-city-club="' + id + '"]').getAttribute('aria-pressed'), 'true');
+        assert.equal(await page.locator('#previewTeamCrest svg').count(), 1);
+      }
+      const cityOptionsFit = await page.evaluate(() => {
+        const gallery = document.querySelector('.city-club-gallery');
+        return [...gallery.querySelectorAll('.city-club-choice')].every(el => {
+          const r=el.getBoundingClientRect(), parent=gallery.getBoundingClientRect();
+          return r.left >= parent.left-2 && r.right <= parent.right+2 && el.scrollWidth <= el.clientWidth+2;
+        });
+      });
+      assert.ok(cityOptionsFit, viewport.label + ': city club cards fit within customizer');
       await page.locator('[data-team-crest="wolf"]').click();
       assert.equal(await page.locator('[data-team-crest="wolf"]').getAttribute('aria-pressed'), 'true');
       await page.locator('#teamNameInput').fill('Blue Wolves');
@@ -73,6 +90,18 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#cancelTeam').click();
       assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1')).players[0].team.crest), 'wolf',
         viewport.label + ': cancelled shield change leaves saved design intact');
+      await page.locator('#customizeButton').click();
+      await page.locator('[data-city-club="detroit"]').click();
+      await page.locator('#teamForm button[type="submit"]').click();
+      const selectedCity = await page.evaluate(() => JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1')).players[0].team);
+      assert.equal(selectedCity.crest, 'detOctopus', viewport.label + ': Detroit octopus saved');
+      assert.equal(selectedCity.club, 'detroit', viewport.label + ': city club identity saved');
+      assert.equal(selectedCity.primary, '#ce1126', viewport.label + ': Detroit color saved');
+      await page.locator('#customizeButton').click();
+      await page.locator('[data-city-club="chicago"]').click();
+      await page.locator('#cancelTeam').click();
+      const afterCancel = await page.evaluate(() => JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1')).players[0].team);
+      assert.equal(afterCancel.club, 'detroit', viewport.label + ': cancelling city selection must not overwrite saved club');
 
       const start = await inspect(page);
       assert.ok(start.cardFits, viewport.label + ': start menu escaped rink, ' + JSON.stringify(start));
