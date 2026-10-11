@@ -279,6 +279,46 @@
       { d: 'M31 69 V83 M39 62 V84 M50 59 V84 M61 62 V84 M69 69 V83', mode: 'trim-stroke', width: 2.6 },
       { d: 'M24 85 H76', mode: 'stroke', width: 3.5 },
       { d: 'M30 90 H70', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    // Batch six: original crowd-chant, arena-fury, mountain-singalong and
+    // rally-towel crests. The designs do not reproduce any licensed insignia.
+    islYesWave: { label: 'Island Yes Chant', shapes: [
+      // Three clear Y cheers form a rolling crowd wave beneath a sound halo.
+      { d: 'M25 42 Q50 22 75 42', mode: 'accent-stroke', width: 4.2 },
+      { d: 'M23 51 Q50 35 77 51', mode: 'stroke', width: 2.9 },
+      { d: 'M28 53 L35 62 L42 53 M35 62 V75', mode: 'stroke', width: 5 },
+      { d: 'M43 46 L50 55 L57 46 M50 55 V75', mode: 'stroke', width: 5.8 },
+      { d: 'M58 53 L65 62 L72 53 M65 62 V75', mode: 'stroke', width: 5 },
+      { d: 'M25 81 Q37 75 49 81 T75 81', mode: 'accent-stroke', width: 4.1 },
+      { d: 'M30 88 Q40 84 50 88 T70 88', mode: 'stroke', width: 2.5 }
+    ] },
+    wasFury: { label: 'Washington Unleashed Fury', shapes: [
+      // Angular F-shaped charge framed by fast slashes and a burst star.
+      { d: 'M34 32 H73 L69 43 H46 L42 53 H66 L62 63 H38 L31 83 H20 Z', mode: 'trim' },
+      { d: 'M41 35 H70 L67 40 H44 Z M39 56 H61 L59 60 H37 Z', mode: 'accent' },
+      { d: 'M67 66 L72 75 L81 77 L74 83 L75 91 L67 87 L59 91 L61 82 L55 77 L64 75 Z', mode: 'accent' },
+      { d: 'M29 44 L20 50 M32 59 L19 67 M34 75 L26 84', mode: 'stroke', width: 3 },
+      { d: 'M73 31 L78 26 M79 48 L83 44', mode: 'stroke', width: 2.5 }
+    ] },
+    colAnthem: { label: 'Colorado Mountain Anthem', shapes: [
+      // Original high-peak ridge and radiating chorus curves.
+      { d: 'M22 72 L42 39 L51 55 L61 43 L80 72 Z', mode: 'trim' },
+      { d: 'M36 49 L42 39 L49 52 L42 49 Z M56 50 L61 43 L67 53 L61 51 Z', mode: 'base' },
+      { d: 'M26 80 Q39 72 50 80 T75 80', mode: 'accent-stroke', width: 3.8 },
+      { d: 'M26 87 Q38 81 50 87 T74 87', mode: 'stroke', width: 2.9 },
+      { d: 'M24 46 Q16 55 19 63 M76 46 Q84 55 81 63', mode: 'stroke', width: 3.2 },
+      { d: 'M31 36 Q49 24 68 36', mode: 'accent-stroke', width: 2.8 },
+      { d: 'M48 28 V38 M48 28 Q56 29 55 34 Q52 39 48 35', mode: 'accent-stroke', width: 2 }
+    ] },
+    stlTowel: { label: 'St. Louis Rally Towel Man', shapes: [
+      // A cheering figure waves an oversized rally towel in a sweeping arc.
+      { d: 'M50 52 A7 7 0 1 0 50 66 A7 7 0 1 0 50 52 Z', mode: 'gold' },
+      { d: 'M44 65 Q50 69 56 65 L61 81 H39 Z', mode: 'trim' },
+      { d: 'M45 68 L32 57 L25 46 M55 68 L66 54 L70 43', mode: 'stroke', width: 4.2 },
+      { d: 'M63 28 Q75 24 81 35 L76 42 Q68 38 62 42 Q58 47 53 44 L54 34 Q60 37 63 28 Z', mode: 'trim' },
+      { d: 'M58 30 Q72 19 83 27 M62 47 Q75 46 82 56', mode: 'gold-stroke', width: 3.7 },
+      { d: 'M26 30 Q14 48 27 64', mode: 'gold-stroke', width: 3.4 },
+      { d: 'M29 87 H71', mode: 'stroke', width: 3.5 }
     ] }
   };
   const CITY_CLUBS = {
@@ -301,7 +341,11 @@
     buffalo: { name: 'Buffalo Blade Gang', location: 'Buffalo', primary: '#003087', secondary: '#ffb81c', trim: '#ffffff', crest: 'bufBladeGang', club: 'buffalo' },
     ottawa: { name: 'Ottawa Legion', location: 'Ottawa', primary: '#151515', secondary: '#c52032', trim: '#c2912c', crest: 'ottLegion', club: 'ottawa' },
     columbus: { name: 'Columbus Cannonfire', location: 'Columbus', primary: '#002654', secondary: '#ce1126', trim: '#ffffff', crest: 'colCannon', club: 'columbus' },
-    newjersey: { name: 'Newark Ironbound', location: 'Newark, New Jersey', primary: '#ce1126', secondary: '#151515', trim: '#ffffff', crest: 'newIron', club: 'newjersey' }
+    newjersey: { name: 'Newark Ironbound', location: 'Newark, New Jersey', primary: '#ce1126', secondary: '#151515', trim: '#ffffff', crest: 'newIron', club: 'newjersey' },
+    islanders: { name: 'Island Yes Wave', location: 'Long Island, New York', primary: '#00539b', secondary: '#f47d30', trim: '#ffffff', crest: 'islYesWave', club: 'islanders' },
+    washington: { name: 'Washington Fury', location: 'Washington, DC', primary: '#c8102e', secondary: '#041e42', trim: '#ffffff', crest: 'wasFury', club: 'washington' },
+    colorado: { name: 'Colorado Anthem', location: 'Colorado', primary: '#6f263d', secondary: '#236192', trim: '#ffffff', crest: 'colAnthem', club: 'colorado' },
+    stlouis: { name: 'St. Louis Towel Wave', location: 'St. Louis', primary: '#002f87', secondary: '#fcb514', trim: '#ffffff', crest: 'stlTowel', club: 'stlouis' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
@@ -1537,7 +1581,7 @@
     // Show the current choice without forcing the user to expand a long list.
     $('cityClubSummary').textContent = team.club
       ? 'Selected: ' + CITY_CLUBS[team.club].name
-      : 'Browse 20 original city teams';
+      : 'Browse 24 original city teams';
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
     preview.style.setProperty('--preview-primary', team.primary);
