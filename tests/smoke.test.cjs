@@ -538,7 +538,7 @@ test('national SVG vector detail is preserved in generated previews and saved te
     assert.equal(svg.children.length,5,id+': SVG has shield, clip and flag');
     const flagGroup=svg.children[3].children[0];
     assert.equal(flagGroup.children.length,layers,id+': authoritative vector layers');
-    assert.equal(svg.children[2].children[0].attributes.id.startsWith('frostline-national-clip-'),true);
+    assert.equal(svg.children[2].children[0].getAttribute('id').startsWith('frostline-national-clip-'),true);
     const cardSvg=t.nationChoices.find(b=>b.dataset.nationalTeam===id).querySelector('.national-team-icon').children[0];
     assert.equal(cardSvg.children.length,5,id+': picker also uses accurate flag');
   }
