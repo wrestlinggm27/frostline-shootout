@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.0: City Club Prototype
+# Frostline Shootout — DEV V2.1: Eight City Clubs
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,21 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## City clubs — second batch (DEV V2.1)
+
+Four more fictional city-inspired hockey identities join the existing first four, with **original vector artwork**, saved team colors and optional city-club IDs. No official NHL names, emblems, or copyrighted artwork are embedded.
+
+| City | Original club | Fan/city inspiration | Palette |
+|---|---|---|---|
+| Boston | **Boston Banner** | The fans' rally banner, with an original letter B and a banner pole | Black `#101010`, gold `#ffb81c`, white |
+| Toronto | **Toronto Grind** | “No Grit, No Grind, No Greatness,” pictured as a hard-edged forged G and sharpening slashes | Blue `#00205b`, white |
+| Montreal | **Montreal Olé** | Arena Olé chant, represented by an original M and outgoing acoustic arcs | Red `#af1e2d`, blue `#192168`, white |
+| Pittsburgh | **Pittsburgh Gear** | Black-and-gold equipment and jerseys, shown as an industrial gear enclosing a small jersey | Black `#111111`, gold `#fcb514`, white |
+
+The DEV Customize Team dialog now offers **eight city clubs total**, followed by the same editable team name, quick color themes and six generic shields. Selecting a city club loads its name, crest and colors. Editing the name/colors creates a custom team based on that crest without overwriting the original club data. The player's selected team persists in DEV browser storage only; it shows in the header and at center ice.
+
+This batch adds no multiplayer, accounts, uploads, or monetization. Stable remains V1.7.1. Browser regression tests check all eight choices on desktop and mobile screens.
 
 ## The first four city clubs — DEV V2.0
 

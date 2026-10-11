@@ -121,13 +121,50 @@
       { d: 'M50 50 C62 50 70 59 68 70 C66 80 57 84 48 82 C38 81 33 72 34 63 C36 55 42 51 50 50 Z', mode: 'stroke', width: 3.8 },
       { d: 'M45 61 A5 5 0 1 0 55 61 A5 5 0 1 0 45 61 Z', mode: 'trim' },
       { d: 'M44 69 Q50 74 57 69', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    // Batch two: fan, work-ethic, crowd-chant and steel-city traditions.
+    bosBanner: { label: 'Boston Fan Banner', shapes: [
+      // Gold rally pennant on a black shield, with an original block-B cutout.
+      { d: 'M27 34 Q46 27 73 38 L70 69 Q49 59 29 72 Z', mode: 'accent' },
+      { d: 'M30 36 L27 83', mode: 'stroke', width: 4.4 },
+      { d: 'M25 84 L36 84', mode: 'stroke', width: 3 },
+      { d: 'M38 42 V61 H49 C63 61 64 51 54 50 C62 43 54 38 47 40 Z', mode: 'base' },
+      { d: 'M43 44 H49 Q54 44 49 48 H43 Z M43 52 H50 Q56 52 50 57 H43 Z', mode: 'accent' },
+      { d: 'M59 72 Q69 73 76 78', mode: 'stroke', width: 2.2 }
+    ] },
+    torGrind: { label: 'Toronto Grit and Grind', shapes: [
+      // Forged G with grind wheel teeth and an ice-edge slash.
+      { d: 'M68 40 Q57 29 43 34 Q26 40 27 59 Q26 78 45 83 Q60 86 73 73 V58 H50 V67 H62 V70 Q56 76 47 75 Q35 72 35 60 Q35 44 47 42 Q55 41 61 47 Z', mode: 'trim' },
+      { d: 'M25 48 L33 45 M24 58 H32 M26 70 L34 73 M42 27 L45 35 M56 28 L55 36 M70 37 L65 44', mode: 'accent-stroke', width: 3.5 },
+      { d: 'M35 86 L70 80', mode: 'accent-stroke', width: 4 },
+      { d: 'M41 86 L72 86', mode: 'stroke', width: 2.3 }
+    ] },
+    monChant: { label: 'Montreal Olé Chant', shapes: [
+      // Heritage M with concentric arena-chant arcs, no hockey-league insignia.
+      { d: 'M31 78 V40 L50 58 L69 40 V78 H60 V59 L50 69 L40 59 V78 Z', mode: 'trim' },
+      { d: 'M24 47 Q20 34 32 26 M76 47 Q80 34 68 26', mode: 'accent-stroke', width: 4.1 },
+      { d: 'M27 58 Q15 44 21 31 M73 58 Q85 44 79 31', mode: 'stroke', width: 2.9 },
+      { d: 'M39 84 Q50 89 61 84', mode: 'stroke', width: 2.9 },
+      { d: 'M46 32 H54', mode: 'accent-stroke', width: 3 }
+    ] },
+    pitGear: { label: 'Pittsburgh Black and Gold Gear', shapes: [
+      // Bold eight-tooth industrial gear and a miniature original hockey jersey.
+      { d: 'M43 29 H57 L60 36 L67 34 L73 41 L70 48 L77 53 V65 L70 68 L73 76 L66 83 L59 80 L56 87 H44 L41 80 L34 83 L27 76 L30 68 L23 65 V53 L30 48 L27 41 L34 34 L41 36 Z', mode: 'accent' },
+      { d: 'M50 41 A18 18 0 1 0 50 77 A18 18 0 1 0 50 41 Z', mode: 'base' },
+      { d: 'M39 52 L45 46 H55 L61 52 L68 55 L63 65 L59 63 V73 H41 V63 L37 65 L32 55 Z', mode: 'trim' },
+      { d: 'M45 52 H55 M43 61 H57', mode: 'base-stroke', width: 2.8 },
+      { d: 'M41 75 H59', mode: 'stroke', width: 2.5 }
     ] }
   };
   const CITY_CLUBS = {
     newyork: { name: 'Empire Salute', location: 'New York', primary: '#0038a8', secondary: '#ce1126', trim: '#ffffff', crest: 'nySalute', club: 'newyork' },
     detroit: { name: 'Motor City Octopus', location: 'Detroit', primary: '#ce1126', secondary: '#ffffff', trim: '#ffffff', crest: 'detOctopus', club: 'detroit' },
     chicago: { name: 'Chicago Curve', location: 'Chicago', primary: '#121318', secondary: '#cf0a2c', trim: '#f4e9d8', crest: 'chiCurve', club: 'chicago' },
-    calgary: { name: 'Prairie Fire', location: 'Calgary', primary: '#c8102e', secondary: '#f1be48', trim: '#ffffff', crest: 'calFire', club: 'calgary' }
+    calgary: { name: 'Prairie Fire', location: 'Calgary', primary: '#c8102e', secondary: '#f1be48', trim: '#ffffff', crest: 'calFire', club: 'calgary' },
+    boston: { name: 'Boston Banner', location: 'Boston', primary: '#101010', secondary: '#ffb81c', trim: '#ffffff', crest: 'bosBanner', club: 'boston' },
+    toronto: { name: 'Toronto Grind', location: 'Toronto', primary: '#00205b', secondary: '#ffffff', trim: '#ffffff', crest: 'torGrind', club: 'toronto' },
+    montreal: { name: 'Montreal Olé', location: 'Montreal', primary: '#af1e2d', secondary: '#192168', trim: '#ffffff', crest: 'monChant', club: 'montreal' },
+    pittsburgh: { name: 'Pittsburgh Gear', location: 'Pittsburgh', primary: '#111111', secondary: '#fcb514', trim: '#ffffff', crest: 'pitGear', club: 'pittsburgh' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
