@@ -75,6 +75,7 @@ function boot(seed = {}) {
   const presets = ['broadway', 'ice', 'aurora', 'black'].map(id => Object.assign(new MockNode(id), { dataset: { teamPreset: id } }));
   const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
   const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
+  const cityChoices = ['newyork', 'detroit', 'chicago', 'calgary'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -84,6 +85,7 @@ function boot(seed = {}) {
       if (selector === '[data-team-preset]') return presets;
       if (selector === '[data-f-logo]') return logoChoices;
       if (selector === '[data-team-crest]') return crestChoices;
+      if (selector === '[data-city-club]') return cityChoices;
       return [];
     },
     querySelector(selector) { return elem('query:' + selector); },
@@ -116,7 +118,7 @@ function boot(seed = {}) {
     cb(time);
   }
   function submit(id) { elem(id).emit('submit'); }
-  return { elem, leagues, presets, logoChoices, crestChoices, storage, localStorage, frame, submit, errors, raf };
+  return { elem, leagues, presets, logoChoices, crestChoices, cityChoices, storage, localStorage, frame, submit, errors, raf };
 }
 
 test('UI contains player, team and local record book elements', () => {
@@ -328,4 +330,50 @@ test('DEV data normalizes unknown old shield identifiers safely', () => {
   const t = boot(seed);
   t.elem('customizeButton').emit('click');
   assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
+});
+
+test('DEV four city clubs load original crests with intended color palettes and save team', () => {
+  assert.equal((html.match(/data-city-club="/g) || []).length, 4);
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'City Captain';
+  t.submit('playerForm');
+  const options = [
+    { name: 'Empire Salute', crest: 'nySalute', club: 'newyork', primary:'#0038a8', secondary:'#ce1126' },
+    { name: 'Motor City Octopus', crest: 'detOctopus', club: 'detroit', primary:'#ce1126', secondary:'#ffffff' },
+    { name: 'Chicago Curve', crest: 'chiCurve', club: 'chicago', primary:'#121318', secondary:'#cf0a2c' },
+    { name: 'Prairie Fire', crest: 'calFire', club: 'calgary', primary:'#c8102e', secondary:'#f1be48' }
+  ];
+  for (let i=0;i<options.length;i++) {
+    t.cityChoices[i].emit('click');
+    const expected=options[i];
+    assert.equal(t.elem('teamNameInput').value, expected.name);
+    assert.equal(t.elem('teamPrimary').value, expected.primary);
+    assert.equal(t.elem('teamSecondary').value, expected.secondary);
+    assert.equal(t.elem('previewTeamCrest').children.length, 1);
+    assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
+    assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
+    // The SVG contains one or more original icon path elements beyond the shield.
+    assert.ok(t.elem('previewTeamCrest').children[0].children.length > 4);
+    t.submit('teamForm');
+    const saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
+    for (const key of ['name','crest','club','primary','secondary']) assert.equal(saved[key], expected[key]);
+    assert.equal(t.elem('headerTeamCrest').children.length, 1);
+    t.elem('customizeButton').emit('click');
+  }
+
+  // Editing a city palette produces a custom derivative without losing its mark.
+  t.elem('teamNameInput').value = 'My Fire';
+  t.elem('teamNameInput').emit('input');
+  t.submit('teamForm');
+  let saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.club, null);
+  assert.equal(saved.crest, 'calFire');
+  assert.equal(saved.name, 'My Fire');
+
+  const again=boot(Object.fromEntries(t.storage));
+  again.elem('customizeButton').emit('click');
+  assert.equal(again.elem('previewTeamCrest').children.length, 1);
+  again.elem('cancelTeam').emit('click');
+  assert.ok(!again.storage.has('frostline-player-profiles-v1'));
 });
