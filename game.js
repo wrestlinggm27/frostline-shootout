@@ -3,8 +3,8 @@
 
   // All gameplay and art are drawn on a 420 x 680 virtual rink.
   // CSS scales that rink for phones and desktops; pointer coordinates are scaled back.
-  // Production uses the original unprefixed localStorage keys so V1.7.1
-  // player names, teams, and scores are preserved on upgrade.
+  // Stable V2.10: keep the original production storage keys so player
+  // records, custom teams and Ice Cut F preferences survive the upgrade.
   const W = 420;
   const H = 680;
   const ROUND_SECONDS = 30;
@@ -392,7 +392,51 @@
       { d: 'M52 80 L47 90 M61 79 L67 90', mode: 'stroke', width: 3.2 },
       { d: 'M28 45 Q31 29 47 27 M24 58 Q19 48 25 35', mode: 'gold-stroke', width: 3.4 },
       { d: 'M33 84 Q40 90 47 87', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    // Country flags are public national symbols, not hockey federation marks.
+    // Geometric flag motifs use a shared shield and render identically in
+    // the SVG team picker and the rink's Canvas 2D crest renderer.
+    natUSA: { label: 'USA Flag', shapes: [
+      { d: 'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d: 'M22 37 H78 V43 H22 Z M22 49 H78 V55 H22 Z M22 61 H78 V67 H22 Z M22 73 H78 V77 H22 Z', mode:'flag-us-red' },
+      { d: 'M22 37 H48 V60 H22 Z', mode:'flag-us-blue' },
+      { d: 'M29 42 L30 45 L33 45 L31 47 L32 50 L29 48 L26 50 L27 47 L25 45 L28 45 Z M40 42 L41 45 L44 45 L42 47 L43 50 L40 48 L37 50 L38 47 L36 45 L39 45 Z M34 51 L35 53 L38 53 L36 55 L37 57 L34 55 L31 57 L32 55 L30 53 L33 53 Z', mode:'flag-white' }
+    ] },
+    natCanada: { label: 'Canada Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M22 37 H35 V77 H22 Z M65 37 H78 V77 H65 Z', mode:'flag-canada-red' },
+      { d:'M50 41 L54 49 L58 46 L57 53 L64 53 L59 59 L61 64 L53 63 L52 73 H48 L47 63 L39 64 L41 59 L36 53 L43 53 L42 46 L46 49 Z', mode:'flag-canada-red' }
+    ] },
+    natSweden: { label: 'Sweden Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-sweden-blue' },
+      { d:'M40 37 H49 V77 H40 Z M22 52 H78 V62 H22 Z', mode:'flag-sweden-yellow' }
+    ] },
+    natFinland: { label: 'Finland Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M39 37 H49 V77 H39 Z M22 51 H78 V62 H22 Z', mode:'flag-finland-blue' }
+    ] },
+    natCzechia: { label: 'Czechia Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M22 57 H78 V77 H22 Z', mode:'flag-czech-red' },
+      { d:'M22 37 L52 57 L22 77 Z', mode:'flag-czech-blue' }
+    ] },
+    natSlovakia: { label: 'Slovakia Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M22 50 H78 V64 H22 Z', mode:'flag-slovakia-blue' },
+      { d:'M22 64 H78 V77 H22 Z', mode:'flag-slovakia-red' },
+      { d:'M33 47 H50 V69 Q42 75 33 69 Z', mode:'flag-slovakia-red' },
+      { d:'M40 49 H43 V65 H40 Z M35 54 H48 V57 H35 Z M37 60 H46 V63 H37 Z', mode:'flag-white' }
+    ] },
+    natGermany: { label: 'Germany Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-germany-black' },
+      { d:'M22 50 H78 V64 H22 Z', mode:'flag-germany-red' },
+      { d:'M22 64 H78 V77 H22 Z', mode:'flag-germany-gold' }
+    ] },
+    natSwitzerland: { label: 'Switzerland Flag', shapes: [
+      { d:'M28 35 H72 V79 H28 Z', mode:'flag-swiss-red' },
+      { d:'M45 43 H55 V71 H45 Z M36 52 H64 V62 H36 Z', mode:'flag-white' }
     ] }
+
   };
   const CITY_CLUBS = {
     newyork: { name: 'Empire Salute', location: 'New York', primary: '#0038a8', secondary: '#ce1126', trim: '#ffffff', crest: 'nySalute', club: 'newyork' },
@@ -428,9 +472,82 @@
     vancouver: { name: 'Vancouver Clock Chain', location: 'Vancouver', primary: '#00205b', secondary: '#00843d', trim: '#ffffff', crest: 'vanClock', club: 'vancouver' },
     vegas: { name: 'Vegas Flamingo Toss', location: 'Las Vegas', primary: '#333f42', secondary: '#d4af37', trim: '#ffffff', crest: 'vegFlamingo', club: 'vegas' }
   };
+  const NATIONAL_TEAMS = {
+    usa: { name: 'USA', primary: '#002868', secondary: '#bf0a30', trim: '#ffffff', crest: 'natUSA', nation: 'usa' },
+    canada: { name: 'Canada', primary: '#d80621', secondary: '#ffffff', trim: '#ffffff', crest: 'natCanada', nation: 'canada' },
+    sweden: { name: 'Sweden', primary: '#006aa7', secondary: '#fecc00', trim: '#ffffff', crest: 'natSweden', nation: 'sweden' },
+    finland: { name: 'Finland', primary: '#ffffff', secondary: '#002f6c', trim: '#002f6c', crest: 'natFinland', nation: 'finland' },
+    czechia: { name: 'Czechia', primary: '#ffffff', secondary: '#d7141a', trim: '#11457e', crest: 'natCzechia', nation: 'czechia' },
+    slovakia: { name: 'Slovakia', primary: '#ffffff', secondary: '#0b4ea2', trim: '#ee1c25', crest: 'natSlovakia', nation: 'slovakia' },
+    germany: { name: 'Germany', primary: '#111111', secondary: '#dd0000', trim: '#ffce00', crest: 'natGermany', nation: 'germany' },
+    switzerland: { name: 'Switzerland', primary: '#da291c', secondary: '#ffffff', trim: '#ffffff', crest: 'natSwitzerland', nation: 'switzerland' }
+  };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
   const SHIELD_INNER = 'M50 14 L79 24 L77 61 Q74 83 50 101 Q26 83 23 61 L21 24 Z';
+
+  // Accurate 640x480 national-flag vector geometry adapted from the
+  // open-source lipis/flag-icons project (MIT; FLAG-ART-LICENSE.txt).
+  // All the same paths render in inline SVG and on center ice via Canvas.
+  const starPath = (x, y, r = 10.3) => {
+    let d = '';
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5;
+      const radius = i % 2 ? r * .39 : r;
+      d += (i ? 'L' : 'M') + (x + Math.cos(a) * radius).toFixed(2)
+        + ' ' + (y + Math.sin(a) * radius).toFixed(2) + ' ';
+    }
+    return d + 'Z';
+  };
+  const NATIONAL_FLAG_VECTORS = {
+    natUSA: [
+      { fill:'#bd3d44', d:'M0 0h640v480H0' },
+      { fill:'none', stroke:'#ffffff', width:37, d:'M0 55.3h640M0 129h640M0 203h640M0 277h640M0 351h640M0 425h640' },
+      { fill:'#192f5d', d:'M0 0h364.8v258.5H0' },
+      ...Array.from({length:9}, (_,row) => Array.from({length:row%2?5:6}, (_,col) => ({
+        fill:'#ffffff',d:starPath((row%2?58:28)+61*col,17+26.2*row)
+      }))).flat()
+    ],
+    natCanada: [
+      { fill:'#ffffff',d:'M0 0h640v480H0' },
+      { fill:'#d52b1e',d:'M-19.7 0h169.8v480H-19.7zm509.5 0h169.8v480H489.9zM201 232l-13.3 4.4 61.4 54c4.7 13.7-1.6 17.8-5.6 25l66.6-8.4-1.6 67 13.9-.3-3.1-66.6 66.7 8c-4.1-8.7-7.8-13.3-4-27.2l61.3-51-10.7-4c-8.8-6.8 3.8-32.6 5.6-48.9 0 0-35.7 12.3-38 5.8l-9.2-17.5-32.6 35.8c-3.5.9-5-.5-5.9-3.5l15-74.8-23.8 13.4q-3.2 1.3-5.2-2.2l-23-46-23.6 47.8q-2.8 2.5-5 .7L264 130.8l13.7 74.1c-1.1 3-3.7 3.8-6.7 2.2l-31.2-35.3c-4 6.5-6.8 17.1-12.2 19.5s-23.5-4.5-35.6-7c4.2 14.8 17 39.6 9 47.7' }
+    ],
+    natSweden: [
+      { fill:'#005293',d:'M0 0h640v480H0z' },
+      { fill:'#fecb00',d:'M176 0v192H0v96h176v192h96V288h368v-96H272V0z' }
+    ],
+    natFinland: [
+      { fill:'#ffffff',d:'M0 0h640v480H0z' },
+      { fill:'#002f6c',d:'M0 174.5h640v131H0z' },
+      { fill:'#002f6c',d:'M175.5 0h130.9v480h-131z' }
+    ],
+    natCzechia: [
+      { fill:'#ffffff',d:'M0 0h640v240H0z' },
+      { fill:'#d7141a',d:'M0 240h640v240H0z' },
+      { fill:'#11457e',d:'M360 240 0 0v480z' }
+    ],
+    natSlovakia: [
+      { fill:'#ee1c25',d:'M0 0h640v480H0z' },
+      { fill:'#0b4ea2',d:'M0 0h640v320H0z' },
+      { fill:'#ffffff',d:'M0 0h640v160H0z' },
+      { fill:'#ffffff',d:'M233 370.8c-43-20.7-104.6-61.9-104.6-143.2 0-81.4 4-118.4 4-118.4h201.3s3.9 37 3.9 118.4S276 350 233 370.8' },
+      { fill:'#ee1c25',d:'M233 360c-39.5-19-96-56.8-96-131.4s3.6-108.6 3.6-108.6h184.8s3.5 34 3.5 108.6C329 303.3 272.5 341 233 360' },
+      { fill:'#ffffff',d:'M241.4 209c10.7.2 31.6.6 50.1-5.6 0 0-.4 6.7-.4 14.4s.5 14.4.5 14.4c-17-5.7-38.1-5.8-50.2-5.7v41.2h-16.8v-41.2c-12-.1-33.1 0-50.1 5.7 0 0 .5-6.7.5-14.4s-.5-14.4-.5-14.4c18.5 6.2 39.4 5.8 50 5.6v-25.9c-9.7 0-23.7.4-39.6 5.7 0 0 .5-6.6.5-14.4 0-7.7-.5-14.4-.5-14.4 15.9 5.3 29.9 5.8 39.6 5.7-.5-16.4-5.3-37-5.3-37s9.9.7 13.8.7 13.8-.7 13.8-.7-4.8 20.6-5.3 37c9.7.1 23.7-.4 39.6-5.7 0 0-.5 6.7-.5 14.4s.5 14.4.5 14.4a119 119 0 0 0-39.7-5.7v26z' },
+      { fill:'#0b4ea2',d:'M233 263.3c-19.9 0-30.5 27.5-30.5 27.5s-6-13-22.2-13c-11 0-19 9.7-24.2 18.8 20 31.7 51.9 51.3 76.9 63.4 25-12 57-31.7 76.9-63.4-5.2-9-13.2-18.8-24.2-18.8-16.2 0-22.2 13-22.2 13S253 263.3 233 263.3' }
+    ],
+    natGermany: [
+      { fill:'#ffcc00',d:'M0 320h640v160H0z' },
+      { fill:'#000000',d:'M0 0h640v160H0z' },
+      { fill:'#ff0000',d:'M0 160h640v160H0z' }
+    ],
+    natSwitzerland: [
+      { fill:'#ff0000',d:'M0 0h640v480H0z' },
+      { fill:'#ffffff',d:'M170 195h300v90H170z' },
+      { fill:'#ffffff',d:'M275 90h90v300h-90z' }
+    ]
+  };
+  const NATIONAL_FLAG_TRANSFORM = 'translate(20 14) scale(0.09375 0.18125)';
+  let nationalClipId = 0;
   const validHex = color => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
   function normalizeTeam(value) {
     const fallback = TEAM_PRESETS.broadway;
@@ -440,10 +557,20 @@
       secondary: validHex(value?.secondary) ? value.secondary.toLowerCase() : fallback.secondary,
       trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim,
       crest: normalizeCrest(value?.crest),
-      club: typeof value?.club === 'string' && Object.hasOwn(CITY_CLUBS, value.club) ? value.club : null
+      club: typeof value?.club === 'string' && Object.hasOwn(CITY_CLUBS, value.club) && !(typeof value?.nation === 'string' && Object.hasOwn(NATIONAL_TEAMS, value.nation)) ? value.club : null,
+      nation: typeof value?.nation === 'string' && Object.hasOwn(NATIONAL_TEAMS, value.nation) ? value.nation : null
     };
   }
+  const FLAG_PAINT = {
+    'flag-white': '#ffffff', 'flag-us-red': '#b31942', 'flag-us-blue': '#0a3161',
+    'flag-canada-red': '#d80621', 'flag-sweden-blue': '#006aa7', 'flag-sweden-yellow': '#fecc00',
+    'flag-finland-blue': '#002f6c', 'flag-czech-red': '#d7141a', 'flag-czech-blue': '#11457e',
+    'flag-slovakia-blue': '#0b4ea2', 'flag-slovakia-red': '#ee1c25',
+    'flag-germany-black': '#111111', 'flag-germany-red': '#dd0000', 'flag-germany-gold': '#ffce00',
+    'flag-swiss-red': '#da291c'
+  };
   function artPaint(shape, team) {
+    if (Object.hasOwn(FLAG_PAINT, shape.mode)) return FLAG_PAINT[shape.mode];
     if (shape.mode === 'gold' || shape.mode === 'gold-stroke') return '#b9975b';
     if (shape.mode === 'silver' || shape.mode === 'silver-stroke') return '#b5c1d0';
     if (shape.mode === 'accent' || shape.mode === 'cutout' || shape.mode === 'accent-stroke') return team.secondary;
@@ -459,10 +586,30 @@
       return node;
     };
     const svg = create('svg', { viewBox: '0 0 100 116', 'aria-hidden': 'true', class: className });
-    svg.append(create('path', { d: SHIELD_OUTER, fill: team.secondary, stroke: team.trim, 'stroke-width': 2.4 }));
-    svg.append(create('path', { d: SHIELD_INNER, fill: team.primary, stroke: team.trim, 'stroke-width': 1.5 }));
-    svg.append(create('path', { d: 'M30 28 H70', fill: 'none', stroke: team.trim, 'stroke-width': 2, opacity: .65 }));
-    if (team.crest === 'monogram') {
+    const flag = NATIONAL_FLAG_VECTORS[team.crest];
+    const isFlag = !!flag;
+    svg.append(create('path', { d: SHIELD_OUTER, fill: isFlag ? '#06254b' : team.secondary,
+      stroke: isFlag ? '#3775ad' : team.trim, 'stroke-width': 2.4 }));
+    svg.append(create('path', { d: SHIELD_INNER, fill: isFlag ? '#ffffff' : team.primary,
+      stroke: isFlag ? '#ffffff' : team.trim, 'stroke-width': 1.5 }));
+    if (isFlag) {
+      const clipId = 'frostline-national-clip-' + (++nationalClipId);
+      const defs = create('defs', {});
+      const clip = create('clipPath', { id: clipId });
+      clip.append(create('path', { d: SHIELD_INNER }));
+      defs.append(clip);
+      svg.append(defs);
+      const clippingGroup = create('g', { 'clip-path': 'url(#' + clipId + ')' });
+      const flagGroup = create('g', { transform: NATIONAL_FLAG_TRANSFORM });
+      for (const shape of flag) {
+        const attrs = { d: shape.d, fill: shape.fill };
+        if (shape.stroke) { attrs.stroke = shape.stroke; attrs['stroke-width'] = shape.width || 1; }
+        flagGroup.append(create('path', attrs));
+      }
+      clippingGroup.append(flagGroup);
+      svg.append(clippingGroup);
+      svg.append(create('path', { d: SHIELD_INNER, fill: 'none', stroke: '#ffffff', 'stroke-width': 2 }));
+    } else if (team.crest === 'monogram') {
       const label = create('text', {
         x: 50, y: 69, 'font-family': 'system-ui, sans-serif',
         'font-weight': 1000, 'font-size': 29,
@@ -496,16 +643,29 @@
     if (typeof Path2D === 'function') {
       ctx.translate(-27, -42);
       ctx.scale(.54, .54);
-      ctx.fillStyle = team.secondary; ctx.strokeStyle = team.trim; ctx.lineWidth = 2.4;
+      const flag = NATIONAL_FLAG_VECTORS[team.crest];
+      const isFlag = !!flag;
+      ctx.fillStyle = isFlag ? '#06254b' : team.secondary;
+      ctx.strokeStyle = isFlag ? '#3775ad' : team.trim; ctx.lineWidth = 2.4;
       const outer = new Path2D(SHIELD_OUTER);
       ctx.fill(outer); ctx.stroke(outer);
-      ctx.fillStyle = team.primary; ctx.lineWidth = 1.5;
+      ctx.fillStyle = isFlag ? '#ffffff' : team.primary; ctx.lineWidth = 1.5;
       const inner = new Path2D(SHIELD_INNER);
       ctx.fill(inner); ctx.stroke(inner);
-      ctx.strokeStyle = team.trim; ctx.lineWidth = 2; ctx.globalAlpha = .3;
-      ctx.beginPath(); ctx.moveTo(30, 28); ctx.lineTo(70, 28); ctx.stroke();
-      ctx.globalAlpha = .58;
-      if (team.crest === 'monogram') {
+      if (isFlag) {
+        ctx.save();
+        ctx.clip(inner);
+        ctx.translate(20, 14);
+        ctx.scale(0.09375, 0.18125);
+        for (const shape of flag) {
+          const path = new Path2D(shape.d);
+          if (shape.fill !== 'none') { ctx.fillStyle = shape.fill; ctx.fill(path); }
+          if (shape.stroke) { ctx.strokeStyle = shape.stroke; ctx.lineWidth = shape.width || 1; ctx.stroke(path); }
+        }
+        ctx.restore();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+        ctx.stroke(inner);
+      } else if (team.crest === 'monogram') {
         ctx.fillStyle = team.trim; ctx.font = '1000 29px system-ui, sans-serif';
         ctx.textAlign = 'center'; ctx.fillText(initialsFor(team.name), 50, 69, 54);
       } else {
@@ -1620,12 +1780,16 @@
   const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
   const crestButtons = [...document.querySelectorAll('[data-team-crest]')];
   const cityButtons = [...document.querySelectorAll('[data-city-club]')];
+  const nationButtons = [...document.querySelectorAll('[data-national-team]')];
   const cityClubGallery = $('cityClubGallery');
+  const nationalTeamGallery = $('nationalTeamGallery');
   let crestDraft = 'monogram';
   let clubDraft = null;
+  let nationDraft = null;
   crestButtons.forEach(button => button.addEventListener('click', () => {
     crestDraft = normalizeCrest(button.dataset.teamCrest);
     clubDraft = null;
+    nationDraft = null;
     updateTeamPreview();
   }));
   cityButtons.forEach(button => button.addEventListener('click', () => {
@@ -1637,6 +1801,21 @@
     teamTrim.value = club.trim;
     crestDraft = club.crest;
     clubDraft = club.club;
+    nationDraft = null;
+    nationalTeamGallery.open = false;
+    updateTeamPreview();
+  }));
+  nationButtons.forEach(button => button.addEventListener('click', () => {
+    const country = NATIONAL_TEAMS[button.dataset.nationalTeam];
+    if (!country) return;
+    teamNameInput.value = country.name;
+    teamPrimary.value = country.primary;
+    teamSecondary.value = country.secondary;
+    teamTrim.value = country.trim;
+    crestDraft = country.crest;
+    nationDraft = country.nation;
+    clubDraft = null;
+    cityClubGallery.open = false;
     updateTeamPreview();
   }));
   function applyTeam(team) {
@@ -1662,7 +1841,7 @@
   }
   function currentEditorTeam() {
     return normalizeTeam({ name:teamNameInput.value, primary:teamPrimary.value,
-      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft, club:clubDraft });
+      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft, club:clubDraft, nation:nationDraft });
   }
   function updateTeamPreview() {
     const team = currentEditorTeam();
@@ -1677,6 +1856,14 @@
       button.setAttribute('aria-pressed', String(clubDraft === button.dataset.cityClub));
       renderCrest(button.querySelector('.city-club-icon'), club, 'city-club-shield');
     });
+    nationButtons.forEach(button => {
+      const country = NATIONAL_TEAMS[button.dataset.nationalTeam];
+      button.setAttribute('aria-pressed', String(nationDraft === button.dataset.nationalTeam));
+      renderCrest(button.querySelector('.national-team-icon'), country, 'city-club-shield');
+    });
+    $('nationalTeamSummary').textContent = team.nation
+      ? 'Selected: ' + NATIONAL_TEAMS[team.nation].name
+      : 'Browse 8 national teams';
     // Show the current choice without forcing the user to expand a long list.
     $('cityClubSummary').textContent = team.club
       ? 'Selected: ' + CITY_CLUBS[team.club].name
@@ -1703,8 +1890,10 @@
     teamTrim.value = team.trim;
     crestDraft = normalizeCrest(team.crest);
     clubDraft = team.club;
-    // Every time the editor opens, keep its tall city catalog out of the way.
+    nationDraft = team.nation;
+    // Long catalogs start closed to keep the editor compact.
     cityClubGallery.open = false;
+    nationalTeamGallery.open = false;
     updateTeamPreview();
     teamDialog.showModal();
   }
@@ -1721,11 +1910,14 @@
     teamSecondary.value = theme.secondary;
     teamTrim.value = theme.trim;
     clubDraft = null;
+    nationDraft = null;
     updateTeamPreview();
   }));
   [teamNameInput,teamPrimary,teamSecondary,teamTrim].forEach(el=>el.addEventListener('input', () => {
-    // A customized city template still keeps its art, but becomes an original team identity.
+    // Editing the name or palette keeps the crest/flag artwork, but lets the
+    // player build a unique team instead of remaining tied to a preset.
     clubDraft = null;
+    nationDraft = null;
     updateTeamPreview();
   }));
   $('teamForm').addEventListener('submit', event => {
@@ -1874,7 +2066,7 @@
   $('recordsButton').addEventListener('click', openRecords);
   $('closeRecords').addEventListener('click', () => recordDialog.close());
 
-  // Players can personalize the header logo and save it on their production profiles.
+  // Frostline Logo Lab choices are saved independently for each Stable player.
   const logoDialog = $('logoLabDialog');
   const logoChoices = [...document.querySelectorAll('[data-f-logo]')];
   let logoDraft = 'ice';
