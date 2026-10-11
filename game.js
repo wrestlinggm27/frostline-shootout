@@ -1427,6 +1427,7 @@
   const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
   const crestButtons = [...document.querySelectorAll('[data-team-crest]')];
   const cityButtons = [...document.querySelectorAll('[data-city-club]')];
+  const cityClubGallery = $('cityClubGallery');
   let crestDraft = 'monogram';
   let clubDraft = null;
   crestButtons.forEach(button => button.addEventListener('click', () => {
@@ -1483,6 +1484,10 @@
       button.setAttribute('aria-pressed', String(clubDraft === button.dataset.cityClub));
       renderCrest(button.querySelector('.city-club-icon'), club, 'city-club-shield');
     });
+    // Show the current choice without forcing the user to expand a long list.
+    $('cityClubSummary').textContent = team.club
+      ? 'Selected: ' + CITY_CLUBS[team.club].name
+      : 'Browse 16 original city teams';
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
     preview.style.setProperty('--preview-primary', team.primary);
@@ -1505,6 +1510,8 @@
     teamTrim.value = team.trim;
     crestDraft = normalizeCrest(team.crest);
     clubDraft = team.club;
+    // Every time the editor opens, keep its tall city catalog out of the way.
+    cityClubGallery.open = false;
     updateTeamPreview();
     teamDialog.showModal();
   }
