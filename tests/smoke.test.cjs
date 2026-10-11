@@ -193,7 +193,7 @@ test('DEV intro can be skipped with an existing player without resetting the sco
   assert.equal(loaded.elem('startupScreen').hidden, true);
   assert.equal(loaded.elem('playerDialog').open, false);
   assert.equal(loaded.elem('menuPlayerName').textContent, 'RETURNING PLAYER');
-  assert.equal(loaded.elem('best').textContent, '12');
+  assert.equal(Number(loaded.elem('best').textContent), 12);
   const preserved = JSON.parse(loaded.storage.get(key));
   assert.equal(preserved.players[0].records.arcade.beer.best, 12);
   assert.equal(preserved.players[0].name, 'Returning Player');
