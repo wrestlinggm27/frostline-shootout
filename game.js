@@ -359,6 +359,45 @@
       { d: 'M50 52 V70 M42 70 H58', mode: 'base-stroke', width: 2.9 },
       { d: 'M25 87 H75 M33 92 H67', mode: 'stroke', width: 3.4 },
       { d: 'M30 40 L24 46 M70 40 L76 46', mode: 'stroke', width: 2.7 }
+    ] },
+    // Batch eight: original crests celebrating arena royal chants, shark
+    // chomps, the glittering clock chain and the victory flamingo tradition.
+    laRoyal: { label: 'Los Angeles Royal Army', shapes: [
+      { d: 'M25 44 L31 28 L41 41 L50 23 L59 41 L69 28 L75 44 L70 63 H30 Z', mode: 'trim' },
+      { d: 'M30 48 H70 L67 56 H33 Z', mode: 'accent' },
+      { d: 'M31 66 H69 L72 73 H28 Z', mode: 'trim' },
+      { d: 'M38 37 L41 42 L44 37 M47 33 L50 28 L53 33 M56 37 L59 42 L62 37', mode: 'base-stroke', width: 2.7 },
+      { d: 'M35 77 L65 86 M65 77 L35 86', mode: 'stroke', width: 3.7 },
+      { d: 'M32 88 H68', mode: 'accent-stroke', width: 3 },
+      { d: 'M46 55 H54', mode: 'base-stroke', width: 2.4 }
+    ] },
+    sjChomp: { label: 'San Jose Shark Chomp', shapes: [
+      { d: 'M24 44 Q41 28 59 36 L67 27 L70 44 Q78 51 77 61 Q65 65 55 60 L38 72 Q28 67 23 56 Z', mode: 'trim' },
+      { d: 'M30 52 Q43 43 63 49 L72 55 L61 60 L43 55 L34 63 Z', mode: 'base' },
+      { d: 'M34 56 L39 65 L43 57 L47 62 L51 56 L55 60 L60 54 L64 58', mode: 'accent-stroke', width: 2.8 },
+      { d: 'M39 42 A3 3 0 1 0 45 42 A3 3 0 1 0 39 42 Z', mode: 'base' },
+      { d: 'M52 73 Q62 79 75 70', mode: 'stroke', width: 3.5 },
+      { d: 'M27 80 Q39 73 48 82', mode: 'accent-stroke', width: 3.7 },
+      { d: 'M28 88 H72', mode: 'stroke', width: 3 }
+    ] },
+    vanClock: { label: 'Vancouver Bedazzled Clock Chain', shapes: [
+      { d: 'M37 26 Q25 39 34 53 M63 26 Q75 39 66 53', mode: 'stroke', width: 4.3 },
+      { d: 'M38 30 L43 35 M31 38 L37 42 M30 48 L35 52 M62 30 L57 35 M69 38 L63 42 M70 48 L65 52', mode: 'gold-stroke', width: 2.8 },
+      { d: 'M50 37 A24 24 0 1 0 50 85 A24 24 0 1 0 50 37 Z', mode: 'trim' },
+      { d: 'M50 43 A18 18 0 1 0 50 79 A18 18 0 1 0 50 43 Z', mode: 'base' },
+      { d: 'M50 47 V62 L61 68', mode: 'stroke', width: 3.2 },
+      { d: 'M50 45 V49 M50 75 V79 M31 61 H35 M65 61 H69', mode: 'gold-stroke', width: 2.8 },
+      { d: 'M26 32 L29 24 L32 32 L40 35 L32 38 L29 46 L26 38 L18 35 Z', mode: 'gold' },
+      { d: 'M73 69 L76 63 L79 69 L85 72 L79 75 L76 81 L73 75 L67 72 Z', mode: 'gold' }
+    ] },
+    vegFlamingo: { label: 'Vegas Victory Flamingo Toss', shapes: [
+      { d: 'M48 73 Q36 63 41 53 Q46 43 53 49 Q62 58 59 40 Q57 31 66 29 Q75 28 76 36 Q78 43 69 47 Q64 54 67 62 Q75 77 59 82 Q52 83 48 73 Z', mode: 'trim' },
+      { d: 'M48 56 Q41 51 37 59 Q37 70 51 77 Q62 82 67 73 Q57 72 54 66 Z', mode: 'accent' },
+      { d: 'M76 36 L84 39 L77 43 Z', mode: 'gold' },
+      { d: 'M68 34 A2 2 0 1 0 72 34 A2 2 0 1 0 68 34 Z', mode: 'base' },
+      { d: 'M52 80 L47 90 M61 79 L67 90', mode: 'stroke', width: 3.2 },
+      { d: 'M28 45 Q31 29 47 27 M24 58 Q19 48 25 35', mode: 'gold-stroke', width: 3.4 },
+      { d: 'M33 84 Q40 90 47 87', mode: 'accent-stroke', width: 2.8 }
     ] }
   };
   const CITY_CLUBS = {
@@ -389,7 +428,11 @@
     utah: { name: 'Utah Tusks Up', location: 'Utah', primary: '#15171a', secondary: '#79cfe8', trim: '#ffffff', crest: 'utaTusks', club: 'utah' },
     winnipeg: { name: 'Winnipeg True North', location: 'Winnipeg', primary: '#041e42', secondary: '#5b92c7', trim: '#d2d9e1', crest: 'winNorth', club: 'winnipeg' },
     anaheim: { name: 'Anaheim Rally Flight', location: 'Anaheim', primary: '#111111', secondary: '#f47a38', trim: '#d6a85e', crest: 'anaFlight', club: 'anaheim' },
-    edmonton: { name: 'Edmonton Oil Country', location: 'Edmonton', primary: '#041e42', secondary: '#ff4c00', trim: '#ffffff', crest: 'edmOil', club: 'edmonton' }
+    edmonton: { name: 'Edmonton Oil Country', location: 'Edmonton', primary: '#041e42', secondary: '#ff4c00', trim: '#ffffff', crest: 'edmOil', club: 'edmonton' },
+    losangeles: { name: 'Los Angeles Royal Army', location: 'Los Angeles', primary: '#111111', secondary: '#a7a9ac', trim: '#ffffff', crest: 'laRoyal', club: 'losangeles' },
+    sanjose: { name: 'San Jose Chomp', location: 'San Jose', primary: '#006d75', secondary: '#ea7200', trim: '#ffffff', crest: 'sjChomp', club: 'sanjose' },
+    vancouver: { name: 'Vancouver Clock Chain', location: 'Vancouver', primary: '#00205b', secondary: '#00843d', trim: '#ffffff', crest: 'vanClock', club: 'vancouver' },
+    vegas: { name: 'Vegas Flamingo Toss', location: 'Las Vegas', primary: '#333f42', secondary: '#d4af37', trim: '#ffffff', crest: 'vegFlamingo', club: 'vegas' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
@@ -1625,7 +1668,7 @@
     // Show the current choice without forcing the user to expand a long list.
     $('cityClubSummary').textContent = team.club
       ? 'Selected: ' + CITY_CLUBS[team.club].name
-      : 'Browse 28 original city teams';
+      : 'Browse 32 original city teams';
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
     preview.style.setProperty('--preview-primary', team.primary);

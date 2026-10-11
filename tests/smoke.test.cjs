@@ -75,7 +75,7 @@ function boot(seed = {}) {
   const presets = ['broadway', 'ice', 'aurora', 'black'].map(id => Object.assign(new MockNode(id), { dataset: { teamPreset: id } }));
   const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
   const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
-  const cityChoices = ['newyork', 'detroit', 'chicago', 'calgary', 'boston', 'toronto', 'montreal', 'pittsburgh', 'philadelphia', 'minnesota', 'nashville', 'seattle', 'carolina', 'florida', 'tampa', 'dallas', 'buffalo', 'ottawa', 'columbus', 'newjersey', 'islanders', 'washington', 'colorado', 'stlouis', 'utah', 'winnipeg', 'anaheim', 'edmonton'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
+  const cityChoices = ['boston', 'buffalo', 'detroit', 'florida', 'montreal', 'ottawa', 'tampa', 'toronto', 'carolina', 'columbus', 'newjersey', 'islanders', 'newyork', 'philadelphia', 'pittsburgh', 'washington', 'chicago', 'colorado', 'dallas', 'minnesota', 'nashville', 'stlouis', 'utah', 'winnipeg', 'anaheim', 'calgary', 'edmonton', 'losangeles', 'sanjose', 'seattle', 'vancouver', 'vegas'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -332,45 +332,57 @@ test('DEV data normalizes unknown old shield identifiers safely', () => {
   assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
 });
 
-test('DEV twenty-eight city clubs load original crests with intended color palettes and save team', () => {
-  assert.equal((html.match(/data-city-club="/g) || []).length, 28);
+test('DEV thirty-two division-grouped city clubs load original crests with intended color palettes and save team', () => {
+  assert.equal((html.match(/data-city-club="/g) || []).length, 32);
   assert.match(html, /<details class="city-club-gallery" id="cityClubGallery">/);
   assert.match(html, /<summary class="city-club-toggle">/);
   assert.match(css, /city-club-gallery:not\(\[open\]\)/);
+  assert.equal((html.match(/class="city-club-conference"/g) || []).length, 2);
+  assert.equal((html.match(/class="city-club-division"/g) || []).length, 4);
+  const expectedDivisions = {"atlantic":["boston","buffalo","detroit","florida","montreal","ottawa","tampa","toronto"],"metropolitan":["carolina","columbus","newjersey","islanders","newyork","philadelphia","pittsburgh","washington"],"central":["chicago","colorado","dallas","minnesota","nashville","stlouis","utah","winnipeg"],"pacific":["anaheim","calgary","edmonton","losangeles","sanjose","seattle","vancouver","vegas"]};
+  for (const [division, ids] of Object.entries(expectedDivisions)) {
+    const section = html.match(new RegExp('<section class="city-club-division" data-division="' + division + '"[\\s\\S]*?<\\/section>'));
+    assert.ok(section, 'division section ' + division + ' exists');
+    assert.deepEqual([...section[0].matchAll(/data-city-club="([^"]+)"/g)].map(hit => hit[1]), ids, division + ' contains the correct eight clubs in order');
+  }
   const t = boot();
   t.frame(16);
   t.elem('playerNameInput').value = 'City Captain';
   t.submit('playerForm');
   assert.equal(t.elem('cityClubGallery').open, false, 'team setup should start with city clubs collapsed');
   const options = [
-    { name: 'Empire Salute', crest: 'nySalute', club: 'newyork', primary:'#0038a8', secondary:'#ce1126' },
-    { name: 'Motor City Octopus', crest: 'detOctopus', club: 'detroit', primary:'#ce1126', secondary:'#ffffff' },
-    { name: 'Chicago Curve', crest: 'chiCurve', club: 'chicago', primary:'#121318', secondary:'#cf0a2c' },
-    { name: 'Prairie Fire', crest: 'calFire', club: 'calgary', primary:'#c8102e', secondary:'#f1be48' },
     { name: 'Boston Banner', crest: 'bosBanner', club: 'boston', primary:'#101010', secondary:'#ffb81c' },
-    { name: 'Toronto Grind', crest: 'torGrind', club: 'toronto', primary:'#00205b', secondary:'#ffffff' },
-    { name: 'Montreal Olé', crest: 'monChant', club: 'montreal', primary:'#af1e2d', secondary:'#192168' },
-    { name: 'Pittsburgh Gear', crest: 'pitGear', club: 'pittsburgh', primary:'#111111', secondary:'#fcb514' },
-    { name: 'Philly Bellline', crest: 'phiBell', club: 'philadelphia', primary:'#f74902', secondary:'#000000' },
-    { name: 'Minnesota Northwoods', crest: 'minNorth', club: 'minnesota', primary:'#154734', secondary:'#a6192e' },
-    { name: 'Nashville Riff', crest: 'nasRiff', club: 'nashville', primary:'#ffb81c', secondary:'#041e42' },
-    { name: 'Seattle Rainline', crest: 'seaRain', club: 'seattle', primary:'#001628', secondary:'#99d9d9' },
-    { name: 'Carolina Warning', crest: 'carSiren', club: 'carolina', primary:'#cc0000', secondary:'#111111' },
-    { name: 'Florida Blue Rat', crest: 'flaRat', club: 'florida', primary:'#c8102e', secondary:'#041e42' },
-    { name: 'Tampa Coil', crest: 'tamCoil', club: 'tampa', primary:'#002868', secondary:'#101820' },
-    { name: 'Dallas Brimline', crest: 'dalHat', club: 'dallas', primary:'#006847', secondary:'#111111' },
     { name: 'Buffalo Blade Gang', crest: 'bufBladeGang', club: 'buffalo', primary:'#003087', secondary:'#ffb81c' },
+    { name: 'Motor City Octopus', crest: 'detOctopus', club: 'detroit', primary:'#ce1126', secondary:'#ffffff' },
+    { name: 'Florida Blue Rat', crest: 'flaRat', club: 'florida', primary:'#c8102e', secondary:'#041e42' },
+    { name: 'Montreal Olé', crest: 'monChant', club: 'montreal', primary:'#af1e2d', secondary:'#192168' },
     { name: 'Ottawa Legion', crest: 'ottLegion', club: 'ottawa', primary:'#151515', secondary:'#c52032' },
+    { name: 'Tampa Coil', crest: 'tamCoil', club: 'tampa', primary:'#002868', secondary:'#101820' },
+    { name: 'Toronto Grind', crest: 'torGrind', club: 'toronto', primary:'#00205b', secondary:'#ffffff' },
+    { name: 'Carolina Warning', crest: 'carSiren', club: 'carolina', primary:'#cc0000', secondary:'#111111' },
     { name: 'Columbus Cannonfire', crest: 'colCannon', club: 'columbus', primary:'#002654', secondary:'#ce1126' },
     { name: 'Newark Ironbound', crest: 'newIron', club: 'newjersey', primary:'#ce1126', secondary:'#151515' },
     { name: 'Island Yes Wave', crest: 'islYesWave', club: 'islanders', primary:'#00539b', secondary:'#f47d30' },
+    { name: 'Empire Salute', crest: 'nySalute', club: 'newyork', primary:'#0038a8', secondary:'#ce1126' },
+    { name: 'Philly Bellline', crest: 'phiBell', club: 'philadelphia', primary:'#f74902', secondary:'#000000' },
+    { name: 'Pittsburgh Gear', crest: 'pitGear', club: 'pittsburgh', primary:'#111111', secondary:'#fcb514' },
     { name: 'Washington Fury', crest: 'wasFury', club: 'washington', primary:'#c8102e', secondary:'#041e42' },
+    { name: 'Chicago Curve', crest: 'chiCurve', club: 'chicago', primary:'#121318', secondary:'#cf0a2c' },
     { name: 'Colorado Anthem', crest: 'colAnthem', club: 'colorado', primary:'#6f263d', secondary:'#236192' },
+    { name: 'Dallas Brimline', crest: 'dalHat', club: 'dallas', primary:'#006847', secondary:'#111111' },
+    { name: 'Minnesota Northwoods', crest: 'minNorth', club: 'minnesota', primary:'#154734', secondary:'#a6192e' },
+    { name: 'Nashville Riff', crest: 'nasRiff', club: 'nashville', primary:'#ffb81c', secondary:'#041e42' },
     { name: 'St. Louis Towel Wave', crest: 'stlTowel', club: 'stlouis', primary:'#002f87', secondary:'#fcb514' },
     { name: 'Utah Tusks Up', crest: 'utaTusks', club: 'utah', primary:'#15171a', secondary:'#79cfe8' },
     { name: 'Winnipeg True North', crest: 'winNorth', club: 'winnipeg', primary:'#041e42', secondary:'#5b92c7' },
     { name: 'Anaheim Rally Flight', crest: 'anaFlight', club: 'anaheim', primary:'#111111', secondary:'#f47a38' },
-    { name: 'Edmonton Oil Country', crest: 'edmOil', club: 'edmonton', primary:'#041e42', secondary:'#ff4c00' }
+    { name: 'Prairie Fire', crest: 'calFire', club: 'calgary', primary:'#c8102e', secondary:'#f1be48' },
+    { name: 'Edmonton Oil Country', crest: 'edmOil', club: 'edmonton', primary:'#041e42', secondary:'#ff4c00' },
+    { name: 'Los Angeles Royal Army', crest: 'laRoyal', club: 'losangeles', primary:'#111111', secondary:'#a7a9ac' },
+    { name: 'San Jose Chomp', crest: 'sjChomp', club: 'sanjose', primary:'#006d75', secondary:'#ea7200' },
+    { name: 'Seattle Rainline', crest: 'seaRain', club: 'seattle', primary:'#001628', secondary:'#99d9d9' },
+    { name: 'Vancouver Clock Chain', crest: 'vanClock', club: 'vancouver', primary:'#00205b', secondary:'#00843d' },
+    { name: 'Vegas Flamingo Toss', crest: 'vegFlamingo', club: 'vegas', primary:'#333f42', secondary:'#d4af37' }
   ];
   for (let i=0;i<options.length;i++) {
     t.cityChoices[i].emit('click');
@@ -396,14 +408,14 @@ test('DEV twenty-eight city clubs load original crests with intended color palet
   }
 
   // Editing a city palette produces a custom derivative without losing its mark.
-  t.elem('teamNameInput').value = 'My Energy';
+  t.elem('teamNameInput').value = 'My Flamingo';
   t.elem('teamNameInput').emit('input');
-  assert.equal(t.elem('cityClubSummary').textContent, 'Browse 28 original city teams');
+  assert.equal(t.elem('cityClubSummary').textContent, 'Browse 32 original city teams');
   t.submit('teamForm');
   let saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
   assert.equal(saved.club, null);
-  assert.equal(saved.crest, 'edmOil');
-  assert.equal(saved.name, 'My Energy');
+  assert.equal(saved.crest, 'vegFlamingo');
+  assert.equal(saved.name, 'My Flamingo');
 
   const again=boot(Object.fromEntries(t.storage));
   again.elem('customizeButton').emit('click');
