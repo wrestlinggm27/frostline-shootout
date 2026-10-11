@@ -1668,6 +1668,7 @@
   function drawGoalie() {
     const g = game.goalie;
     const jersey = GOALIE_PALETTES[game.goaliePalette];
+    const classic = game.goaliePalette === 'original';
     ctx.save(); ctx.translate(g.x, GOALIE_LINE + 3);
     ctx.rotate(g.lean * .065);
     ellipse(0, 17, 47, 15, '#28719342');
@@ -1676,22 +1677,22 @@
     rr(8, 14, 18, 24, 5, '#122c42', '#54839b', 2);
     rr(-30, 5, 22, 31, 5, '#f8ffff', '#678ea7', 2);
     rr(8, 5, 22, 31, 5, '#f8ffff', '#678ea7', 2);
-    ctx.strokeStyle = jersey.secondary; ctx.lineWidth = 3;
+    ctx.strokeStyle = classic ? '#d45557' : jersey.secondary; ctx.lineWidth = 3;
     for (const x of [-22, 16]) {
       ctx.beginPath(); ctx.moveTo(x, 12); ctx.lineTo(x + 5, 29); ctx.stroke();
     }
     // Body and shoulder pads.
-    ellipse(-28, -2, 14, 16, jersey.primary, jersey.trim, 2);
-    ellipse(28, -2, 14, 16, jersey.primary, jersey.trim, 2);
-    rr(-24, -24, 48, 40, 13, g.flash ? '#d1fff6' : jersey.primary, jersey.trim, 2);
+    ellipse(-28, -2, 14, 16, classic ? '#16394f' : jersey.primary, classic ? '#0c2538' : jersey.trim, 2);
+    ellipse(28, -2, 14, 16, classic ? '#16394f' : jersey.primary, classic ? '#0c2538' : jersey.trim, 2);
+    rr(-24, -24, 48, 40, 13, g.flash ? '#d1fff6' : jersey.primary, classic ? '#0b344b' : jersey.trim, 2);
     ctx.fillStyle = jersey.secondary; ctx.fillRect(-17, -5, 34, 5);
-    ctx.fillStyle = jersey.secondary; ctx.font = '950 14px system-ui, sans-serif';
+    ctx.fillStyle = classic ? '#ffffff' : jersey.secondary; ctx.font = '950 14px system-ui, sans-serif';
     ctx.textAlign = 'center'; ctx.fillText('1', 0, 6);
     // Catcher glove & blocker. Bigger visually than collision circle.
     ellipse(-35, 1, 12, 12, '#f8fbf9', '#547e9c', 2);
     rr(27, -9, 17, 22, 5, '#fffefa', '#547e9c', 2);
     // Mask and face cage.
-    ellipse(0, -29, 15, 17, '#fdfefa', jersey.secondary, 2);
+    ellipse(0, -29, 15, 17, '#fdfefa', classic ? '#5c88a3' : jersey.secondary, 2);
     ctx.strokeStyle = '#32536b'; ctx.lineWidth = 1.5;
     for (const i of [-7, 0, 7]) {
       ctx.beginPath(); ctx.moveTo(i, -40); ctx.lineTo(i, -18); ctx.stroke();
