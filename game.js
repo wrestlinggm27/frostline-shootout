@@ -85,7 +85,49 @@
     mountain: { label: 'Summit', shapes: [
       { d: 'M23 78 L44 39 L55 58 L64 44 L78 78 Z' },
       { d: 'M35 57 L44 39 L52 54 L44 51 L40 59 Z M58 55 L64 44 L72 59 L64 56 Z', mode: 'cutout' }
+    ] },
+    // Four entirely original fictional clubs based on real hockey-city traditions.
+    // Their colors nod to the local pro palettes; none uses an official name or logo.
+    nySalute: { label: 'New York Stick Salute', shapes: [
+      { d: 'M35 82 L27 38 Q25 31 18 33', mode: 'stroke', width: 5 },
+      { d: 'M65 82 L73 38 Q75 31 82 33', mode: 'stroke', width: 5 },
+      { d: 'M34 82 V64 H39 V57 H43 V45 H48 V38 H53 V52 H58 V46 H63 V62 H67 V82 Z', mode: 'accent' },
+      { d: 'M47 46 H50 V53 H47 Z M47 59 H50 V64 H47 Z M56 56 H59 V61 H56 Z M40 66 H43 V71 H40 Z', mode: 'trim' },
+      { d: 'M32 82 H68', mode: 'stroke', width: 2.5 },
+      { d: 'M45 87 H55', mode: 'stroke', width: 3.5 }
+    ] },
+    detOctopus: { label: 'Detroit Octopus', shapes: [
+      { d: 'M36 54 C25 47 20 60 27 72 C31 78 36 73 34 68', mode: 'stroke', width: 5.5 },
+      { d: 'M42 57 C31 63 30 79 37 85', mode: 'stroke', width: 5.5 },
+      { d: 'M48 58 C43 71 44 84 49 88', mode: 'stroke', width: 5 },
+      { d: 'M55 58 C64 65 66 81 60 86', mode: 'stroke', width: 5.5 },
+      { d: 'M63 54 C77 49 82 64 74 73 C70 77 67 71 71 68', mode: 'stroke', width: 5 },
+      { d: 'M38 51 C36 41 39 34 45 32 C53 28 62 34 64 44 C67 56 61 62 50 62 C41 62 38 57 38 51 Z', mode: 'trim' },
+      { d: 'M43 47 A2.6 2.6 0 1 0 48.2 47 A2.6 2.6 0 1 0 43 47 Z M54 47 A2.6 2.6 0 1 0 59.2 47 A2.6 2.6 0 1 0 54 47 Z', mode: 'base' },
+      { d: 'M48 55 Q50 58 53 55', mode: 'base-stroke', width: 2 },
+      { d: 'M27 66 L29 65 M70 62 L72 63', mode: 'base-stroke', width: 2.2 }
+    ] },
+    chiCurve: { label: 'Chicago Curved Stick', shapes: [
+      { d: 'M30 31 L51 70 C57 82 71 77 77 67', mode: 'stroke', width: 8 },
+      { d: 'M35 35 L53 69 C60 76 69 73 74 68', mode: 'base-stroke', width: 2 },
+      { d: 'M24 61 Q25 79 39 84', mode: 'accent-stroke', width: 4 },
+      { d: 'M44 86 Q61 91 74 80', mode: 'accent-stroke', width: 3 },
+      { d: 'M34 43 L36 39 L40 43 L37 47 Z', mode: 'accent' },
+      { d: 'M63 40 L65 35 L68 40 L73 42 L68 45 L66 50 L63 45 L59 43 Z', mode: 'accent' }
+    ] },
+    calFire: { label: 'Calgary Ring of Fire', shapes: [
+      { d: 'M27 78 C18 70 19 56 29 44 Q27 54 34 52 Q32 40 44 28 Q43 41 51 46 Q58 40 56 31 Q70 41 67 54 Q73 52 73 44 C85 62 80 78 68 84 C57 91 37 89 27 78 Z', mode: 'accent' },
+      { d: 'M50 48 C64 48 73 58 71 70 C69 82 57 88 46 85 C34 82 28 73 30 62 C32 54 40 48 50 48 Z', mode: 'base' },
+      { d: 'M50 50 C62 50 70 59 68 70 C66 80 57 84 48 82 C38 81 33 72 34 63 C36 55 42 51 50 50 Z', mode: 'stroke', width: 3.8 },
+      { d: 'M45 61 A5 5 0 1 0 55 61 A5 5 0 1 0 45 61 Z', mode: 'trim' },
+      { d: 'M44 69 Q50 74 57 69', mode: 'accent-stroke', width: 2.8 }
     ] }
+  };
+  const CITY_CLUBS = {
+    newyork: { name: 'Empire Salute', location: 'New York', primary: '#0038a8', secondary: '#ce1126', trim: '#ffffff', crest: 'nySalute', club: 'newyork' },
+    detroit: { name: 'Motor City Octopus', location: 'Detroit', primary: '#ce1126', secondary: '#ffffff', trim: '#ffffff', crest: 'detOctopus', club: 'detroit' },
+    chicago: { name: 'Chicago Curve', location: 'Chicago', primary: '#121318', secondary: '#cf0a2c', trim: '#f4e9d8', crest: 'chiCurve', club: 'chicago' },
+    calgary: { name: 'Prairie Fire', location: 'Calgary', primary: '#c8102e', secondary: '#f1be48', trim: '#ffffff', crest: 'calFire', club: 'calgary' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
@@ -98,9 +140,16 @@
       primary: validHex(value?.primary) ? value.primary.toLowerCase() : fallback.primary,
       secondary: validHex(value?.secondary) ? value.secondary.toLowerCase() : fallback.secondary,
       trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim,
-      crest: normalizeCrest(value?.crest)
+      crest: normalizeCrest(value?.crest),
+      club: typeof value?.club === 'string' && Object.hasOwn(CITY_CLUBS, value.club) ? value.club : null
     };
   }
+  function artPaint(shape, team) {
+    if (shape.mode === 'accent' || shape.mode === 'cutout' || shape.mode === 'accent-stroke') return team.secondary;
+    if (shape.mode === 'base' || shape.mode === 'base-stroke') return team.primary;
+    return team.trim;
+  }
+  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke'].includes(shape.mode); }
   function makeCrestSvg(team, className = '') {
     const svgNS = 'http://www.w3.org/2000/svg';
     const create = (tag, attrs) => {
@@ -122,11 +171,10 @@
       svg.append(label);
     } else {
       for (const shape of CREST_ART[team.crest].shapes) {
-        const attrs = { d: shape.d, fill: shape.mode === 'stroke' ? 'none'
-          : shape.mode === 'cutout' ? team.secondary : team.trim };
-        if (shape.mode === 'stroke') {
-          attrs.stroke = team.trim;
-          attrs['stroke-width'] = 5.5;
+        const attrs = { d: shape.d, fill: artIsStroke(shape) ? 'none' : artPaint(shape, team) };
+        if (artIsStroke(shape)) {
+          attrs.stroke = artPaint(shape, team);
+          attrs['stroke-width'] = shape.width || 5.5;
           attrs['stroke-linecap'] = 'round';
           attrs['stroke-linejoin'] = 'round';
         }
@@ -162,11 +210,11 @@
       } else {
         for (const shape of CREST_ART[team.crest].shapes) {
           const path = new Path2D(shape.d);
-          if (shape.mode === 'stroke') {
-            ctx.strokeStyle = team.trim; ctx.lineWidth = 5.5;
+          if (artIsStroke(shape)) {
+            ctx.strokeStyle = artPaint(shape, team); ctx.lineWidth = shape.width || 5.5;
             ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(path);
           } else {
-            ctx.fillStyle = shape.mode === 'cutout' ? team.secondary : team.trim;
+            ctx.fillStyle = artPaint(shape, team);
             ctx.fill(path);
           }
         }
@@ -1252,9 +1300,23 @@
   const teamTrim = $('teamTrim');
   const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
   const crestButtons = [...document.querySelectorAll('[data-team-crest]')];
+  const cityButtons = [...document.querySelectorAll('[data-city-club]')];
   let crestDraft = 'monogram';
+  let clubDraft = null;
   crestButtons.forEach(button => button.addEventListener('click', () => {
     crestDraft = normalizeCrest(button.dataset.teamCrest);
+    clubDraft = null;
+    updateTeamPreview();
+  }));
+  cityButtons.forEach(button => button.addEventListener('click', () => {
+    const club = CITY_CLUBS[button.dataset.cityClub];
+    if (!club) return;
+    teamNameInput.value = club.name;
+    teamPrimary.value = club.primary;
+    teamSecondary.value = club.secondary;
+    teamTrim.value = club.trim;
+    crestDraft = club.crest;
+    clubDraft = club.club;
     updateTeamPreview();
   }));
   function applyTeam(team) {
@@ -1280,7 +1342,7 @@
   }
   function currentEditorTeam() {
     return normalizeTeam({ name:teamNameInput.value, primary:teamPrimary.value,
-      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft });
+      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft, club:clubDraft });
   }
   function updateTeamPreview() {
     const team = currentEditorTeam();
@@ -1289,6 +1351,11 @@
     crestButtons.forEach(button => {
       button.setAttribute('aria-pressed', String(button.dataset.teamCrest === team.crest));
       renderCrest(button.querySelector('.crest-choice-preview'), { ...team, crest: button.dataset.teamCrest }, 'option-team-crest');
+    });
+    cityButtons.forEach(button => {
+      const club = CITY_CLUBS[button.dataset.cityClub];
+      button.setAttribute('aria-pressed', String(clubDraft === button.dataset.cityClub));
+      renderCrest(button.querySelector('.city-club-icon'), club, 'city-club-shield');
     });
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
@@ -1311,6 +1378,7 @@
     teamSecondary.value = team.secondary;
     teamTrim.value = team.trim;
     crestDraft = normalizeCrest(team.crest);
+    clubDraft = team.club;
     updateTeamPreview();
     teamDialog.showModal();
   }
@@ -1326,9 +1394,14 @@
     teamPrimary.value = theme.primary;
     teamSecondary.value = theme.secondary;
     teamTrim.value = theme.trim;
+    clubDraft = null;
     updateTeamPreview();
   }));
-  [teamNameInput,teamPrimary,teamSecondary,teamTrim].forEach(el=>el.addEventListener('input',updateTeamPreview));
+  [teamNameInput,teamPrimary,teamSecondary,teamTrim].forEach(el=>el.addEventListener('input', () => {
+    // A customized city template still keeps its art, but becomes an original team identity.
+    clubDraft = null;
+    updateTeamPreview();
+  }));
   $('teamForm').addEventListener('submit', event => {
     event.preventDefault();
     const team = currentEditorTeam();
