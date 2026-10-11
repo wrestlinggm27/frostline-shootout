@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.4: Collapsible City Teams
+# Frostline Shootout — DEV V2.5: Twenty City Teams
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -12,9 +12,22 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
 
+## City Club Batch Five — DEV V2.5
+
+The city club roster now includes **20 original fictional teams**, with the new batch using the same custom SVG crest format and per-player saved team palettes:
+
+| Region | Fictional team name | Inspiration | Original colors |
+|---|---|---|---|
+| Buffalo | **Buffalo Blade Gang** | Hockey fans' Blade Gang ritual, shown as crossed skate blades with a puck and rally halo | Royal blue `#003087`, gold `#ffb81c`, white |
+| Ottawa | **Ottawa Legion** | Roman-inspired helmet and swept crest, not copied from an official team mark | Black `#151515`, red `#c52032`, gold `#c2912c` |
+| Columbus | **Columbus Cannonfire** | Cannon firing celebration, broad barrel, spoked wheel and blast lines | Navy `#002654`, red `#ce1126`, white and silver `#b5c1d0` |
+| New Jersey (Newark) | **Newark Ironbound** | Newark's industrial ironwork and bridge shapes with a skyline | Red `#ce1126`, black `#151515`, white |
+
+The expanded DEV team editor keeps the **city teams collapsed by default** so the menu stays short, and the selected name displays in the collapsed header. No changes were made to Stable, player storage format, or gameplay.
+
 ## Compact City Club Picker — DEV V2.4
 
-**Customize Team** now begins with the **Frostline City Clubs** gallery collapsed. Its accessible **EXPAND** control reveals all 16 city-team cards; the same control changes to **COLLAPSE** and hides them again. The collapsed header shows the current city selection if one is active. Each time the player reopens the team editor, the catalog starts compact, while color themes, custom team names and generic crests remain immediately accessible.
+**Customize Team** now begins with the **Frostline City Clubs** gallery collapsed. Its accessible **EXPAND** control reveals all 20 city-team cards; the same control changes to **COLLAPSE** and hides them again. The collapsed header shows the current city selection if one is active. Each time the player reopens the team editor, the catalog starts compact, while color themes, custom team names and generic crests remain immediately accessible.
 
 This uses a native HTML `details` / `summary` disclosure (no new dependencies) with keyboard focus styles and phone-sized layouts. Existing profiles and team-selection data remain unchanged, and the game stays separate from Stable.
 
