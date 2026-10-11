@@ -75,7 +75,7 @@ function boot(seed = {}) {
   const presets = ['broadway', 'ice', 'aurora', 'black'].map(id => Object.assign(new MockNode(id), { dataset: { teamPreset: id } }));
   const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
   const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
-  const cityChoices = ['newyork', 'detroit', 'chicago', 'calgary', 'boston', 'toronto', 'montreal', 'pittsburgh', 'philadelphia', 'minnesota', 'nashville', 'seattle', 'carolina', 'florida', 'tampa', 'dallas', 'buffalo', 'ottawa', 'columbus', 'newjersey', 'islanders', 'washington', 'colorado', 'stlouis'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
+  const cityChoices = ['newyork', 'detroit', 'chicago', 'calgary', 'boston', 'toronto', 'montreal', 'pittsburgh', 'philadelphia', 'minnesota', 'nashville', 'seattle', 'carolina', 'florida', 'tampa', 'dallas', 'buffalo', 'ottawa', 'columbus', 'newjersey', 'islanders', 'washington', 'colorado', 'stlouis', 'utah', 'winnipeg', 'anaheim', 'edmonton'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -332,8 +332,8 @@ test('DEV data normalizes unknown old shield identifiers safely', () => {
   assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
 });
 
-test('DEV twenty-four city clubs load original crests with intended color palettes and save team', () => {
-  assert.equal((html.match(/data-city-club="/g) || []).length, 24);
+test('DEV twenty-eight city clubs load original crests with intended color palettes and save team', () => {
+  assert.equal((html.match(/data-city-club="/g) || []).length, 28);
   assert.match(html, /<details class="city-club-gallery" id="cityClubGallery">/);
   assert.match(html, /<summary class="city-club-toggle">/);
   assert.match(css, /city-club-gallery:not\(\[open\]\)/);
@@ -366,7 +366,11 @@ test('DEV twenty-four city clubs load original crests with intended color palett
     { name: 'Island Yes Wave', crest: 'islYesWave', club: 'islanders', primary:'#00539b', secondary:'#f47d30' },
     { name: 'Washington Fury', crest: 'wasFury', club: 'washington', primary:'#c8102e', secondary:'#041e42' },
     { name: 'Colorado Anthem', crest: 'colAnthem', club: 'colorado', primary:'#6f263d', secondary:'#236192' },
-    { name: 'St. Louis Towel Wave', crest: 'stlTowel', club: 'stlouis', primary:'#002f87', secondary:'#fcb514' }
+    { name: 'St. Louis Towel Wave', crest: 'stlTowel', club: 'stlouis', primary:'#002f87', secondary:'#fcb514' },
+    { name: 'Utah Tusks Up', crest: 'utaTusks', club: 'utah', primary:'#15171a', secondary:'#79cfe8' },
+    { name: 'Winnipeg True North', crest: 'winNorth', club: 'winnipeg', primary:'#041e42', secondary:'#5b92c7' },
+    { name: 'Anaheim Rally Flight', crest: 'anaFlight', club: 'anaheim', primary:'#111111', secondary:'#f47a38' },
+    { name: 'Edmonton Oil Country', crest: 'edmOil', club: 'edmonton', primary:'#041e42', secondary:'#ff4c00' }
   ];
   for (let i=0;i<options.length;i++) {
     t.cityChoices[i].emit('click');
@@ -392,14 +396,14 @@ test('DEV twenty-four city clubs load original crests with intended color palett
   }
 
   // Editing a city palette produces a custom derivative without losing its mark.
-  t.elem('teamNameInput').value = 'My Rally';
+  t.elem('teamNameInput').value = 'My Energy';
   t.elem('teamNameInput').emit('input');
-  assert.equal(t.elem('cityClubSummary').textContent, 'Browse 24 original city teams');
+  assert.equal(t.elem('cityClubSummary').textContent, 'Browse 28 original city teams');
   t.submit('teamForm');
   let saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
   assert.equal(saved.club, null);
-  assert.equal(saved.crest, 'stlTowel');
-  assert.equal(saved.name, 'My Rally');
+  assert.equal(saved.crest, 'edmOil');
+  assert.equal(saved.name, 'My Energy');
 
   const again=boot(Object.fromEntries(t.storage));
   again.elem('customizeButton').emit('click');
