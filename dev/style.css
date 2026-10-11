@@ -517,10 +517,11 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 /* DEV: in-round escape hatch and results navigation, designed for the compact rink. */
 .rink-menu-button{
   position:absolute;top:8px;right:8px;z-index:4;
-  min-width:63px;min-height:30px;padding:5px 8px;
-  border:1px solid #ffffff85;border-radius:9px;
-  background:#061c3bdc;color:#fff;font-size:10px;font-weight:900;
-  letter-spacing:.06em;cursor:pointer;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;
+  width:48px;height:24px;padding:0;
+  border:1px solid #ffffff85;border-radius:7px;
+  background:#061c3bdc;color:#fff;font-size:9px;font-weight:900;line-height:1;
+  letter-spacing:.02em;cursor:pointer;touch-action:manipulation;
 }
 .rink-menu-button[hidden],.results-menu-button[hidden]{display:none}
 .rink-menu-button:hover,.rink-menu-button:focus-visible{border-color:var(--team-highlight);background:#153a6c}
@@ -534,5 +535,5 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .results-menu-button:hover,.results-menu-button:focus-visible{border-color:var(--team-highlight);color:#fff}
 @container arcade-rink (max-width:275px){
   .results-menu-button{min-height:24px;font-size:9px;padding:3px 8px;margin-top:5px}
-  .rink-menu-button{min-width:54px;min-height:27px;padding:4px 6px;font-size:9px}
+  .rink-menu-button{width:44px;height:23px;font-size:8px}
 }
