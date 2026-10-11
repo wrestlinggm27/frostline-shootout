@@ -1685,7 +1685,7 @@
     ellipse(28, -2, 14, 16, jersey.primary, jersey.trim, 2);
     rr(-24, -24, 48, 40, 13, g.flash ? '#d1fff6' : jersey.primary, jersey.trim, 2);
     ctx.fillStyle = jersey.secondary; ctx.fillRect(-17, -5, 34, 5);
-    ctx.fillStyle = jersey.trim; ctx.font = '950 14px system-ui, sans-serif';
+    ctx.fillStyle = jersey.secondary; ctx.font = '950 14px system-ui, sans-serif';
     ctx.textAlign = 'center'; ctx.fillText('1', 0, 6);
     // Catcher glove & blocker. Bigger visually than collision circle.
     ellipse(-35, 1, 12, 12, '#f8fbf9', '#547e9c', 2);
