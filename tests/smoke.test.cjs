@@ -75,7 +75,7 @@ function boot(seed = {}) {
   const presets = ['broadway', 'ice', 'aurora', 'black'].map(id => Object.assign(new MockNode(id), { dataset: { teamPreset: id } }));
   const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
   const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
-  const cityChoices = ['newyork', 'detroit', 'chicago', 'calgary', 'boston', 'toronto', 'montreal', 'pittsburgh', 'philadelphia', 'minnesota', 'nashville', 'seattle'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
+  const cityChoices = ['newyork', 'detroit', 'chicago', 'calgary', 'boston', 'toronto', 'montreal', 'pittsburgh', 'philadelphia', 'minnesota', 'nashville', 'seattle', 'carolina', 'florida', 'tampa', 'dallas'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -332,8 +332,8 @@ test('DEV data normalizes unknown old shield identifiers safely', () => {
   assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
 });
 
-test('DEV twelve city clubs load original crests with intended color palettes and save team', () => {
-  assert.equal((html.match(/data-city-club="/g) || []).length, 12);
+test('DEV sixteen city clubs load original crests with intended color palettes and save team', () => {
+  assert.equal((html.match(/data-city-club="/g) || []).length, 16);
   const t = boot();
   t.frame(16);
   t.elem('playerNameInput').value = 'City Captain';
@@ -350,7 +350,11 @@ test('DEV twelve city clubs load original crests with intended color palettes an
     { name: 'Philly Bellline', crest: 'phiBell', club: 'philadelphia', primary:'#f74902', secondary:'#000000' },
     { name: 'Minnesota Northwoods', crest: 'minNorth', club: 'minnesota', primary:'#154734', secondary:'#a6192e' },
     { name: 'Nashville Riff', crest: 'nasRiff', club: 'nashville', primary:'#ffb81c', secondary:'#041e42' },
-    { name: 'Seattle Rainline', crest: 'seaRain', club: 'seattle', primary:'#001628', secondary:'#99d9d9' }
+    { name: 'Seattle Rainline', crest: 'seaRain', club: 'seattle', primary:'#001628', secondary:'#99d9d9' },
+    { name: 'Carolina Warning', crest: 'carSiren', club: 'carolina', primary:'#cc0000', secondary:'#111111' },
+    { name: 'Florida Blue Rat', crest: 'flaRat', club: 'florida', primary:'#c8102e', secondary:'#041e42' },
+    { name: 'Tampa Coil', crest: 'tamCoil', club: 'tampa', primary:'#002868', secondary:'#101820' },
+    { name: 'Dallas Brimline', crest: 'dalHat', club: 'dallas', primary:'#006847', secondary:'#111111' }
   ];
   for (let i=0;i<options.length;i++) {
     t.cityChoices[i].emit('click');
@@ -371,13 +375,13 @@ test('DEV twelve city clubs load original crests with intended color palettes an
   }
 
   // Editing a city palette produces a custom derivative without losing its mark.
-  t.elem('teamNameInput').value = 'My Rain';
+  t.elem('teamNameInput').value = 'My Cowboy Hat';
   t.elem('teamNameInput').emit('input');
   t.submit('teamForm');
   let saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
   assert.equal(saved.club, null);
-  assert.equal(saved.crest, 'seaRain');
-  assert.equal(saved.name, 'My Rain');
+  assert.equal(saved.crest, 'dalHat');
+  assert.equal(saved.name, 'My Cowboy Hat');
 
   const again=boot(Object.fromEntries(t.storage));
   again.elem('customizeButton').emit('click');
