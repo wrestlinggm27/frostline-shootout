@@ -2209,10 +2209,40 @@
   });
   applyLogo('power');
 
+  // Startup and intro form a separate presentation state machine.
+  // No localStorage keys, saved profiles, game rules or difficulty are changed.
+  const startupScreen = $('startupScreen');
+  const startupWelcome = $('startupWelcome');
+  const startupIntro = $('startupIntro');
+  let startupPhase = 'start';
+  let startupTimer = null;
+  function finishStartup() {
+    if (startupPhase === 'ready') return;
+    if (startupTimer !== null) {
+      clearTimeout(startupTimer);
+      startupTimer = null;
+    }
+    startupPhase = 'ready';
+    startupScreen.dataset.phase = 'ready';
+    startupScreen.hidden = true;
+    // Onboarding happens only after the opening sequence, never behind it.
+    if (!game.profile) requestAnimationFrame(openPlayerDialog);
+  }
+  function beginStartupIntro() {
+    if (startupPhase !== 'start') return;
+    startupPhase = 'intro';
+    startupScreen.dataset.phase = 'intro';
+    startupWelcome.hidden = true;
+    startupIntro.hidden = false;
+    // Temporary credit beat; future frost / skate / music sequence plugs in here.
+    startupTimer = setTimeout(finishStartup, 1900);
+  }
+  $('startupBeginButton').addEventListener('click', beginStartupIntro);
+  $('startupSkipButton').addEventListener('click', finishStartup);
+
   applyTeam(game.team);
   const resumed = profileDB.players.find(p => p.id === profileDB.activeId);
   if (resumed) activateProfile(resumed);
-  else requestAnimationFrame(openPlayerDialog);
   updateHUD();
   resizeCanvas();
   requestAnimationFrame(frame);
