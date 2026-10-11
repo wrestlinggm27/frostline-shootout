@@ -150,6 +150,7 @@ test('DEV startup gates onboarding and supports separate start / intro / ready s
   assert.equal(opening.hidden, false);
   assert.equal(t.elem('startupWelcome').hidden, false);
   assert.equal(t.elem('startupIntro').hidden, true);
+  assert.equal(t.elem('frostEdgeOverlay').dataset.frost, 'off', 'corners start clear');
   assert.equal(t.elem('playerDialog').open, false, 'onboarding must not cover startup');
   t.frame(16);
   assert.equal(t.elem('playerDialog').open, false, 'first frame must leave opening on screen');
@@ -159,12 +160,14 @@ test('DEV startup gates onboarding and supports separate start / intro / ready s
   assert.equal(opening.dataset.phase, 'intro');
   assert.equal(t.elem('startupWelcome').hidden, true);
   assert.equal(t.elem('startupIntro').hidden, false);
+  assert.equal(t.elem('frostEdgeOverlay').dataset.frost, 'on', 'PRESS START grows corner ice');
   assert.equal(t.elem('playerDialog').open, false);
   t.elem('startupBeginButton').emit('click'); // double-taps cannot restart intro
   assert.equal(opening.dataset.phase, 'intro');
   t.elem('startupSkipButton').emit('click');
   assert.equal(opening.dataset.phase, 'ready');
   assert.equal(opening.hidden, true);
+  assert.equal(t.elem('frostEdgeOverlay').dataset.frost, 'on', 'frost persists after intro');
   assert.equal(t.elem('playerDialog').open, true, 'new players enter existing onboarding');
   t.elem('startupSkipButton').emit('click');
   assert.equal(t.storage.size, 0, 'skipping never changes player records');
@@ -190,6 +193,7 @@ test('DEV intro can be skipped with an existing player without resetting the sco
   assert.equal(loaded.elem('startupScreen').dataset.phase, 'start');
   assert.equal(loaded.elem('playerDialog').open, false);
   loaded.elem('startupSkipButton').emit('click');
+  assert.equal(loaded.elem('frostEdgeOverlay').dataset.frost, 'on', 'skip also keeps frosty edges');
   assert.equal(loaded.elem('startupScreen').hidden, true);
   assert.equal(loaded.elem('playerDialog').open, false);
   assert.equal(loaded.elem('menuPlayerName').textContent, 'RETURNING PLAYER');
@@ -197,6 +201,40 @@ test('DEV intro can be skipped with an existing player without resetting the sco
   const preserved = JSON.parse(loaded.storage.get(key));
   assert.equal(preserved.players[0].records.arcade.beer.best, 12);
   assert.equal(preserved.players[0].name, 'Returning Player');
+});
+
+test('DEV ice startup sound is triggered by PRESS START and never by silent skip', () => {
+  let cracks = 0, rings = 0;
+  const param = () => ({
+    value: 0, setValueAtTime() {}, linearRampToValueAtTime() {},
+    exponentialRampToValueAtTime() {}, setTargetAtTime() {}
+  });
+  const node = () => ({ connect() {}, start() {}, stop() {}, frequency: param(), gain: param(), Q: param() });
+  class FakeIceAudio {
+    constructor() { this.state = 'running'; this.currentTime = 4; this.destination = {}; this.sampleRate = 48000; }
+    createDynamicsCompressor() {
+      return { connect() {}, threshold: param(), knee: param(), ratio: param(), attack: param(), release: param() };
+    }
+    createGain() { return node(); }
+    createBuffer() { return { getChannelData: () => new Float32Array(64) }; }
+    createBufferSource() { cracks += 1; return node(); }
+    createBiquadFilter() { return node(); }
+    createOscillator() { rings += 1; return node(); }
+  }
+  const soundTest = boot({}, { manualStartup: true, AudioContext: FakeIceAudio });
+  soundTest.elem('startupBeginButton').emit('click');
+  assert.equal(soundTest.elem('frostEdgeOverlay').dataset.frost, 'on');
+  assert.equal(cracks, 4, 'four subtle ice crackle noise layers');
+  assert.equal(rings, 1, 'one falling ice shimmer');
+  soundTest.elem('startupBeginButton').emit('click');
+  assert.equal(cracks, 4, 'repeated taps do not replay intro sound');
+  soundTest.elem('startupSkipButton').emit('click');
+
+  const silent = boot({}, { manualStartup: true, AudioContext: FakeIceAudio });
+  silent.elem('startupSkipButton').emit('click');
+  assert.equal(cracks, 4, 'skip does not trigger an unexpected crack sound');
+  assert.equal(silent.elem('frostEdgeOverlay').dataset.frost, 'on');
+  assert.equal(silent.storage.has('frostline-player-profiles-v1'), false);
 });
 
 test('DEV sound toggle switches SVG icons and mutes/unmutes the audio bus', () => {
