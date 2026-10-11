@@ -1,4 +1,12 @@
-# Frostline Shootout — Stable Version 2.8.1
+# Frostline Shootout — Stable Version 2.10
+
+## Stable V2.10: Eight Accurate National Flag Teams
+
+The approved National Teams feature has joined the full 32-club Stable gallery. Team setup now offers a compact City Clubs selector (32 original fictional clubs), a separate expandable **National Teams** selector (USA, Canada, Sweden, Finland, Czechia, Slovakia, Germany, Switzerland), and fully custom team name, colors and shield. The country is selected with its real national name and colors, and saving a country keeps a mutually exclusive `nation` identity in the player profile. Customizing that country creates a unique derivative without replacing its visual flag crest unless the player chooses new art.
+
+For the user's approved redesign, all eight country shields now display **authentic vector national flag symbols** drawn with clipped geometry, both in the picker and on center ice. The USA includes 13 stripes and 50 stars; Canada retains its maple leaf; Slovakia retains its full double-cross and three-hill emblem. Artwork adapts [flag-icons](https://github.com/lipis/flag-icons) under the MIT license, included in `FLAG-ART-LICENSE.txt`, and no licensed federation emblems are copied.
+
+**Player saves remain intact.** Production continues to use the original unprefixed `frostline-player-profiles-v1`, difficulty and high-score keys; the official **Ice Cut F** brand logo (including its one-time migration) remains the default. DEV saves remain isolated under `frostline-dev:` and are neither copied nor modified.
 
 ## Stable V2.8.1: Official Ice Cut F Logo
 
@@ -20,7 +28,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.8.1 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.10 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
