@@ -502,3 +502,11 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .national-team-detail strong{font-size:9px}
   .national-team-detail small{font-size:8px}
 }
+
+/* DEV V2.10: approved accurate national flag shield presentation. */
+.national-team-choice{min-height:116px}
+.national-team-icon{filter:drop-shadow(0 4px 4px #0008)}
+.national-team-detail{gap:3px}
+.national-team-flag{font-size:12px;line-height:1.12;color:#f8fbff;letter-spacing:.07em;font-weight:1000}
+.national-team-detail strong{font-weight:1000;letter-spacing:.015em}
+@media(max-width:390px){.national-team-choice{min-height:100px}.national-team-flag{font-size:11px}}

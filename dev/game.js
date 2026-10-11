@@ -491,6 +491,69 @@
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
   const SHIELD_INNER = 'M50 14 L79 24 L77 61 Q74 83 50 101 Q26 83 23 61 L21 24 Z';
+
+  // Accurate 640x480 national-flag vector geometry adapted from the
+  // open-source lipis/flag-icons project (MIT; FLAG-ART-LICENSE.txt).
+  // All the same paths render in inline SVG and on center ice via Canvas.
+  const starPath = (x, y, r = 10.3) => {
+    let d = '';
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5;
+      const radius = i % 2 ? r * .39 : r;
+      d += (i ? 'L' : 'M') + (x + Math.cos(a) * radius).toFixed(2)
+        + ' ' + (y + Math.sin(a) * radius).toFixed(2) + ' ';
+    }
+    return d + 'Z';
+  };
+  const NATIONAL_FLAG_VECTORS = {
+    natUSA: [
+      { fill:'#bd3d44', d:'M0 0h640v480H0' },
+      { fill:'none', stroke:'#ffffff', width:37, d:'M0 55.3h640M0 129h640M0 203h640M0 277h640M0 351h640M0 425h640' },
+      { fill:'#192f5d', d:'M0 0h364.8v258.5H0' },
+      ...Array.from({length:9}, (_,row) => Array.from({length:row%2?5:6}, (_,col) => ({
+        fill:'#ffffff',d:starPath((row%2?58:28)+61*col,17+26.2*row)
+      }))).flat()
+    ],
+    natCanada: [
+      { fill:'#ffffff',d:'M0 0h640v480H0' },
+      { fill:'#d52b1e',d:'M-19.7 0h169.8v480H-19.7zm509.5 0h169.8v480H489.9zM201 232l-13.3 4.4 61.4 54c4.7 13.7-1.6 17.8-5.6 25l66.6-8.4-1.6 67 13.9-.3-3.1-66.6 66.7 8c-4.1-8.7-7.8-13.3-4-27.2l61.3-51-10.7-4c-8.8-6.8 3.8-32.6 5.6-48.9 0 0-35.7 12.3-38 5.8l-9.2-17.5-32.6 35.8c-3.5.9-5-.5-5.9-3.5l15-74.8-23.8 13.4q-3.2 1.3-5.2-2.2l-23-46-23.6 47.8q-2.8 2.5-5 .7L264 130.8l13.7 74.1c-1.1 3-3.7 3.8-6.7 2.2l-31.2-35.3c-4 6.5-6.8 17.1-12.2 19.5s-23.5-4.5-35.6-7c4.2 14.8 17 39.6 9 47.7' }
+    ],
+    natSweden: [
+      { fill:'#005293',d:'M0 0h640v480H0z' },
+      { fill:'#fecb00',d:'M176 0v192H0v96h176v192h96V288h368v-96H272V0z' }
+    ],
+    natFinland: [
+      { fill:'#ffffff',d:'M0 0h640v480H0z' },
+      { fill:'#002f6c',d:'M0 174.5h640v131H0z' },
+      { fill:'#002f6c',d:'M175.5 0h130.9v480h-131z' }
+    ],
+    natCzechia: [
+      { fill:'#ffffff',d:'M0 0h640v240H0z' },
+      { fill:'#d7141a',d:'M0 240h640v240H0z' },
+      { fill:'#11457e',d:'M360 240 0 0v480z' }
+    ],
+    natSlovakia: [
+      { fill:'#ee1c25',d:'M0 0h640v480H0z' },
+      { fill:'#0b4ea2',d:'M0 0h640v320H0z' },
+      { fill:'#ffffff',d:'M0 0h640v160H0z' },
+      { fill:'#ffffff',d:'M233 370.8c-43-20.7-104.6-61.9-104.6-143.2 0-81.4 4-118.4 4-118.4h201.3s3.9 37 3.9 118.4S276 350 233 370.8' },
+      { fill:'#ee1c25',d:'M233 360c-39.5-19-96-56.8-96-131.4s3.6-108.6 3.6-108.6h184.8s3.5 34 3.5 108.6C329 303.3 272.5 341 233 360' },
+      { fill:'#ffffff',d:'M241.4 209c10.7.2 31.6.6 50.1-5.6 0 0-.4 6.7-.4 14.4s.5 14.4.5 14.4c-17-5.7-38.1-5.8-50.2-5.7v41.2h-16.8v-41.2c-12-.1-33.1 0-50.1 5.7 0 0 .5-6.7.5-14.4s-.5-14.4-.5-14.4c18.5 6.2 39.4 5.8 50 5.6v-25.9c-9.7 0-23.7.4-39.6 5.7 0 0 .5-6.6.5-14.4 0-7.7-.5-14.4-.5-14.4 15.9 5.3 29.9 5.8 39.6 5.7-.5-16.4-5.3-37-5.3-37s9.9.7 13.8.7 13.8-.7 13.8-.7-4.8 20.6-5.3 37c9.7.1 23.7-.4 39.6-5.7 0 0-.5 6.7-.5 14.4s.5 14.4.5 14.4a119 119 0 0 0-39.7-5.7v26z' },
+      { fill:'#0b4ea2',d:'M233 263.3c-19.9 0-30.5 27.5-30.5 27.5s-6-13-22.2-13c-11 0-19 9.7-24.2 18.8 20 31.7 51.9 51.3 76.9 63.4 25-12 57-31.7 76.9-63.4-5.2-9-13.2-18.8-24.2-18.8-16.2 0-22.2 13-22.2 13S253 263.3 233 263.3' }
+    ],
+    natGermany: [
+      { fill:'#ffcc00',d:'M0 320h640v160H0z' },
+      { fill:'#000000',d:'M0 0h640v160H0z' },
+      { fill:'#ff0000',d:'M0 160h640v160H0z' }
+    ],
+    natSwitzerland: [
+      { fill:'#ff0000',d:'M0 0h640v480H0z' },
+      { fill:'#ffffff',d:'M170 195h300v90H170z' },
+      { fill:'#ffffff',d:'M275 90h90v300h-90z' }
+    ]
+  };
+  const NATIONAL_FLAG_TRANSFORM = 'translate(20 14) scale(0.09375 0.18125)';
+  let nationalClipId = 0;
   const validHex = color => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
   function normalizeTeam(value) {
     const fallback = TEAM_PRESETS.broadway;
@@ -529,10 +592,30 @@
       return node;
     };
     const svg = create('svg', { viewBox: '0 0 100 116', 'aria-hidden': 'true', class: className });
-    svg.append(create('path', { d: SHIELD_OUTER, fill: team.secondary, stroke: team.trim, 'stroke-width': 2.4 }));
-    svg.append(create('path', { d: SHIELD_INNER, fill: team.primary, stroke: team.trim, 'stroke-width': 1.5 }));
-    svg.append(create('path', { d: 'M30 28 H70', fill: 'none', stroke: team.trim, 'stroke-width': 2, opacity: .65 }));
-    if (team.crest === 'monogram') {
+    const flag = NATIONAL_FLAG_VECTORS[team.crest];
+    const isFlag = !!flag;
+    svg.append(create('path', { d: SHIELD_OUTER, fill: isFlag ? '#06254b' : team.secondary,
+      stroke: isFlag ? '#3775ad' : team.trim, 'stroke-width': 2.4 }));
+    svg.append(create('path', { d: SHIELD_INNER, fill: isFlag ? '#ffffff' : team.primary,
+      stroke: isFlag ? '#ffffff' : team.trim, 'stroke-width': 1.5 }));
+    if (isFlag) {
+      const clipId = 'frostline-national-clip-' + (++nationalClipId);
+      const defs = create('defs', {});
+      const clip = create('clipPath', { id: clipId });
+      clip.append(create('path', { d: SHIELD_INNER }));
+      defs.append(clip);
+      svg.append(defs);
+      const clippingGroup = create('g', { 'clip-path': 'url(#' + clipId + ')' });
+      const flagGroup = create('g', { transform: NATIONAL_FLAG_TRANSFORM });
+      for (const shape of flag) {
+        const attrs = { d: shape.d, fill: shape.fill };
+        if (shape.stroke) { attrs.stroke = shape.stroke; attrs['stroke-width'] = shape.width || 1; }
+        flagGroup.append(create('path', attrs));
+      }
+      clippingGroup.append(flagGroup);
+      svg.append(clippingGroup);
+      svg.append(create('path', { d: SHIELD_INNER, fill: 'none', stroke: '#ffffff', 'stroke-width': 2 }));
+    } else if (team.crest === 'monogram') {
       const label = create('text', {
         x: 50, y: 69, 'font-family': 'system-ui, sans-serif',
         'font-weight': 1000, 'font-size': 29,
@@ -566,16 +649,29 @@
     if (typeof Path2D === 'function') {
       ctx.translate(-27, -42);
       ctx.scale(.54, .54);
-      ctx.fillStyle = team.secondary; ctx.strokeStyle = team.trim; ctx.lineWidth = 2.4;
+      const flag = NATIONAL_FLAG_VECTORS[team.crest];
+      const isFlag = !!flag;
+      ctx.fillStyle = isFlag ? '#06254b' : team.secondary;
+      ctx.strokeStyle = isFlag ? '#3775ad' : team.trim; ctx.lineWidth = 2.4;
       const outer = new Path2D(SHIELD_OUTER);
       ctx.fill(outer); ctx.stroke(outer);
-      ctx.fillStyle = team.primary; ctx.lineWidth = 1.5;
+      ctx.fillStyle = isFlag ? '#ffffff' : team.primary; ctx.lineWidth = 1.5;
       const inner = new Path2D(SHIELD_INNER);
       ctx.fill(inner); ctx.stroke(inner);
-      ctx.strokeStyle = team.trim; ctx.lineWidth = 2; ctx.globalAlpha = .3;
-      ctx.beginPath(); ctx.moveTo(30, 28); ctx.lineTo(70, 28); ctx.stroke();
-      ctx.globalAlpha = .58;
-      if (team.crest === 'monogram') {
+      if (isFlag) {
+        ctx.save();
+        ctx.clip(inner);
+        ctx.translate(20, 14);
+        ctx.scale(0.09375, 0.18125);
+        for (const shape of flag) {
+          const path = new Path2D(shape.d);
+          if (shape.fill !== 'none') { ctx.fillStyle = shape.fill; ctx.fill(path); }
+          if (shape.stroke) { ctx.strokeStyle = shape.stroke; ctx.lineWidth = shape.width || 1; ctx.stroke(path); }
+        }
+        ctx.restore();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+        ctx.stroke(inner);
+      } else if (team.crest === 'monogram') {
         ctx.fillStyle = team.trim; ctx.font = '1000 29px system-ui, sans-serif';
         ctx.textAlign = 'center'; ctx.fillText(initialsFor(team.name), 50, 69, 54);
       } else {
