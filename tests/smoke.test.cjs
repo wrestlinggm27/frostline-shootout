@@ -434,7 +434,17 @@ test('DEV national teams show eight actual flags, save country identity, draw sh
   assert.equal((html.match(/data-national-team="/g) || []).length, 8);
   assert.match(html, /id="nationalTeamGallery"/);
   assert.match(html, /MAKE IT YOURS · CUSTOM TEAM/);
-  for (const flag of ['🇺🇸','🇨🇦','🇸🇪','🇫🇮','🇨🇿','🇸🇰','🇩🇪','🇨🇭']) assert.ok(html.includes(flag), 'flag emoji ' + flag);
+  for (const code of ['US','CA','SE','FI','CZ','SK','DE','CH']) {
+    assert.ok(html.includes('<span class="national-team-flag" aria-hidden="true">' + code + '</span>'), 'country code ' + code);
+  }
+  // Only the original, correct flag geometry should be used in SVG and on ice.
+  assert.match(gameCode, /const NATIONAL_FLAG_VECTORS =/);
+  assert.match(gameCode, /ctx\.clip\(inner\)/);
+  assert.match(gameCode, /create\('clipPath'/);
+  assert.match(gameCode, /Array\.from\(\{length:9\}/);
+  assert.match(gameCode, /length:row%2\?5:6/);
+  assert.match(gameCode, /M233 370\.8/, 'real Slovak arms geometry is included');
+  assert.match(gameCode, /M-19\.7 0h169\.8v480/, 'full Canadian maple leaf and red bars are included');
   const countries = [
     { id:'usa', name:'USA', crest:'natUSA', primary:'#002868', secondary:'#bf0a30' },
     { id:'canada', name:'Canada', crest:'natCanada', primary:'#d80621', secondary:'#ffffff' },
@@ -510,4 +520,30 @@ test('DEV normalizes removed/unknown national identifiers without breaking old p
   t.elem('customizeButton').emit('click');
   assert.equal(t.elem('nationalTeamSummary').textContent,'Browse 8 national teams');
   assert.equal(t.elem('previewTeamCrest').children.length,1);
+});
+
+
+test('national SVG vector detail is preserved in generated previews and saved teams', () => {
+  const t=boot();
+  t.frame(16);
+  t.elem('playerNameInput').value='Flag Inspector';
+  t.submit('playerForm');
+  const expected={
+    usa:53, canada:2, sweden:2, finland:3,
+    czechia:3, slovakia:7, germany:3, switzerland:3
+  };
+  for(const [id,layers] of Object.entries(expected)){
+    t.nationChoices.find(b=>b.dataset.nationalTeam===id).emit('click');
+    const svg=t.elem('previewTeamCrest').children[0];
+    assert.equal(svg.children.length,5,id+': SVG has shield, clip and flag');
+    const flagGroup=svg.children[3].children[0];
+    assert.equal(flagGroup.children.length,layers,id+': authoritative vector layers');
+    assert.equal(svg.children[2].children[0].attributes.id.startsWith('frostline-national-clip-'),true);
+    const cardSvg=t.nationChoices.find(b=>b.dataset.nationalTeam===id).querySelector('.national-team-icon').children[0];
+    assert.equal(cardSvg.children.length,5,id+': picker also uses accurate flag');
+  }
+  const usa=t.nationChoices.find(b=>b.dataset.nationalTeam==='usa');
+  usa.emit('click');
+  const flagsSvg=t.elem('previewTeamCrest').children[0];
+  assert.equal(flagsSvg.children[3].children[0].children.length,53,'USA must have 50 actual star paths plus 3 flag layers');
 });
