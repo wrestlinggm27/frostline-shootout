@@ -580,7 +580,7 @@
         id: p.id, name: cleanPlayerName(p.name),
         team: normalizeTeam(p.team),
         logoVariant: typeof p.logoVariant === 'string' && ['power','speed','ice'].includes(p.logoVariant)
-          ? p.logoVariant : 'power',
+          ? p.logoVariant : 'ice',
         difficulty: Object.hasOwn(DIFFICULTIES, p.difficulty) ? p.difficulty : 'beer',
         records: p.records && typeof p.records === 'object' ? p.records : {}
       }));
@@ -592,9 +592,27 @@
     speed: { name: 'B · SPEED RUSH', symbol: '#frostline-speed' },
     ice: { name: 'C · ICE CUT', symbol: '#frostline-ice' }
   };
-  const normalizeLogo = value => Object.hasOwn(LOGO_VARIANTS, value) ? value : 'power';
+  const normalizeLogo = value => Object.hasOwn(LOGO_VARIANTS, value) ? value : 'ice';
 
   const profileDB = loadProfileDB();
+  // V2.8 shipped with Power Play as a default, even though Ice Cut had
+  // already been chosen as the official F. Move those old defaults once;
+  // afterwards, player-chosen Logo Lab variants are never overwritten.
+  // This uses Stable storage exclusively and leaves /dev/ profiles alone.
+  const ICE_CUT_DEFAULT_KEY = 'frostline-icecut-official-logo-v1';
+  try {
+    if (localStorage.getItem(ICE_CUT_DEFAULT_KEY) !== '1') {
+      let changed = false;
+      for (const profile of profileDB.players) {
+        if (profile.logoVariant === 'power') {
+          profile.logoVariant = 'ice';
+          changed = true;
+        }
+      }
+      if (changed) localStorage.setItem(PROFILE_DB_KEY, JSON.stringify(profileDB));
+      localStorage.setItem(ICE_CUT_DEFAULT_KEY, '1');
+    }
+  } catch { /* Private browsing/full storage: continue with an in-session Ice Cut default. */ }
   function saveProfileDB() {
     try { localStorage.setItem(PROFILE_DB_KEY, JSON.stringify(profileDB)); }
     catch { /* Private browsing / full storage: game remains playable for this session. */ }
@@ -1811,7 +1829,7 @@
       id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9),
       name,
       team: firstProfile ? loadTeam() : normalizeTeam(null),
-      logoVariant: 'power',
+      logoVariant: 'ice',
       difficulty: firstProfile ? initialDifficulty : 'beer',
       records: { arcade: {} }
     };
@@ -1859,7 +1877,7 @@
   // Players can personalize the header logo and save it on their production profiles.
   const logoDialog = $('logoLabDialog');
   const logoChoices = [...document.querySelectorAll('[data-f-logo]')];
-  let logoDraft = 'power';
+  let logoDraft = 'ice';
   function applyLogo(kind) {
     const logo = LOGO_VARIANTS[normalizeLogo(kind)];
     $('brandLogoUse').setAttribute('href', logo.symbol);
@@ -1894,7 +1912,7 @@
     saveProfileDB();
     logoDialog.close();
   });
-  applyLogo('power');
+  applyLogo('ice');
 
   applyTeam(game.team);
   const resumed = profileDB.players.find(p => p.id === profileDB.activeId);

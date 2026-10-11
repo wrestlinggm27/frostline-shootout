@@ -1,4 +1,10 @@
-# Frostline Shootout — Stable Version 2.8
+# Frostline Shootout — Stable Version 2.8.1
+
+## Stable V2.8.1: Official Ice Cut F Logo
+
+The official Frostline brand logo is **Option C — Ice Cut F**. New player profiles now use that logo by default, and existing V2.8 profiles with the automatically assigned Power Play logo are migrated to Ice Cut once. The Logo Lab continues to allow player-selected logos afterward without overriding their selection at a later visit.
+
+This small branding fix preserves Stable player names, team choices and hockey records and does not read, copy, or change any DEV player data. The full 32-city-team collection remains in place.
 
 ## Stable V2.8: Complete 32-Team City Collection
 
@@ -14,7 +20,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.8 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.8.1 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
