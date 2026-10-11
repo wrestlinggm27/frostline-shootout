@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.5: Twenty City Teams
+# Frostline Shootout — DEV V2.6: Twenty-Four City Teams
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,19 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## City Club Batch Six — DEV V2.6
+
+Four more original fictional city crests join the DEV collection, bringing the count to **24 city clubs** plus six generic emblems:
+
+| Hockey market | Fictional club | Fan tradition inspiration | Primary / secondary / trim |
+|---|---|---|---|
+| New York Islanders | **Island Yes Wave** | The three-beat "Yes! Yes! Yes!" arena chant, represented by three large Y-shaped cheers and rolling crowd waves | Royal blue `#00539b`, orange `#f47d30`, white |
+| Washington | **Washington Fury** | "Unleash the Fury!" arena energy, represented by a kinetic F, aggressive slash trails and a burst star | Red `#c8102e`, navy `#041e42`, white |
+| Colorado | **Colorado Anthem** | "All the Small Things" crowd singalong, represented by mountain peaks, sound waves and a tiny music note (no lyrics) | Burgundy `#6f263d`, blue `#236192`, white |
+| St. Louis | **St. Louis Towel Wave** | The Towel Man tradition, illustrated by a celebrating fan swinging a white rally towel with circling gold accents | Blue `#002f87`, yellow `#fcb514`, white |
+
+All marks are original vector designs; no official logos, team names, likenesses, or song lyrics are used. They share existing save/load behavior, center-ice drawing and the collapsed-by-default team selector. Stable V1.7.1 is untouched.
 
 ## City Club Batch Five — DEV V2.5
 
