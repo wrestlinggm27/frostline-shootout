@@ -4,25 +4,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#071f54">
-  <meta name="description" content="Frostline Shootout — a 30-second, flick-to-shoot hockey arcade game.">
+  <meta name="description" content="Frostline Shootout — free 30-second hockey arcade with 32 original city teams.">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=1.7.1">
-  <script src="game.js?v=1.7" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.8">
+  <script src="game.js?v=2.8" defer></script>
 </head>
 <body>
+  <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
+  <svg class="logo-symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="frostline-power" viewBox="0 0 32 32">
+      <path d="M9.5 26 V6.5 H26 M9.5 16.2 H21" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="square" stroke-linejoin="miter"/>
+    </symbol>
+    <symbol id="frostline-speed" viewBox="0 0 32 32">
+      <path d="M8 27 L12.5 6.5 H28 L24 11 H16.3 L15.4 15.2 H23.4 L19.4 19.5 H14.5 L12.9 27 Z" fill="currentColor"/>
+    </symbol>
+    <symbol id="frostline-ice" viewBox="0 0 32 32">
+      <path d="M8 6 H28 L25.4 10.2 H13.8 V14.9 H23.2 L20.5 19.2 H13.8 V26.5 H8 Z" fill="currentColor"/>
+      <path d="M19.2 6 L16.9 10.2 M16.8 14.9 L14.6 19.2" fill="none" stroke="#07132d" stroke-width="1.9"/>
+    </symbol>
+  </svg>
   <main class="app" aria-label="Frostline Shootout hockey game">
     <header class="topbar">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true">
-          <svg class="brand-glyph" viewBox="0 0 32 32" focusable="false">
-            <path d="M8 6 H28 L25.4 10.2 H13.8 V14.9 H23.2 L20.5 19.2 H13.8 V26.5 H8 Z" fill="currentColor"/>
-            <path d="M19.2 6 L16.9 10.2 M16.8 14.9 L14.6 19.2" fill="none" stroke="#07132d" stroke-width="1.9"/>
-          </svg>
-        </div>
+        <button id="brandLogoButton" class="brand-mark" type="button" aria-label="Open Logo Lab to compare Frostline F logos" title="Open Logo Lab">
+          <svg class="brand-glyph" viewBox="0 0 32 32" aria-hidden="true"><use id="brandLogoUse" href="#frostline-power"></use></svg>
+        </button>
         <div>
           <p class="eyebrow">THE ARCADE SERIES · 001</p>
           <h1>FROSTLINE<span> SHOOTOUT</span></h1>
-          <p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p>
+          <div class="team-header-identity"><span id="headerTeamCrest" class="team-header-crest" aria-hidden="true"></span><p class="team-name-display" id="teamNameDisplay">BROADWAY BLUES</p></div>
         </div>
       </div>
       <button id="soundButton" class="sound-button" type="button" aria-label="Mute sound" title="Toggle sound">
@@ -69,14 +79,47 @@
             <button id="customizeButton" class="customize-button" type="button">✦ CUSTOMIZE TEAM</button>
             <button id="recordsButton" class="customize-button records-button" type="button">▤ RECORD BOOK</button>
           </div>
+          <button id="logoLabButton" class="logo-lab-trigger" type="button">✦ LOGO LAB · TRY 3 F DESIGNS</button>
           <button id="playButton" class="play-button" type="button">START GAME <span aria-hidden="true">↗</span></button>
           <span id="overlayHint" class="overlay-hint">30 SECONDS · UNLIMITED PUCKS · MORE MODES COMING</span>
         </div>
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V1.7.1</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.8</span></footer>
   </main>
+  <dialog id="logoLabDialog" class="logo-lab-dialog" aria-labelledby="logoLabTitle">
+    <div class="logo-lab-content">
+      <div class="customizer-head">
+        <div><p class="customizer-kicker">FROSTLINE · YOUR LOGO LAB</p><h2 id="logoLabTitle">THE F LOGO LAB</h2></div>
+        <button id="closeLogoLab" type="button" class="customizer-close" aria-label="Close Logo Lab">×</button>
+      </div>
+      <p class="logo-lab-intro">Same glowing badge. Three original two-bar F designs. Choose your favorite.</p>
+      <div class="logo-lab-choices" role="group" aria-label="Choose your Frostline F logo">
+        <button type="button" class="logo-choice" data-f-logo="power" aria-pressed="true">
+          <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-power"></use></svg></span>
+          <strong>A · POWER PLAY</strong><small>Bold and clear</small>
+        </button>
+        <button type="button" class="logo-choice" data-f-logo="speed" aria-pressed="false">
+          <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-speed"></use></svg></span>
+          <strong>B · SPEED RUSH</strong><small>Fast and sharp</small>
+        </button>
+        <button type="button" class="logo-choice" data-f-logo="ice" aria-pressed="false">
+          <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-ice"></use></svg></span>
+          <strong>C · ICE CUT</strong><small>Chiseled edges</small>
+        </button>
+      </div>
+      <div class="logo-lab-spotlight" aria-live="polite">
+        <span class="logo-spotlight-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use id="logoPreviewUse" href="#frostline-power"></use></svg></span>
+        <span><small>PREVIEW ON YOUR GAME HEADER</small><strong id="logoPreviewName">A · POWER PLAY</strong></span>
+      </div>
+      <p class="logo-lab-note">Your selected F logo saves with your player on this device.</p>
+      <div class="logo-lab-actions">
+        <button id="cancelLogoLab" type="button" class="logo-lab-cancel">CANCEL</button>
+        <button id="saveLogoLab" type="button" class="logo-lab-save">SAVE LOGO</button>
+      </div>
+    </div>
+  </dialog>
   <dialog id="playerDialog" class="profile-dialog" aria-labelledby="playerDialogTitle">
     <form id="playerForm" autocomplete="off">
       <p class="customizer-kicker">WELCOME TO FROSTLINE</p>
@@ -110,9 +153,167 @@
         <button id="closeTeamDialog" type="button" class="customizer-close" aria-label="Close team customizer">×</button>
       </div>
       <div class="team-preview">
-        <div class="preview-crest"><span id="previewInitials">BB</span></div>
+        <div class="preview-crest" id="previewTeamCrest" aria-label="Live team crest preview" role="img"></div>
         <div><small>HOME TEAM</small><strong id="previewTeamName">BROADWAY BLUES</strong><span class="preview-stripes" aria-hidden="true"></span></div>
       </div>
+      <details class="city-club-gallery" id="cityClubGallery">
+        <summary class="city-club-toggle">
+          <span class="city-club-toggle-info">
+            <strong>FROSTLINE CITY CLUBS <span class="city-club-count">32</span></strong>
+            <small id="cityClubSummary">Browse 32 original city teams</small>
+          </span>
+          <span class="city-club-toggle-control" aria-hidden="true">
+            <span class="city-club-show">EXPAND</span><span class="city-club-hide">COLLAPSE</span>
+            <span class="city-club-chevron"></span>
+          </span>
+        </summary>
+        <p class="city-club-intro">Choose a city-inspired shield to load its team name and colors, then customize it if you like.</p>
+        <div class="city-club-options" role="group" aria-label="Choose a city-inspired hockey team">
+          <h3 class="city-club-conference">EASTERN CONFERENCE</h3>
+          <section class="city-club-division" data-division="atlantic" aria-labelledby="division-atlantic">
+            <h4 class="city-club-division-title" id="division-atlantic">ATLANTIC DIVISION <span>8 TEAMS</span></h4>
+            <button class="city-club-choice" type="button" data-city-club="boston" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>BOSTON</small><strong>BOSTON BANNER</strong><em>Fan rally banner</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#101010"></i><i style="--swatch:#ffb81c"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="buffalo" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>BUFFALO</small><strong>BUFFALO BLADE GANG</strong><em>Crossed-skate ritual</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#003087"></i><i style="--swatch:#ffb81c"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="detroit" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>DETROIT</small><strong>MOTOR CITY OCTOPUS</strong><em>Hockey's octopus tradition</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#ce1126"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="florida" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>FLORIDA</small><strong>FLORIDA BLUE RAT</strong><em>Blue rally rat</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#c8102e"></i><i style="--swatch:#041e42"></i><i style="--swatch:#b9975b"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="montreal" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>MONTREAL</small><strong>MONTREAL OLÉ</strong><em>Olé chant and echoes</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#af1e2d"></i><i style="--swatch:#192168"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="ottawa" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>OTTAWA</small><strong>OTTAWA LEGION</strong><em>Roman legionary helmet</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#151515"></i><i style="--swatch:#c52032"></i><i style="--swatch:#c2912c"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="tampa" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>TAMPA BAY</small><strong>TAMPA COIL</strong><em>Tesla coil arena intro</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#002868"></i><i style="--swatch:#101820"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="toronto" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>TORONTO</small><strong>TORONTO GRIND</strong><em>No grit, no greatness</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#00205b"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+          </section>
+          <section class="city-club-division" data-division="metropolitan" aria-labelledby="division-metropolitan">
+            <h4 class="city-club-division-title" id="division-metropolitan">METROPOLITAN DIVISION <span>8 TEAMS</span></h4>
+            <button class="city-club-choice" type="button" data-city-club="carolina" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>CAROLINA</small><strong>CAROLINA WARNING</strong><em>Hurricane warning siren</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#cc0000"></i><i style="--swatch:#111111"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="columbus" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>COLUMBUS</small><strong>COLUMBUS CANNONFIRE</strong><em>Cannon and blast rays</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#002654"></i><i style="--swatch:#ce1126"></i><i style="--swatch:#b5c1d0"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="newjersey" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>NEW JERSEY</small><strong>NEWARK IRONBOUND</strong><em>City towers and iron bridge</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#ce1126"></i><i style="--swatch:#151515"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="islanders" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>NY ISLANDERS</small><strong>ISLAND YES WAVE</strong><em>Triple-Yes crowd chant</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#00539b"></i><i style="--swatch:#f47d30"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="newyork" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>NEW YORK</small><strong>EMPIRE SALUTE</strong><em>Center-ice stick salute</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#0038a8"></i><i style="--swatch:#ce1126"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="philadelphia" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>PHILADELPHIA</small><strong>PHILLY BELLLINE</strong><em>Liberty bell and puck</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#f74902"></i><i style="--swatch:#000000"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="pittsburgh" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>PITTSBURGH</small><strong>PITTSBURGH GEAR</strong><em>Steel gear and jersey</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#111111"></i><i style="--swatch:#fcb514"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="washington" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>WASHINGTON</small><strong>WASHINGTON FURY</strong><em>Unleash the Fury! energy</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#c8102e"></i><i style="--swatch:#041e42"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+          </section>
+
+          <h3 class="city-club-conference">WESTERN CONFERENCE</h3>
+          <section class="city-club-division" data-division="central" aria-labelledby="division-central">
+            <h4 class="city-club-division-title" id="division-central">CENTRAL DIVISION <span>8 TEAMS</span></h4>
+            <button class="city-club-choice" type="button" data-city-club="chicago" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>CHICAGO</small><strong>CHICAGO CURVE</strong><em>Curved hockey stick</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#cf0a2c"></i><i style="--swatch:#121318"></i><i style="--swatch:#f4e9d8"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="colorado" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>COLORADO</small><strong>COLORADO ANTHEM</strong><em>Mountain arena singalong</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#6f263d"></i><i style="--swatch:#236192"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="dallas" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>DALLAS</small><strong>DALLAS BRIMLINE</strong><em>Western cowboy hat</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#006847"></i><i style="--swatch:#111111"></i><i style="--swatch:#c4ced4"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="minnesota" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>MINNESOTA</small><strong>MINNESOTA NORTHWOODS</strong><em>Pines, lakes, north star</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#154734"></i><i style="--swatch:#a6192e"></i><i style="--swatch:#ddcba4"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="nashville" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>NASHVILLE</small><strong>NASHVILLE RIFF</strong><em>Music meets hockey</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#ffb81c"></i><i style="--swatch:#041e42"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="stlouis" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>ST. LOUIS</small><strong>ST. LOUIS TOWEL WAVE</strong><em>Rally towel and cheering fan</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#002f87"></i><i style="--swatch:#fcb514"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="utah" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>UTAH</small><strong>UTAH TUSKS UP</strong><em>Rising tusks and mountain</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#15171a"></i><i style="--swatch:#79cfe8"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="winnipeg" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>WINNIPEG</small><strong>WINNIPEG TRUE NORTH</strong><em>Compass star and crowd call</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#041e42"></i><i style="--swatch:#5b92c7"></i><i style="--swatch:#d2d9e1"></i></span></span>
+            </button>
+          </section>
+          <section class="city-club-division" data-division="pacific" aria-labelledby="division-pacific">
+            <h4 class="city-club-division-title" id="division-pacific">PACIFIC DIVISION <span>8 TEAMS</span></h4>
+            <button class="city-club-choice" type="button" data-city-club="anaheim" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>ANAHEIM</small><strong>ANAHEIM RALLY FLIGHT</strong><em>Wing and rally speed lines</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#111111"></i><i style="--swatch:#f47a38"></i><i style="--swatch:#d6a85e"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="calgary" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>CALGARY</small><strong>PRAIRIE FIRE</strong><em>Ring of fire and a puck</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#c8102e"></i><i style="--swatch:#f1be48"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="edmonton" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>EDMONTON</small><strong>EDMONTON OIL COUNTRY</strong><em>Oil droplet and industrial rig</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#041e42"></i><i style="--swatch:#ff4c00"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="losangeles" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>LOS ANGELES</small><strong>LOS ANGELES ROYAL ARMY</strong><em>Royal crown and crossed lances</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#111111"></i><i style="--swatch:#a7a9ac"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="sanjose" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>SAN JOSE</small><strong>SAN JOSE CHOMP</strong><em>Original shark and chomping jaws</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#006d75"></i><i style="--swatch:#ea7200"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="seattle" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>SEATTLE</small><strong>SEATTLE RAINLINE</strong><em>Rain, lookout, sound</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#001628"></i><i style="--swatch:#99d9d9"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="vancouver" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>VANCOUVER</small><strong>VANCOUVER CLOCK CHAIN</strong><em>Bedazzled arena clock pendant</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#00205b"></i><i style="--swatch:#00843d"></i><i style="--swatch:#d4af37"></i></span></span>
+            </button>
+            <button class="city-club-choice" type="button" data-city-club="vegas" aria-pressed="false">
+              <span class="city-club-icon" aria-hidden="true"></span>
+              <span class="city-club-detail"><small>LAS VEGAS</small><strong>VEGAS FLAMINGO TOSS</strong><em>Victory flamingo in flight</em><span class="city-club-swatches" aria-hidden="true"><i style="--swatch:#333f42"></i><i style="--swatch:#d4af37"></i><i style="--swatch:#ffffff"></i></span></span>
+            </button>
+          </section>
+        </div>
+      </details>
       <label class="customizer-label" for="teamNameInput">TEAM NAME</label>
       <input type="text" id="teamNameInput" name="teamName" maxlength="24" placeholder="Your team name" required>
       <p class="customizer-label preset-heading">QUICK COLOR THEMES</p>
@@ -127,7 +328,19 @@
         <label for="teamSecondary">SECONDARY <input id="teamSecondary" name="secondary" type="color" value="#ce1126"></label>
         <label for="teamTrim">TRIM <input id="teamTrim" name="trim" type="color" value="#ffffff"></label>
       </div>
-      <p class="customizer-note">Your team is saved on this device. Colors change the rink and scoreboard, not the goalie difficulty.</p>
+      <fieldset class="team-crest-studio">
+        <legend>OR CHOOSE A FROSTLINE ORIGINAL SHIELD</legend>
+        <p class="crest-studio-description">Your shield is your team's identity. Pick one for now; it will represent you in future showdowns.</p>
+        <div class="team-crest-options" role="group" aria-label="Team crest designs">
+          <button type="button" class="team-crest-choice" data-team-crest="monogram" aria-pressed="true"><span class="crest-choice-preview" aria-hidden="true"></span><strong>CAPTAIN</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="wolf" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>WOLF</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="bolt" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>LIGHTNING</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="sticks" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>STICKS</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="star" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>STAR</strong></button>
+          <button type="button" class="team-crest-choice" data-team-crest="mountain" aria-pressed="false"><span class="crest-choice-preview" aria-hidden="true"></span><strong>SUMMIT</strong></button>
+        </div>
+      </fieldset>
+      <p class="customizer-note">Your team name, colors and shield save with this player on this device. Arcade gameplay and difficulty stay the same.</p>
       <div class="customizer-actions"><button id="cancelTeam" type="button" class="cancel-team">CANCEL</button><button type="submit" class="save-team">SAVE MY TEAM</button></div>
     </form>
   </dialog>
