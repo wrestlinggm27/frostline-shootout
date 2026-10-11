@@ -317,7 +317,8 @@ test('Stable custom team shields preview, save and persist separately for each p
   rink.emit('pointermove', { pointerId: 35, clientX: 174, clientY: 653 });
   rink.emit('pointerup', { pointerId: 35, clientX: 174, clientY: 653 });
   assert.equal(reloaded.elem('shots').textContent, 1);
-  assert.ok(!reloaded.storage.has('frostline-player-profiles-v1'), 'Stable data must remain separate');
+  assert.ok(reloaded.storage.has('frostline-player-profiles-v1'), 'Stable saved profile must persist');
+  assert.ok(!reloaded.storage.has('frostline-dev:frostline-player-profiles-v1'), 'Stable must not write to DEV profile storage');
 });
 
 test('Stable data normalizes unknown old shield identifiers safely', () => {
