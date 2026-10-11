@@ -342,7 +342,7 @@
       { d: 'M22 84 H78 M30 90 H70', mode: 'stroke', width: 3 },
       { d: 'M36 30 L30 26 M64 30 L70 26', mode: 'stroke', width: 2.6 }
     ] },
-    anaFlight: { label: 'Anaheim Let's Go Rally Flight', shapes: [
+    anaFlight: { label: 'Anaheim Rally Flight', shapes: [
       // Original rising wing and three cheering speed trails; no duck symbol.
       { d: 'M24 73 Q39 42 78 31 Q65 48 55 52 L69 48 Q54 63 43 65 L57 63 Q40 79 24 73 Z', mode: 'trim' },
       { d: 'M31 69 Q48 48 70 40', mode: 'base-stroke', width: 3.3 },
