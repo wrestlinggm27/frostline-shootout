@@ -472,3 +472,33 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .city-club-conference{font-size:10px;padding:8px 6px}
   .city-club-division-title{font-size:9px;padding:7px 4px 5px}
 }
+
+/* DEV V2.9: separate compact National Teams gallery with actual national
+   flags alongside the 32 fictional city clubs and fully custom teams. */
+.national-team-gallery{border-color:#5a90b9;background:linear-gradient(155deg,#102749,#101d3d)}
+.national-team-gallery .city-club-toggle{background:linear-gradient(130deg,#0d3953,#0a233b)}
+.national-team-gallery .city-club-toggle:hover{background:linear-gradient(130deg,#175272,#123351)}
+.national-team-gallery .city-club-count{background:#1a697e}
+.national-team-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.national-team-choice{display:flex;align-items:center;gap:7px;min-width:0;min-height:109px;
+  padding:8px 6px;border-radius:11px;border:1px solid #3e708b;
+  background:linear-gradient(145deg,#122b43,#081b32);color:#fff;text-align:left}
+.national-team-choice:hover{background:#194464;border-color:#cde6ff}
+.national-team-choice[aria-pressed="true"]{border:2px solid var(--team-highlight);padding:7px 5px;background:#205372}
+.national-team-choice:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.national-team-icon{width:54px;min-width:54px;height:74px;display:grid;place-items:center}
+.national-team-detail{display:grid;min-width:0;align-content:center;gap:4px}
+.national-team-flag{font-size:22px;line-height:1}
+.national-team-detail strong{font-size:clamp(10px,2.8vw,12px);line-height:1.17;overflow-wrap:anywhere}
+.national-team-detail small{color:#c0d5e5;font-size:9px;line-height:1.25}
+.customizer-source-heading{font-size:10px;letter-spacing:.1em;color:#c9dbed;font-weight:950;margin:5px 0 0}
+@media(max-width:390px){
+  .national-team-options{gap:5px}
+  .national-team-choice{gap:3px;min-height:95px;padding:5px 3px}
+  .national-team-choice[aria-pressed="true"]{padding:4px 2px}
+  .national-team-icon{width:42px;min-width:42px;height:61px}
+  .national-team-detail{gap:2px}
+  .national-team-flag{font-size:17px}
+  .national-team-detail strong{font-size:9px}
+  .national-team-detail small{font-size:8px}
+}

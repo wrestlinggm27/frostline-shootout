@@ -398,7 +398,51 @@
       { d: 'M52 80 L47 90 M61 79 L67 90', mode: 'stroke', width: 3.2 },
       { d: 'M28 45 Q31 29 47 27 M24 58 Q19 48 25 35', mode: 'gold-stroke', width: 3.4 },
       { d: 'M33 84 Q40 90 47 87', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    // Country flags are public national symbols, not hockey federation marks.
+    // Geometric flag motifs use a shared shield and render identically in
+    // the SVG team picker and the rink's Canvas 2D crest renderer.
+    natUSA: { label: 'USA Flag', shapes: [
+      { d: 'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d: 'M22 37 H78 V43 H22 Z M22 49 H78 V55 H22 Z M22 61 H78 V67 H22 Z M22 73 H78 V77 H22 Z', mode:'flag-us-red' },
+      { d: 'M22 37 H48 V60 H22 Z', mode:'flag-us-blue' },
+      { d: 'M29 42 L30 45 L33 45 L31 47 L32 50 L29 48 L26 50 L27 47 L25 45 L28 45 Z M40 42 L41 45 L44 45 L42 47 L43 50 L40 48 L37 50 L38 47 L36 45 L39 45 Z M34 51 L35 53 L38 53 L36 55 L37 57 L34 55 L31 57 L32 55 L30 53 L33 53 Z', mode:'flag-white' }
+    ] },
+    natCanada: { label: 'Canada Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M22 37 H35 V77 H22 Z M65 37 H78 V77 H65 Z', mode:'flag-canada-red' },
+      { d:'M50 41 L54 49 L58 46 L57 53 L64 53 L59 59 L61 64 L53 63 L52 73 H48 L47 63 L39 64 L41 59 L36 53 L43 53 L42 46 L46 49 Z', mode:'flag-canada-red' }
+    ] },
+    natSweden: { label: 'Sweden Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-sweden-blue' },
+      { d:'M40 37 H49 V77 H40 Z M22 52 H78 V62 H22 Z', mode:'flag-sweden-yellow' }
+    ] },
+    natFinland: { label: 'Finland Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M39 37 H49 V77 H39 Z M22 51 H78 V62 H22 Z', mode:'flag-finland-blue' }
+    ] },
+    natCzechia: { label: 'Czechia Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M22 57 H78 V77 H22 Z', mode:'flag-czech-red' },
+      { d:'M22 37 L52 57 L22 77 Z', mode:'flag-czech-blue' }
+    ] },
+    natSlovakia: { label: 'Slovakia Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-white' },
+      { d:'M22 50 H78 V64 H22 Z', mode:'flag-slovakia-blue' },
+      { d:'M22 64 H78 V77 H22 Z', mode:'flag-slovakia-red' },
+      { d:'M33 47 H50 V69 Q42 75 33 69 Z', mode:'flag-slovakia-red' },
+      { d:'M40 49 H43 V65 H40 Z M35 54 H48 V57 H35 Z M37 60 H46 V63 H37 Z', mode:'flag-white' }
+    ] },
+    natGermany: { label: 'Germany Flag', shapes: [
+      { d:'M22 37 H78 V77 H22 Z', mode:'flag-germany-black' },
+      { d:'M22 50 H78 V64 H22 Z', mode:'flag-germany-red' },
+      { d:'M22 64 H78 V77 H22 Z', mode:'flag-germany-gold' }
+    ] },
+    natSwitzerland: { label: 'Switzerland Flag', shapes: [
+      { d:'M28 35 H72 V79 H28 Z', mode:'flag-swiss-red' },
+      { d:'M45 43 H55 V71 H45 Z M36 52 H64 V62 H36 Z', mode:'flag-white' }
     ] }
+
   };
   const CITY_CLUBS = {
     newyork: { name: 'Empire Salute', location: 'New York', primary: '#0038a8', secondary: '#ce1126', trim: '#ffffff', crest: 'nySalute', club: 'newyork' },
@@ -434,6 +478,16 @@
     vancouver: { name: 'Vancouver Clock Chain', location: 'Vancouver', primary: '#00205b', secondary: '#00843d', trim: '#ffffff', crest: 'vanClock', club: 'vancouver' },
     vegas: { name: 'Vegas Flamingo Toss', location: 'Las Vegas', primary: '#333f42', secondary: '#d4af37', trim: '#ffffff', crest: 'vegFlamingo', club: 'vegas' }
   };
+  const NATIONAL_TEAMS = {
+    usa: { name: 'USA', primary: '#002868', secondary: '#bf0a30', trim: '#ffffff', crest: 'natUSA', nation: 'usa' },
+    canada: { name: 'Canada', primary: '#d80621', secondary: '#ffffff', trim: '#ffffff', crest: 'natCanada', nation: 'canada' },
+    sweden: { name: 'Sweden', primary: '#006aa7', secondary: '#fecc00', trim: '#ffffff', crest: 'natSweden', nation: 'sweden' },
+    finland: { name: 'Finland', primary: '#ffffff', secondary: '#002f6c', trim: '#002f6c', crest: 'natFinland', nation: 'finland' },
+    czechia: { name: 'Czechia', primary: '#ffffff', secondary: '#d7141a', trim: '#11457e', crest: 'natCzechia', nation: 'czechia' },
+    slovakia: { name: 'Slovakia', primary: '#ffffff', secondary: '#0b4ea2', trim: '#ee1c25', crest: 'natSlovakia', nation: 'slovakia' },
+    germany: { name: 'Germany', primary: '#111111', secondary: '#dd0000', trim: '#ffce00', crest: 'natGermany', nation: 'germany' },
+    switzerland: { name: 'Switzerland', primary: '#da291c', secondary: '#ffffff', trim: '#ffffff', crest: 'natSwitzerland', nation: 'switzerland' }
+  };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
   const SHIELD_INNER = 'M50 14 L79 24 L77 61 Q74 83 50 101 Q26 83 23 61 L21 24 Z';
@@ -446,10 +500,20 @@
       secondary: validHex(value?.secondary) ? value.secondary.toLowerCase() : fallback.secondary,
       trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim,
       crest: normalizeCrest(value?.crest),
-      club: typeof value?.club === 'string' && Object.hasOwn(CITY_CLUBS, value.club) ? value.club : null
+      club: typeof value?.club === 'string' && Object.hasOwn(CITY_CLUBS, value.club) && !(typeof value?.nation === 'string' && Object.hasOwn(NATIONAL_TEAMS, value.nation)) ? value.club : null,
+      nation: typeof value?.nation === 'string' && Object.hasOwn(NATIONAL_TEAMS, value.nation) ? value.nation : null
     };
   }
+  const FLAG_PAINT = {
+    'flag-white': '#ffffff', 'flag-us-red': '#b31942', 'flag-us-blue': '#0a3161',
+    'flag-canada-red': '#d80621', 'flag-sweden-blue': '#006aa7', 'flag-sweden-yellow': '#fecc00',
+    'flag-finland-blue': '#002f6c', 'flag-czech-red': '#d7141a', 'flag-czech-blue': '#11457e',
+    'flag-slovakia-blue': '#0b4ea2', 'flag-slovakia-red': '#ee1c25',
+    'flag-germany-black': '#111111', 'flag-germany-red': '#dd0000', 'flag-germany-gold': '#ffce00',
+    'flag-swiss-red': '#da291c'
+  };
   function artPaint(shape, team) {
+    if (Object.hasOwn(FLAG_PAINT, shape.mode)) return FLAG_PAINT[shape.mode];
     if (shape.mode === 'gold' || shape.mode === 'gold-stroke') return '#b9975b';
     if (shape.mode === 'silver' || shape.mode === 'silver-stroke') return '#b5c1d0';
     if (shape.mode === 'accent' || shape.mode === 'cutout' || shape.mode === 'accent-stroke') return team.secondary;
@@ -1608,12 +1672,16 @@
   const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
   const crestButtons = [...document.querySelectorAll('[data-team-crest]')];
   const cityButtons = [...document.querySelectorAll('[data-city-club]')];
+  const nationButtons = [...document.querySelectorAll('[data-national-team]')];
   const cityClubGallery = $('cityClubGallery');
+  const nationalTeamGallery = $('nationalTeamGallery');
   let crestDraft = 'monogram';
   let clubDraft = null;
+  let nationDraft = null;
   crestButtons.forEach(button => button.addEventListener('click', () => {
     crestDraft = normalizeCrest(button.dataset.teamCrest);
     clubDraft = null;
+    nationDraft = null;
     updateTeamPreview();
   }));
   cityButtons.forEach(button => button.addEventListener('click', () => {
@@ -1625,6 +1693,21 @@
     teamTrim.value = club.trim;
     crestDraft = club.crest;
     clubDraft = club.club;
+    nationDraft = null;
+    nationalTeamGallery.open = false;
+    updateTeamPreview();
+  }));
+  nationButtons.forEach(button => button.addEventListener('click', () => {
+    const country = NATIONAL_TEAMS[button.dataset.nationalTeam];
+    if (!country) return;
+    teamNameInput.value = country.name;
+    teamPrimary.value = country.primary;
+    teamSecondary.value = country.secondary;
+    teamTrim.value = country.trim;
+    crestDraft = country.crest;
+    nationDraft = country.nation;
+    clubDraft = null;
+    cityClubGallery.open = false;
     updateTeamPreview();
   }));
   function applyTeam(team) {
@@ -1650,7 +1733,7 @@
   }
   function currentEditorTeam() {
     return normalizeTeam({ name:teamNameInput.value, primary:teamPrimary.value,
-      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft, club:clubDraft });
+      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft, club:clubDraft, nation:nationDraft });
   }
   function updateTeamPreview() {
     const team = currentEditorTeam();
@@ -1665,6 +1748,14 @@
       button.setAttribute('aria-pressed', String(clubDraft === button.dataset.cityClub));
       renderCrest(button.querySelector('.city-club-icon'), club, 'city-club-shield');
     });
+    nationButtons.forEach(button => {
+      const country = NATIONAL_TEAMS[button.dataset.nationalTeam];
+      button.setAttribute('aria-pressed', String(nationDraft === button.dataset.nationalTeam));
+      renderCrest(button.querySelector('.national-team-icon'), country, 'city-club-shield');
+    });
+    $('nationalTeamSummary').textContent = team.nation
+      ? 'Selected: ' + NATIONAL_TEAMS[team.nation].name
+      : 'Browse 8 national teams';
     // Show the current choice without forcing the user to expand a long list.
     $('cityClubSummary').textContent = team.club
       ? 'Selected: ' + CITY_CLUBS[team.club].name
@@ -1691,8 +1782,10 @@
     teamTrim.value = team.trim;
     crestDraft = normalizeCrest(team.crest);
     clubDraft = team.club;
-    // Every time the editor opens, keep its tall city catalog out of the way.
+    nationDraft = team.nation;
+    // Long catalogs start closed to keep the editor compact.
     cityClubGallery.open = false;
+    nationalTeamGallery.open = false;
     updateTeamPreview();
     teamDialog.showModal();
   }
@@ -1709,11 +1802,14 @@
     teamSecondary.value = theme.secondary;
     teamTrim.value = theme.trim;
     clubDraft = null;
+    nationDraft = null;
     updateTeamPreview();
   }));
   [teamNameInput,teamPrimary,teamSecondary,teamTrim].forEach(el=>el.addEventListener('input', () => {
-    // A customized city template still keeps its art, but becomes an original team identity.
+    // Editing the name or palette keeps the crest/flag artwork, but lets the
+    // player build a unique team instead of remaining tied to a preset.
     clubDraft = null;
+    nationDraft = null;
     updateTeamPreview();
   }));
   $('teamForm').addEventListener('submit', event => {
