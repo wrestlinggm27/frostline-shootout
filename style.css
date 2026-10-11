@@ -115,7 +115,7 @@ h1 span{color:var(--team-highlight)}
 .customizer-head{display:flex;align-items:start;justify-content:space-between;gap:10px}
 .customizer-kicker{font-size:9px;letter-spacing:.15em;font-weight:950;color:var(--team-highlight);margin:0 0 6px}
 .customizer-head h2{font-weight:1000;font-size:23px;margin:0;line-height:1}
-.customizer-close{flex:none;width:31px;height:31px;border:1px solid #ffffff55;border-radius:8px;background:#10233f;color:white;font-size:23px}
+.customizer-close{flex:none;display:grid;place-items:center;width:31px;height:31px;padding:0;border:1px solid #ffffff55;border-radius:8px;background:#10233f;color:white;font-size:23px;line-height:1}
 .team-preview{display:flex;align-items:center;gap:16px;padding:11px;border:1px solid #ffffff29;border-radius:13px;background:#06132d70;min-height:86px}
 .preview-crest{width:62px;height:64px;flex:none;display:grid;place-items:center;background:var(--preview-primary,var(--team-primary));color:var(--preview-trim,var(--team-trim));border:4px solid var(--preview-secondary,var(--team-secondary));clip-path:polygon(10% 0,90% 0,100% 20%,90% 85%,50% 100%,10% 85%,0 20%);font-weight:950;font-size:22px;text-shadow:0 2px 3px #0008}
 .team-preview small{display:block;color:#93a6c5;font-weight:900;font-size:9px;letter-spacing:.15em;margin-bottom:4px}
