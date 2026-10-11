@@ -456,3 +456,19 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .city-club-gallery .city-club-options{padding:0 5px 8px}
 }
 @media(prefers-reduced-motion:reduce){.city-club-chevron{transition:none}}
+
+/* DEV V2.8: real NHL-conference/division organization for 32 fictional clubs. */
+.city-club-conference{grid-column:1/-1;margin:10px 0 0;padding:9px 9px 7px;
+  border-bottom:2px solid #679ad7;color:#f2f8ff;background:#1a3b69;
+  border-radius:7px 7px 0 0;font-size:12px;letter-spacing:.11em;font-weight:1000}
+.city-club-division{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;min-width:0;margin:0 0 6px}
+.city-club-division-title{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;
+  margin:3px 0 0;padding:8px 7px 6px;border-bottom:1px solid #a3bee65c;
+  color:#bed9f7;font-size:10px;letter-spacing:.1em;font-weight:950}
+.city-club-division-title span{font-size:9px;letter-spacing:.04em;color:#8cafda}
+@media(max-width:390px){
+  .city-club-division{gap:5px}
+  .city-club-conference{font-size:10px;padding:8px 6px}
+  .city-club-division-title{font-size:9px;padding:7px 4px 5px}
+}

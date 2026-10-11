@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.7: Twenty-Eight City Teams
+# Frostline Shootout — DEV V2.8: Complete 32-Team Division Gallery
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,29 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## Final Batch Eight and Conference Divisions — DEV V2.8
+
+The original **32-club Frostline city lineup is complete**. The collapsible city-team picker is now organized into **Eastern / Western conferences** and **Atlantic / Metropolitan / Central / Pacific divisions** of eight teams each. This follows the user's requested NHL market allocation, without including official NHL logos. Saved team selection, customized colors, on-ice crest graphics, and DEV storage remain unchanged.
+
+| Hockey market | Fictional club | Distinct original logo | Palette |
+|---|---|---|---|
+| Los Angeles Kings | **Los Angeles Royal Army** | Royal crown, silver band and crossed ceremonial lances | Black `#111111`, silver `#a7a9ac`, white |
+| San Jose Sharks | **San Jose Chomp** | Original teal shark profile with open chomping jaw, tooth pattern and splash marks | Teal `#006d75`, orange `#ea7200`, white |
+| Vancouver Canucks | **Vancouver Clock Chain** | Bedazzled clock pendant, curved chain links and sparkling gold accents | Navy `#00205b`, green `#00843d`, white and gold |
+| Vegas Golden Knights | **Vegas Flamingo Toss** | Tossed flamingo in a victory arc with motion marks and a gold beak | Dark steel `#333f42`, gold `#d4af37`, white |
+
+### Complete divisional order
+
+**Eastern Conference — Atlantic Division**: boston, buffalo, detroit, florida, montreal, ottawa, tampa, toronto.
+
+**Eastern Conference — Metropolitan Division**: carolina, columbus, newjersey, islanders, newyork, philadelphia, pittsburgh, washington.
+
+**Western Conference — Central Division**: chicago, colorado, dallas, minnesota, nashville, stlouis, utah, winnipeg.
+
+**Western Conference — Pacific Division**: anaheim, calgary, edmonton, losangeles, sanjose, seattle, vancouver, vegas.
+
+Each division contains exactly eight unique city club cards. Team cards show fictional Frostline identities and original artwork inspired by fan traditions, not NHL-owned team marks. Root Stable files remain untouched; only DEV sources and the `main/dev/` website mirror are to be published.
 
 ## City Club Batch Seven — DEV V2.7
 
