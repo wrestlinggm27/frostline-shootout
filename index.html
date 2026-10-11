@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#071f54">
   <meta name="description" content="Frostline Shootout — free 30-second hockey arcade with 32 original city teams.">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.8">
-  <script src="game.js?v=2.8" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.8.1">
+  <script src="game.js?v=2.8.1" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -27,7 +27,7 @@
     <header class="topbar">
       <div class="brand">
         <button id="brandLogoButton" class="brand-mark" type="button" aria-label="Open Logo Lab to compare Frostline F logos" title="Open Logo Lab">
-          <svg class="brand-glyph" viewBox="0 0 32 32" aria-hidden="true"><use id="brandLogoUse" href="#frostline-power"></use></svg>
+          <svg class="brand-glyph" viewBox="0 0 32 32" aria-hidden="true"><use id="brandLogoUse" href="#frostline-ice"></use></svg>
         </button>
         <div>
           <p class="eyebrow">THE ARCADE SERIES · 001</p>
@@ -86,7 +86,7 @@
       </div>
     </section>
 
-    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.8</span></footer>
+    <footer class="game-footer"><span class="live-dot" aria-hidden="true"></span><span id="controlHint">PULL BACK &amp; RELEASE <b>·</b> OR FLICK FORWARD</span><span id="difficultyStatus" class="difficulty-status">BEER LEAGUE</span><span class="footer-version">V2.8.1</span></footer>
   </main>
   <dialog id="logoLabDialog" class="logo-lab-dialog" aria-labelledby="logoLabTitle">
     <div class="logo-lab-content">
@@ -96,7 +96,7 @@
       </div>
       <p class="logo-lab-intro">Same glowing badge. Three original two-bar F designs. Choose your favorite.</p>
       <div class="logo-lab-choices" role="group" aria-label="Choose your Frostline F logo">
-        <button type="button" class="logo-choice" data-f-logo="power" aria-pressed="true">
+        <button type="button" class="logo-choice" data-f-logo="power" aria-pressed="false">
           <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-power"></use></svg></span>
           <strong>A · POWER PLAY</strong><small>Bold and clear</small>
         </button>
@@ -104,14 +104,14 @@
           <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-speed"></use></svg></span>
           <strong>B · SPEED RUSH</strong><small>Fast and sharp</small>
         </button>
-        <button type="button" class="logo-choice" data-f-logo="ice" aria-pressed="false">
+        <button type="button" class="logo-choice" data-f-logo="ice" aria-pressed="true">
           <span class="logo-choice-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-ice"></use></svg></span>
           <strong>C · ICE CUT</strong><small>Chiseled edges</small>
         </button>
       </div>
       <div class="logo-lab-spotlight" aria-live="polite">
-        <span class="logo-spotlight-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use id="logoPreviewUse" href="#frostline-power"></use></svg></span>
-        <span><small>PREVIEW ON YOUR GAME HEADER</small><strong id="logoPreviewName">A · POWER PLAY</strong></span>
+        <span class="logo-spotlight-badge"><svg viewBox="0 0 32 32" aria-hidden="true"><use id="logoPreviewUse" href="#frostline-ice"></use></svg></span>
+        <span><small>PREVIEW ON YOUR GAME HEADER</small><strong id="logoPreviewName">C · ICE CUT</strong></span>
       </div>
       <p class="logo-lab-note">Your selected F logo saves with your player on this device.</p>
       <div class="logo-lab-actions">

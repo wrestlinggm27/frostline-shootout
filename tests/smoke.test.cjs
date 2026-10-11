@@ -228,7 +228,7 @@ test('Stable Logo Lab previews all three F styles, cancel restores, and saving p
   assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-speed');
   assert.equal(t.elem('logoPreviewUse').getAttribute('href'), '#frostline-speed');
   t.elem('cancelLogoLab').emit('click');
-  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-power');
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
 
   t.elem('brandLogoButton').emit('click');
   t.logoChoices[2].emit('click');
@@ -244,14 +244,14 @@ test('Stable Logo Lab previews all three F styles, cancel restores, and saving p
   again.elem('playerNameInput').value = 'Second Player';
   again.submit('playerForm');
   again.elem('cancelTeam').emit('click');
-  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-power');
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
   again.elem('switchPlayerButton').emit('click');
   again.elem('existingPlayers').children[0].emit('click');
   assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
   saved = JSON.parse(again.storage.get('frostline-player-profiles-v1'));
   assert.equal(saved.players.length, 2);
   assert.equal(saved.players[0].logoVariant, 'ice');
-  assert.equal(saved.players[1].logoVariant, 'power');
+  assert.equal(saved.players[1].logoVariant, 'ice');
 });
 
 test('Stable custom team shields preview, save and persist separately for each player', () => {
@@ -461,4 +461,55 @@ test('V1.7.1 profiles and existing record books survive the Stable V2.8 promotio
   const reloaded = boot(Object.fromEntries(t.storage));
   assert.equal(reloaded.elem('teamNameDisplay').textContent, 'EMPIRE SALUTE');
   assert.equal(reloaded.elem('best').textContent, 12);
+});
+
+
+test('V2.8.1 makes Ice Cut the official brand logo for new players without affecting DEV storage', () => {
+  assert.match(html, /<use id="brandLogoUse" href="#frostline-ice"><\/use>/);
+  assert.match(html, /<use id="logoPreviewUse" href="#frostline-ice"><\/use>/);
+  assert.match(html, /V2\.8\.1<\/span>/);
+  const devData = '{"players":[{"id":"dev-profile","logoVariant":"power"}]}';
+  const t = boot({ 'frostline-dev:frostline-player-profiles-v1': devData });
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
+  t.frame(16);
+  t.elem('playerNameInput').value = 'New Ice Fan';
+  t.submit('playerForm');
+  const profile = JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0];
+  assert.equal(profile.logoVariant, 'ice');
+  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), devData);
+});
+
+test('existing Stable Power Play defaults switch to Ice Cut once; explicit choices then persist', () => {
+  const oldRecord = { arcade: { show: { best: 27, rounds: 4, goals: 62, shots: 85, saves: 14, misses: 9 } } };
+  const original = {
+    activeId:'old', legacyClaimed: true,
+    players:[
+      { id:'old', name:'Longtime Fan', logoVariant:'power',
+        team:{name:'Legacy Team',primary:'#112244',secondary:'#ee3355',trim:'#ffffff'},difficulty:'show',records:oldRecord },
+      { id:'other', name:'Speed Fan', logoVariant:'speed', team:{name:'Speed Stars'},difficulty:'beer',records:{} }
+    ]
+  };
+  const devOriginal = JSON.stringify({ players:[{ id:'dev', name:'Preview Player', logoVariant:'power' }] });
+  const seeded = {
+    'frostline-player-profiles-v1':JSON.stringify(original),
+    'frostline-dev:frostline-player-profiles-v1':devOriginal,
+    'frostline-shootout-difficulty-v1':'show'
+  };
+  const t = boot(seeded);
+  let db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
+  assert.equal(db.players[0].logoVariant, 'ice', 'previous automatically assigned Power Play must migrate');
+  assert.equal(db.players[1].logoVariant, 'speed', 'other saved variants should be retained');
+  assert.deepEqual(db.players[0].records, oldRecord, 'records must remain intact');
+  assert.equal(db.players[0].team.name, 'Legacy Team', 'team must remain intact');
+  assert.equal(t.storage.get('frostline-icecut-official-logo-v1'), '1');
+  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), devOriginal);
+  t.elem('logoLabButton').emit('click');
+  t.logoChoices[0].emit('click');
+  t.elem('saveLogoLab').emit('click');
+  db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(db.players[0].logoVariant, 'power', 'player can deliberately select Power Play afterward');
+  const again = boot(Object.fromEntries(t.storage));
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-power', 'migration must not repeat');
+  assert.equal(JSON.parse(again.storage.get('frostline-player-profiles-v1')).players[0].logoVariant, 'power');
 });
