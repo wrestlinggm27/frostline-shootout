@@ -7,8 +7,8 @@
   <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
   <meta name="robots" content="noindex, nofollow">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.11-dev-goalie1">
-  <script src="game.js?v=2.11-dev-goalie2" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.12-dev-startup1">
+  <script src="game.js?v=2.12-dev-startup1" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -24,6 +24,22 @@
       <path d="M19.2 6 L16.9 10.2 M16.8 14.9 L14.6 19.2" fill="none" stroke="#07132d" stroke-width="1.9"/>
     </symbol>
   </svg>
+  <!-- DEV startup state shell. Opening sequence effects and title menu come later. -->
+  <section id="startupScreen" class="startup-screen" data-phase="start" aria-label="Frostline Shootout opening screen">
+    <div id="startupWelcome" class="startup-panel">
+      <svg class="startup-ice-f" viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-ice"></use></svg>
+      <p class="startup-kicker">THE ICE IS YOURS</p>
+      <h2 class="startup-title">FROSTLINE <span>SHOOTOUT</span></h2>
+      <p class="startup-caption">30 SECONDS. ONE NET. YOUR GAME.</p>
+      <button id="startupBeginButton" class="startup-primary" type="button">PRESS START</button>
+    </div>
+    <div id="startupIntro" class="startup-panel" hidden aria-live="polite">
+      <p class="startup-kicker">BUILT WITH OPENAI TOOLS</p>
+      <p class="startup-credit">CREATED BY <strong>EDDIEH27</strong></p>
+      <svg class="startup-ice-f startup-intro-f" viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-ice"></use></svg>
+    </div>
+    <button id="startupSkipButton" class="startup-skip" type="button">SKIP INTRO</button>
+  </section>
   <main class="app" aria-label="Frostline Shootout hockey game">
     <header class="topbar">
       <div class="brand">
