@@ -319,6 +319,46 @@
       { d: 'M58 30 Q72 19 83 27 M62 47 Q75 46 82 56', mode: 'gold-stroke', width: 3.7 },
       { d: 'M26 30 Q14 48 27 64', mode: 'gold-stroke', width: 3.4 },
       { d: 'M29 87 H71', mode: 'stroke', width: 3.5 }
+    ] },
+    // Batch seven: original tributes to Utah's tusk rally, the northern
+    // crowd shout, Anaheim's hockey cheers and Edmonton's oil-country roots.
+    utaTusks: { label: 'Utah Tusks Up Rally', shapes: [
+      // Two proudly raised, inward-curving tusks frame a rocky high-desert peak.
+      { d: 'M26 38 Q17 65 29 84 Q37 95 46 81 Q32 83 32 65 Q31 50 37 41 Z', mode: 'trim' },
+      { d: 'M74 38 Q83 65 71 84 Q63 95 54 81 Q68 83 68 65 Q69 50 63 41 Z', mode: 'trim' },
+      { d: 'M26 38 L37 41 L32 50 Z M74 38 L63 41 L68 50 Z', mode: 'accent' },
+      { d: 'M37 70 L50 46 L63 70 Z', mode: 'accent' },
+      { d: 'M45 55 L50 46 L55 55 L50 52 Z', mode: 'trim' },
+      { d: 'M45 77 H55 M43 84 H57', mode: 'stroke', width: 3.1 },
+      { d: 'M43 32 L50 25 L57 32', mode: 'stroke', width: 3.2 }
+    ] },
+    winNorth: { label: 'Winnipeg True North Call', shapes: [
+      // Polar compass star above prairie horizon, with chant-echo arcs.
+      { d: 'M50 25 L55 42 L72 47 L55 52 L50 69 L45 52 L28 47 L45 42 Z', mode: 'trim' },
+      { d: 'M50 32 L53 44 L65 47 L53 50 L50 62 L47 50 L35 47 L47 44 Z', mode: 'accent' },
+      { d: 'M50 36 V57 M40 47 H60', mode: 'base-stroke', width: 2.3 },
+      { d: 'M30 68 Q50 56 70 68', mode: 'stroke', width: 3.8 },
+      { d: 'M25 76 Q50 60 75 76', mode: 'accent-stroke', width: 3.2 },
+      { d: 'M22 84 H78 M30 90 H70', mode: 'stroke', width: 3 },
+      { d: 'M36 30 L30 26 M64 30 L70 26', mode: 'stroke', width: 2.6 }
+    ] },
+    anaFlight: { label: 'Anaheim Rally Flight', shapes: [
+      // Original rising wing and three cheering speed trails; no duck symbol.
+      { d: 'M24 73 Q39 42 78 31 Q65 48 55 52 L69 48 Q54 63 43 65 L57 63 Q40 79 24 73 Z', mode: 'trim' },
+      { d: 'M31 69 Q48 48 70 40', mode: 'base-stroke', width: 3.3 },
+      { d: 'M39 69 Q52 56 64 53', mode: 'accent-stroke', width: 3 },
+      { d: 'M26 80 L52 80 M30 86 L60 86 M34 92 L51 92', mode: 'accent-stroke', width: 3.9 },
+      { d: 'M31 38 L35 32 L39 38 M47 29 L51 23 L55 29', mode: 'stroke', width: 3 },
+      { d: 'M70 67 L78 62', mode: 'stroke', width: 2.8 }
+    ] },
+    edmOil: { label: 'Edmonton Oil Country Identity', shapes: [
+      // Industrial pump silhouette inside a bold rising oil droplet.
+      { d: 'M50 24 C43 37 31 47 31 63 C31 77 39 85 50 85 C61 85 69 77 69 63 C69 47 57 37 50 24 Z', mode: 'trim' },
+      { d: 'M50 39 C45 47 40 55 40 64 C40 73 44 77 50 77 C56 77 60 73 60 64 C60 55 55 47 50 39 Z', mode: 'accent' },
+      { d: 'M37 62 H63 M43 58 L51 51 L57 58', mode: 'base-stroke', width: 3 },
+      { d: 'M50 52 V70 M42 70 H58', mode: 'base-stroke', width: 2.9 },
+      { d: 'M25 87 H75 M33 92 H67', mode: 'stroke', width: 3.4 },
+      { d: 'M30 40 L24 46 M70 40 L76 46', mode: 'stroke', width: 2.7 }
     ] }
   };
   const CITY_CLUBS = {
@@ -345,7 +385,11 @@
     islanders: { name: 'Island Yes Wave', location: 'Long Island, New York', primary: '#00539b', secondary: '#f47d30', trim: '#ffffff', crest: 'islYesWave', club: 'islanders' },
     washington: { name: 'Washington Fury', location: 'Washington, DC', primary: '#c8102e', secondary: '#041e42', trim: '#ffffff', crest: 'wasFury', club: 'washington' },
     colorado: { name: 'Colorado Anthem', location: 'Colorado', primary: '#6f263d', secondary: '#236192', trim: '#ffffff', crest: 'colAnthem', club: 'colorado' },
-    stlouis: { name: 'St. Louis Towel Wave', location: 'St. Louis', primary: '#002f87', secondary: '#fcb514', trim: '#ffffff', crest: 'stlTowel', club: 'stlouis' }
+    stlouis: { name: 'St. Louis Towel Wave', location: 'St. Louis', primary: '#002f87', secondary: '#fcb514', trim: '#ffffff', crest: 'stlTowel', club: 'stlouis' },
+    utah: { name: 'Utah Tusks Up', location: 'Utah', primary: '#15171a', secondary: '#79cfe8', trim: '#ffffff', crest: 'utaTusks', club: 'utah' },
+    winnipeg: { name: 'Winnipeg True North', location: 'Winnipeg', primary: '#041e42', secondary: '#5b92c7', trim: '#d2d9e1', crest: 'winNorth', club: 'winnipeg' },
+    anaheim: { name: 'Anaheim Rally Flight', location: 'Anaheim', primary: '#111111', secondary: '#f47a38', trim: '#d6a85e', crest: 'anaFlight', club: 'anaheim' },
+    edmonton: { name: 'Edmonton Oil Country', location: 'Edmonton', primary: '#041e42', secondary: '#ff4c00', trim: '#ffffff', crest: 'edmOil', club: 'edmonton' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
@@ -1581,7 +1625,7 @@
     // Show the current choice without forcing the user to expand a long list.
     $('cityClubSummary').textContent = team.club
       ? 'Selected: ' + CITY_CLUBS[team.club].name
-      : 'Browse 24 original city teams';
+      : 'Browse 28 original city teams';
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
     preview.style.setProperty('--preview-primary', team.primary);
