@@ -54,6 +54,12 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.equal(await page.locator('#startupScreen').getAttribute('data-phase'), 'start',
         viewport.label + ': DEV opens in startup state');
       assert.equal(await page.locator('#startupScreen').isVisible(), true);
+      assert.equal(await page.locator('#frostEdgeOverlay').getAttribute('data-frost'), 'off',
+        viewport.label + ': frost must be clear before Press Start');
+      assert.equal(await page.locator('#frostEdgeOverlay').evaluate(el=>getComputedStyle(el).pointerEvents), 'none',
+        viewport.label + ': edge ice cannot steal taps or drag gestures');
+      assert.equal(await page.locator('.frost-corner').count(), 4,
+        viewport.label + ': four frosted corners remain mounted');
       assert.equal(await page.locator('#playerDialog').evaluate(el => el.open), false,
         viewport.label + ': onboarding should wait for the intro');
       assert.equal(await page.locator('#startupWelcome .startup-ice-f use').getAttribute('href'), '#frostline-ice',
@@ -65,6 +71,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.ok(startupFits, viewport.label + ': startup button out of viewport');
       if (viewport.label === 'desktop window') {
         await page.locator('#startupBeginButton').click();
+        assert.equal(await page.locator('#frostEdgeOverlay').getAttribute('data-frost'), 'on',
+          viewport.label + ': pressing Start must activate the ice');
         assert.equal(await page.locator('#startupScreen').getAttribute('data-phase'), 'intro');
         assert.equal(await page.locator('#startupIntro').isVisible(), true);
         // The temporary credit beat should hand off automatically, without another click.
@@ -74,6 +82,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       }
       assert.equal(await page.locator('#startupScreen').isVisible(), false,
         viewport.label + ': intro needs to release the existing game');
+      assert.equal(await page.locator('#frostEdgeOverlay').getAttribute('data-frost'), 'on',
+        viewport.label + ': ice should remain into the arcade game');
       await page.waitForSelector('#playerDialog[open]', { timeout:3000 });
       await page.locator('#playerNameInput').fill('Arcade Test Driver');
       await page.locator('#createPlayerButton').click();
@@ -259,6 +269,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
 
       // A player must be able to leave an active round without changing layout.
       await page.locator('#playButton').click();
+      assert.equal(await page.locator('#frostEdgeOverlay').getAttribute('data-frost'), 'on',
+        viewport.label + ': ice remains during live puck shooting');
       assert.equal(await page.locator('#mainMenuButton').isVisible(), true,
         viewport.label + ': in-game menu missing');
       const menuFits = await page.evaluate(() => {
