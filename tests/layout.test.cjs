@@ -214,6 +214,18 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
           button.top >= rink.top && button.bottom <= rink.bottom;
       });
       assert.ok(menuFits, viewport.label + ': menu button outside rink');
+      assert.equal((await page.locator('#mainMenuButton').textContent()).trim(), 'MENU');
+      const compactMenu = await page.locator('#mainMenuButton').evaluate(button => {
+        const size = button.getBoundingClientRect();
+        const style = getComputedStyle(button);
+        return { width: size.width, height: size.height, display: style.display,
+          alignItems: style.alignItems, justifyContent: style.justifyContent };
+      });
+      assert.ok(compactMenu.width <= 50 && compactMenu.height <= 26,
+        viewport.label + ': in-game Menu button should be compact, ' + JSON.stringify(compactMenu));
+      assert.equal(compactMenu.display, 'flex');
+      assert.equal(compactMenu.alignItems, 'center');
+      assert.equal(compactMenu.justifyContent, 'center');
       await page.locator('#mainMenuButton').click();
       assert.equal(await page.locator('#overlay').isVisible(), true,
         viewport.label + ': returning to menu should show overlay');
@@ -238,6 +250,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.ok(result.cardFits, viewport.label + ': result menu escaped rink, ' + JSON.stringify(result));
       assert.ok(result.visible.every(v => v.fits), viewport.label + ': results escaped rink, ' + JSON.stringify(result));
       assert.ok(result.overflow.every(v => !v.exceeds), viewport.label + ': results button overflow, ' + JSON.stringify(result));
+      assert.equal((await page.locator('#resultsMenuButton').textContent()).trim(), 'MAIN MENU',
+        viewport.label + ': results button should have no arrow');
       await page.locator('#resultsMenuButton').click();
       assert.equal(await page.locator('#resultsMenuButton').isVisible(), false);
       assert.match(await page.locator('#overlayTitle').textContent(), /THIRTY SECONDS/);
