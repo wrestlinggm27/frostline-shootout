@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.9: National Flag Teams
+# Frostline Shootout — DEV V2.10: Accurate National Flag Shields
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,14 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## Accurate National Flag Shields — DEV V2.10
+
+The eight National Teams now feature **faithful national-flag vectors** instead of hand-drawn approximations. The USA features **50 five-point stars and 13 stripes**, Canada uses its detailed maple leaf, and Slovakia uses its real coat of arms with the double cross and blue three-hill motif. All flag layouts use geometries adapted from [flag-icons](https://github.com/lipis/flag-icons) under the MIT license, recorded in `FLAG-ART-LICENSE.txt`.
+
+The artwork fills each blue Frostline shield within a clean white-bordered clipping region, with the same shapes on the small selection cards, team preview, profile header, and center ice. Two-letter country codes replace device-dependent flag emoji in the selection cards. These designs use national flags, not hockey federation insignia.
+
+The 32 City Clubs, editable name/colors, existing profiles and records, and separate DEV storage remain unchanged.
 
 ## National Teams — DEV V2.9
 
