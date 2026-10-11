@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.1: Eight City Clubs
+# Frostline Shootout — DEV V2.2: Twelve City Clubs
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,19 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## City clubs — third batch (DEV V2.2)
+
+Four additional **fictional, original team identities** based on their cities' distinct culture bring the DEV roster to **12 city clubs**. The team palette draws on familiar local professional hockey colors, while all marks and club names are independently drawn and not official licensed symbols.
+
+| City | Fictional club | Original concept | Primary / secondary / trim |
+|---|---|---|---|
+| Philadelphia | **Philly Bellline** | A swinging civic bell with rink details and a puck-shaped clapper | Orange `#f74902`, black `#000000`, white |
+| Minnesota | **Minnesota Northwoods** | An evergreen, north star and lake ripples | Forest green `#154734`, red `#a6192e`, wheat `#ddcba4` |
+| Nashville | **Nashville Riff** | Guitar neck transformed into a hockey-stick blade, plus sound bars | Gold `#ffb81c`, navy `#041e42`, white |
+| Seattle | **Seattle Rainline** | Rain, a waterside lookout and breaking coastal waves | Deep navy `#001628`, ice blue `#99d9d9`, white |
+
+All new teams use the same SVG and rink-rendering system, color customization, Save/Cancel behavior, and browser-only DEV player profiles as prior batches. The six generic crests and earlier eight city clubs remain. Future head-to-head play is not implemented. Stable V1.7.1 remains unchanged.
 
 ## City clubs — second batch (DEV V2.1)
 
