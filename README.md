@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.8: Complete 32-Team Division Gallery
+# Frostline Shootout — DEV V2.9: National Flag Teams
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,16 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## National Teams — DEV V2.9
+
+The DEV **Build Your Team** menu now has three choices: **Frostline City Clubs** (the full 32-team fictional collection, organized into four divisions), **National Teams** (8 countries and their familiar flags/colors), and **Make It Yours** (manual team name, color, and crest editing). Both preset galleries are collapsed by default to fit phone screens.
+
+The eight national teams are **USA 🇺🇸, Canada 🇨🇦, Sweden 🇸🇪, Finland 🇫🇮, Czechia 🇨🇿, Slovakia 🇸🇰, Germany 🇩🇪, and Switzerland 🇨🇭**. These are national identity designs and flag symbols, **not licensed hockey federation or tournament marks**. Each uses geometric country-flag art inside the same Frostline shield format, including on the center ice crest; cards also show the country's flag emoji, name, and matching colors.
+
+Selecting a country sets the team name to its actual country name and preloads the national palette and shield. Saving keeps a `nation` identity in the player's DEV profile, exclusive with the existing `club` identity. Changing the name, colors, or generic crest creates a **custom derivative** while retaining flag artwork unless a different crest is chosen. Reopening the menu correctly highlights the saved country. Unknown old IDs safely normalize to custom. All existing city team saves and records remain compatible.
+
+**Stable remains V2.8.1 and is unchanged**; all DEV profile data stays isolated with the `frostline-dev:` storage namespace.
 
 ## Final Batch Eight and Conference Divisions — DEV V2.8
 

@@ -76,6 +76,8 @@ function boot(seed = {}) {
   const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
   const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
   const cityChoices = ['boston', 'buffalo', 'detroit', 'florida', 'montreal', 'ottawa', 'tampa', 'toronto', 'carolina', 'columbus', 'newjersey', 'islanders', 'newyork', 'philadelphia', 'pittsburgh', 'washington', 'chicago', 'colorado', 'dallas', 'minnesota', 'nashville', 'stlouis', 'utah', 'winnipeg', 'anaheim', 'calgary', 'edmonton', 'losangeles', 'sanjose', 'seattle', 'vancouver', 'vegas'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
+  const nationChoices = ['usa','canada','sweden','finland','czechia','slovakia','germany','switzerland']
+    .map(id => Object.assign(new MockNode(id), { dataset: { nationalTeam: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -86,6 +88,7 @@ function boot(seed = {}) {
       if (selector === '[data-f-logo]') return logoChoices;
       if (selector === '[data-team-crest]') return crestChoices;
       if (selector === '[data-city-club]') return cityChoices;
+      if (selector === '[data-national-team]') return nationChoices;
       return [];
     },
     querySelector(selector) { return elem('query:' + selector); },
@@ -118,7 +121,7 @@ function boot(seed = {}) {
     cb(time);
   }
   function submit(id) { elem(id).emit('submit'); }
-  return { elem, leagues, presets, logoChoices, crestChoices, cityChoices, storage, localStorage, frame, submit, errors, raf };
+  return { elem, leagues, presets, logoChoices, crestChoices, cityChoices, nationChoices, storage, localStorage, frame, submit, errors, raf };
 }
 
 test('UI contains player, team and local record book elements', () => {
@@ -422,4 +425,89 @@ test('DEV thirty-two division-grouped city clubs load original crests with inten
   assert.equal(again.elem('previewTeamCrest').children.length, 1);
   again.elem('cancelTeam').emit('click');
   assert.ok(!again.storage.has('frostline-player-profiles-v1'));
+});
+
+
+
+test('DEV national teams show eight actual flags, save country identity, draw shields, and permit custom derivatives', () => {
+  assert.equal((html.match(/data-city-club="/g) || []).length, 32, 'city collection stays intact');
+  assert.equal((html.match(/data-national-team="/g) || []).length, 8);
+  assert.match(html, /id="nationalTeamGallery"/);
+  assert.match(html, /MAKE IT YOURS · CUSTOM TEAM/);
+  for (const flag of ['🇺🇸','🇨🇦','🇸🇪','🇫🇮','🇨🇿','🇸🇰','🇩🇪','🇨🇭']) assert.ok(html.includes(flag), 'flag emoji ' + flag);
+  const countries = [
+    { id:'usa', name:'USA', crest:'natUSA', primary:'#002868', secondary:'#bf0a30' },
+    { id:'canada', name:'Canada', crest:'natCanada', primary:'#d80621', secondary:'#ffffff' },
+    { id:'sweden', name:'Sweden', crest:'natSweden', primary:'#006aa7', secondary:'#fecc00' },
+    { id:'finland', name:'Finland', crest:'natFinland', primary:'#ffffff', secondary:'#002f6c' },
+    { id:'czechia', name:'Czechia', crest:'natCzechia', primary:'#ffffff', secondary:'#d7141a' },
+    { id:'slovakia', name:'Slovakia', crest:'natSlovakia', primary:'#ffffff', secondary:'#0b4ea2' },
+    { id:'germany', name:'Germany', crest:'natGermany', primary:'#111111', secondary:'#dd0000' },
+    { id:'switzerland', name:'Switzerland', crest:'natSwitzerland', primary:'#da291c', secondary:'#ffffff' }
+  ];
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'International Captain';
+  t.submit('playerForm');
+  assert.equal(t.elem('nationalTeamGallery').open, false);
+  assert.equal(t.nationChoices.length, 8);
+  for (const country of countries) {
+    t.nationChoices.find(button=>button.dataset.nationalTeam===country.id).emit('click');
+    assert.equal(t.elem('teamNameInput').value, country.name);
+    assert.equal(t.elem('teamPrimary').value, country.primary);
+    assert.equal(t.elem('teamSecondary').value, country.secondary);
+    assert.equal(t.elem('nationalTeamSummary').textContent, 'Selected: ' + country.name);
+    assert.equal(t.elem('cityClubSummary').textContent, 'Browse 32 original city teams');
+    const choice=t.nationChoices.find(button=>button.dataset.nationalTeam===country.id);
+    assert.equal(choice.getAttribute('aria-pressed'), 'true');
+    assert.equal(choice.querySelector('.national-team-icon').children.length, 1);
+    assert.equal(t.elem('previewTeamCrest').children.length, 1);
+    assert.ok(t.elem('previewTeamCrest').children[0].children.length > 4, 'flag geometry on shield');
+    t.submit('teamForm');
+    const saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
+    assert.equal(saved.nation, country.id);
+    assert.equal(saved.club, null);
+    assert.equal(saved.crest, country.crest);
+    assert.equal(saved.name, country.name);
+    assert.equal(saved.primary, country.primary);
+    assert.equal(t.elem('headerTeamCrest').children.length,1);
+    t.elem('nationalTeamGallery').open=true;
+    t.elem('customizeButton').emit('click');
+    assert.equal(t.elem('nationalTeamGallery').open,false,'reopening starts collapsed');
+    assert.equal(t.elem('nationalTeamSummary').textContent,'Selected: ' + country.name);
+  }
+  // Starting with Switzerland, customize a country palette/name while
+  // retaining its flag-derived crest as a player-owned team.
+  t.elem('teamNameInput').value='My Alpine Crew';
+  t.elem('teamNameInput').emit('input');
+  assert.equal(t.elem('nationalTeamSummary').textContent,'Browse 8 national teams');
+  t.submit('teamForm');
+  let saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.nation,null);
+  assert.equal(saved.crest,'natSwitzerland');
+  assert.equal(saved.name,'My Alpine Crew');
+  const again=boot(Object.fromEntries(t.storage));
+  again.elem('customizeButton').emit('click');
+  assert.equal(again.elem('teamNameInput').value,'My Alpine Crew');
+  assert.equal(again.elem('previewTeamCrest').children.length,1);
+  again.elem('cancelTeam').emit('click');
+  // Selecting a city instead clears the national identity, not the records.
+  again.elem('customizeButton').emit('click');
+  again.cityChoices.find(button=>button.dataset.cityClub==='newyork').emit('click');
+  again.submit('teamForm');
+  saved=JSON.parse(again.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.nation,null);
+  assert.equal(saved.club,'newyork');
+  assert.equal(saved.crest,'nySalute');
+  assert.ok(!again.storage.has('frostline-player-profiles-v1'),'DEV never alters Stable');
+});
+
+test('DEV normalizes removed/unknown national identifiers without breaking old profiles',()=>{
+  const t=boot({'frostline-dev:frostline-player-profiles-v1':JSON.stringify({
+    players:[{id:'older',name:'Older Fan',team:{name:'Legacy',primary:'#0038a8',secondary:'#ce1126',trim:'#ffffff',crest:'natFinland',nation:'unknown-nation'},difficulty:'beer',records:{}}],
+    activeId:'older',legacyClaimed:true
+  })});
+  t.elem('customizeButton').emit('click');
+  assert.equal(t.elem('nationalTeamSummary').textContent,'Browse 8 national teams');
+  assert.equal(t.elem('previewTeamCrest').children.length,1);
 });
