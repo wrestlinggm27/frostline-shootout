@@ -151,6 +151,53 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       const afterCancel = await page.evaluate(() => JSON.parse(localStorage.getItem('frostline-player-profiles-v1')).players[0].team);
       assert.equal(afterCancel.club, 'detroit', viewport.label + ': cancelling city selection must not overwrite saved club');
 
+
+      // International identity is a separate, collapsed selector beneath
+      // City Clubs. All eight nation flags need to fit even on small phones.
+      await page.locator('#customizeButton').click();
+      const nationalToggle=page.locator('#nationalTeamGallery > summary');
+      assert.equal(await page.locator('#nationalTeamGallery').evaluate(el=>el.open),false,
+        viewport.label+': national teams start collapsed');
+      const nationalHeight=await page.locator('#nationalTeamGallery').evaluate(el=>el.getBoundingClientRect().height);
+      assert.ok(nationalHeight<=90,viewport.label+': national summary is too tall ('+nationalHeight+')');
+      await nationalToggle.click();
+      assert.equal(await page.locator('.national-team-options').isVisible(),true,viewport.label+': nation choices expand');
+      assert.equal(await page.locator('[data-national-team]').count(),8);
+      for(const [id,name] of [['usa','USA'],['canada','Canada'],['sweden','Sweden'],['finland','Finland'],
+        ['czechia','Czechia'],['slovakia','Slovakia'],['germany','Germany'],['switzerland','Switzerland']]){
+        await page.locator('[data-national-team="'+id+'"]').click();
+        assert.equal(await page.locator('#teamNameInput').inputValue(),name,viewport.label+': '+name+' selected');
+        assert.equal(await page.locator('[data-national-team="'+id+'"]').getAttribute('aria-pressed'),'true');
+        assert.equal(await page.locator('#previewTeamCrest svg').count(),1);
+        assert.equal(await page.locator('#nationalTeamSummary').textContent(),'Selected: '+name);
+      }
+      const nationFit=await page.evaluate(()=>{
+        const gallery=document.querySelector('#nationalTeamGallery');
+        return [...gallery.querySelectorAll('.national-team-choice')].every(el=>{
+          const r=el.getBoundingClientRect(),p=gallery.getBoundingClientRect();
+          return r.left>=p.left-2&&r.right<=p.right+2&&el.scrollWidth<=el.clientWidth+2;
+        });
+      });
+      assert.ok(nationFit,viewport.label+': national flags/cards overflow customizer');
+      await page.locator('[data-national-team="sweden"]').click();
+      await page.locator('#teamForm button[type="submit"]').click();
+      let nationalSaved=await page.evaluate(()=>{
+        const data=JSON.parse(localStorage.getItem('frostline-player-profiles-v1'));
+        return data.players[0].team;
+      });
+      assert.equal(nationalSaved.nation,'sweden',viewport.label+': country persisted');
+      assert.equal(nationalSaved.crest,'natSweden',viewport.label+': flag shield persisted');
+      assert.equal(nationalSaved.club,null,viewport.label+': countries and cities are exclusive');
+      await page.locator('#customizeButton').click();
+      assert.equal(await page.locator('#nationalTeamGallery').evaluate(el=>el.open),false);
+      assert.equal(await page.locator('#nationalTeamSummary').textContent(),'Selected: Sweden');
+      await page.locator('#teamNameInput').fill('My Sweden Crew');
+      await page.locator('#teamForm button[type="submit"]').click();
+      nationalSaved=await page.evaluate(()=>JSON.parse(localStorage.getItem('frostline-player-profiles-v1')).players[0].team);
+      assert.equal(nationalSaved.nation,null,viewport.label+': custom team does not masquerade as official selection');
+      assert.equal(nationalSaved.crest,'natSweden',viewport.label+': personalized nation keeps artwork');
+      assert.equal(nationalSaved.name,'My Sweden Crew');
+
       const start = await inspect(page);
       assert.ok(start.cardFits, viewport.label + ': start menu escaped rink, ' + JSON.stringify(start));
       assert.ok(start.visible.every(v => v.fits), viewport.label + ': start content escaped rink, ' + JSON.stringify(start));
