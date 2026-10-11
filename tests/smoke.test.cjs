@@ -73,6 +73,9 @@ function boot(seed = {}) {
   }
   const leagues = ['pond', 'beer', 'show'].map(id => Object.assign(new MockNode(id), { dataset: { difficulty: id } }));
   const presets = ['broadway', 'ice', 'aurora', 'black'].map(id => Object.assign(new MockNode(id), { dataset: { teamPreset: id } }));
+  const logoChoices = ['power', 'speed', 'ice'].map(id => Object.assign(new MockNode(id), { dataset: { fLogo: id } }));
+  const crestChoices = ['monogram', 'wolf', 'bolt', 'sticks', 'star', 'mountain'].map(id => Object.assign(new MockNode(id), { dataset: { teamCrest: id } }));
+  const cityChoices = ['boston', 'buffalo', 'detroit', 'florida', 'montreal', 'ottawa', 'tampa', 'toronto', 'carolina', 'columbus', 'newjersey', 'islanders', 'newyork', 'philadelphia', 'pittsburgh', 'washington', 'chicago', 'colorado', 'dallas', 'minnesota', 'nashville', 'stlouis', 'utah', 'winnipeg', 'anaheim', 'calgary', 'edmonton', 'losangeles', 'sanjose', 'seattle', 'vancouver', 'vegas'].map(id => Object.assign(new MockNode(id), { dataset: { cityClub: id } }));
   const document = {
     hidden: false,
     documentElement: { style: { setProperty: noop } },
@@ -80,10 +83,14 @@ function boot(seed = {}) {
     querySelectorAll(selector) {
       if (selector === '[data-difficulty]') return leagues;
       if (selector === '[data-team-preset]') return presets;
+      if (selector === '[data-f-logo]') return logoChoices;
+      if (selector === '[data-team-crest]') return crestChoices;
+      if (selector === '[data-city-club]') return cityChoices;
       return [];
     },
     querySelector(selector) { return elem('query:' + selector); },
     createElement(name) { return new MockNode(name); },
+    createElementNS(ns, name) { return new MockNode(name); },
     addEventListener: noop
   };
   elem('rink').getContext = () => ctx;
@@ -111,7 +118,7 @@ function boot(seed = {}) {
     cb(time);
   }
   function submit(id) { elem(id).emit('submit'); }
-  return { elem, leagues, presets, storage, localStorage, frame, submit, errors, raf };
+  return { elem, leagues, presets, logoChoices, crestChoices, cityChoices, storage, localStorage, frame, submit, errors, raf };
 }
 
 test('UI contains player, team and local record book elements', () => {
@@ -206,4 +213,252 @@ test('legacy high scores migrate once, each player stays independent', () => {
   assert.equal(reloaded.elem('teamNameDisplay').textContent, 'OLD HEROES');
   assert.equal(reloaded.elem('best').textContent, 7);
   assert.equal(reloaded.elem('difficultyStatus').textContent, 'THE SHOW');
+});
+
+test('Stable Logo Lab previews all three F styles, cancel restores, and saving persists per player', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Logo Tester';
+  t.submit('playerForm');
+  t.elem('cancelTeam').emit('click');
+
+  t.elem('logoLabButton').emit('click');
+  assert.equal(t.elem('logoLabDialog').open, true);
+  t.logoChoices[1].emit('click');
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-speed');
+  assert.equal(t.elem('logoPreviewUse').getAttribute('href'), '#frostline-speed');
+  t.elem('cancelLogoLab').emit('click');
+  assert.equal(t.elem('brandLogoUse').getAttribute('href'), '#frostline-power');
+
+  t.elem('brandLogoButton').emit('click');
+  t.logoChoices[2].emit('click');
+  assert.equal(t.elem('logoPreviewName').textContent, 'C · ICE CUT');
+  t.elem('saveLogoLab').emit('click');
+  assert.equal(t.elem('logoLabDialog').open, false);
+  let saved = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].logoVariant, 'ice');
+
+  const again = boot(Object.fromEntries(t.storage));
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
+  again.elem('switchPlayerButton').emit('click');
+  again.elem('playerNameInput').value = 'Second Player';
+  again.submit('playerForm');
+  again.elem('cancelTeam').emit('click');
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-power');
+  again.elem('switchPlayerButton').emit('click');
+  again.elem('existingPlayers').children[0].emit('click');
+  assert.equal(again.elem('brandLogoUse').getAttribute('href'), '#frostline-ice');
+  saved = JSON.parse(again.storage.get('frostline-player-profiles-v1'));
+  assert.equal(saved.players.length, 2);
+  assert.equal(saved.players[0].logoVariant, 'ice');
+  assert.equal(saved.players[1].logoVariant, 'power');
+});
+
+test('Stable custom team shields preview, save and persist separately for each player', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Crest Tester';
+  t.submit('playerForm');
+  assert.equal(t.elem('teamDialog').open, true);
+  assert.equal(t.crestChoices.length, 6);
+  t.crestChoices[1].emit('click');
+  assert.equal(t.crestChoices[1].getAttribute('aria-pressed'), 'true');
+  assert.equal(t.elem('previewTeamCrest').children.length, 1);
+  t.elem('teamNameInput').value = 'Forest Wolves';
+  t.elem('teamPrimary').value = '#225533';
+  t.elem('teamSecondary').value = '#ddee22';
+  t.submit('teamForm');
+  assert.equal(t.elem('teamDialog').open, false);
+
+  let saved = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].team.crest, 'wolf');
+  assert.equal(saved.players[0].team.name, 'Forest Wolves');
+  assert.equal(saved.players[0].team.primary, '#225533');
+  assert.equal(saved.players[0].team.secondary, '#ddee22');
+  assert.equal(t.elem('headerTeamCrest').children.length, 1);
+
+  // Cancel must restore the last saved crest, not accidentally persist a draft.
+  t.elem('customizeButton').emit('click');
+  t.crestChoices[2].emit('click');
+  assert.equal(t.crestChoices[2].getAttribute('aria-pressed'), 'true');
+  t.elem('cancelTeam').emit('click');
+  saved = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].team.crest, 'wolf');
+  t.elem('customizeButton').emit('click');
+  assert.equal(t.crestChoices[1].getAttribute('aria-pressed'), 'true');
+  t.elem('cancelTeam').emit('click');
+
+  t.elem('switchPlayerButton').emit('click');
+  t.elem('playerNameInput').value = 'Second Team';
+  t.submit('playerForm');
+  t.elem('cancelTeam').emit('click');
+  t.elem('customizeButton').emit('click');
+  t.crestChoices[3].emit('click');
+  t.submit('teamForm');
+  saved = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(saved.players[1].team.crest, 'sticks');
+  assert.equal(saved.players[0].team.crest, 'wolf');
+
+  const reloaded = boot(Object.fromEntries(t.storage));
+  reloaded.elem('switchPlayerButton').emit('click');
+  reloaded.elem('existingPlayers').children[0].emit('click');
+  reloaded.elem('customizeButton').emit('click');
+  assert.equal(reloaded.crestChoices[1].getAttribute('aria-pressed'), 'true');
+  assert.equal(reloaded.elem('previewTeamCrest').children.length, 1);
+  reloaded.elem('cancelTeam').emit('click');
+
+  // Original gameplay remains playable with a custom shield on the rink.
+  reloaded.elem('playButton').emit('click');
+  const rink = reloaded.elem('rink');
+  rink.emit('pointerdown', { pointerId: 35, clientX: 210, clientY: 563 });
+  rink.emit('pointermove', { pointerId: 35, clientX: 174, clientY: 653 });
+  rink.emit('pointerup', { pointerId: 35, clientX: 174, clientY: 653 });
+  assert.equal(reloaded.elem('shots').textContent, 1);
+  assert.ok(reloaded.storage.has('frostline-player-profiles-v1'), 'Stable data must persist');
+  assert.ok(!reloaded.storage.has('frostline-dev:frostline-player-profiles-v1'), 'DEV profiles remain separate');
+});
+
+test('Stable data normalizes unknown old shield identifiers safely', () => {
+  const seed = {
+    'frostline-player-profiles-v1': JSON.stringify({
+      activeId: 'known',
+      legacyClaimed:true,
+      players:[{id:'known',name:'Legacy Tester',team:{
+        name:'Heritage',primary:'#0038a8',secondary:'#ce1126',trim:'#ffffff',crest:'unknown-symbol'
+      },difficulty:'beer',records:{arcade:{}}}]
+    })
+  };
+  const t = boot(seed);
+  t.elem('customizeButton').emit('click');
+  assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
+});
+
+test('Stable thirty-two division-grouped city clubs load original crests with intended color palettes and save team', () => {
+  assert.equal((html.match(/data-city-club="/g) || []).length, 32);
+  assert.match(html, /<details class="city-club-gallery" id="cityClubGallery">/);
+  assert.match(html, /<summary class="city-club-toggle">/);
+  assert.match(css, /city-club-gallery:not\(\[open\]\)/);
+  assert.equal((html.match(/class="city-club-conference"/g) || []).length, 2);
+  assert.equal((html.match(/class="city-club-division"/g) || []).length, 4);
+  const expectedDivisions = {"atlantic":["boston","buffalo","detroit","florida","montreal","ottawa","tampa","toronto"],"metropolitan":["carolina","columbus","newjersey","islanders","newyork","philadelphia","pittsburgh","washington"],"central":["chicago","colorado","dallas","minnesota","nashville","stlouis","utah","winnipeg"],"pacific":["anaheim","calgary","edmonton","losangeles","sanjose","seattle","vancouver","vegas"]};
+  for (const [division, ids] of Object.entries(expectedDivisions)) {
+    const section = html.match(new RegExp('<section class="city-club-division" data-division="' + division + '"[\\s\\S]*?<\\/section>'));
+    assert.ok(section, 'division section ' + division + ' exists');
+    assert.deepEqual([...section[0].matchAll(/data-city-club="([^"]+)"/g)].map(hit => hit[1]), ids, division + ' contains the correct eight clubs in order');
+  }
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'City Captain';
+  t.submit('playerForm');
+  assert.equal(t.elem('cityClubGallery').open, false, 'team setup should start with city clubs collapsed');
+  const options = [
+    { name: 'Boston Banner', crest: 'bosBanner', club: 'boston', primary:'#101010', secondary:'#ffb81c' },
+    { name: 'Buffalo Blade Gang', crest: 'bufBladeGang', club: 'buffalo', primary:'#003087', secondary:'#ffb81c' },
+    { name: 'Motor City Octopus', crest: 'detOctopus', club: 'detroit', primary:'#ce1126', secondary:'#ffffff' },
+    { name: 'Florida Blue Rat', crest: 'flaRat', club: 'florida', primary:'#c8102e', secondary:'#041e42' },
+    { name: 'Montreal Olé', crest: 'monChant', club: 'montreal', primary:'#af1e2d', secondary:'#192168' },
+    { name: 'Ottawa Legion', crest: 'ottLegion', club: 'ottawa', primary:'#151515', secondary:'#c52032' },
+    { name: 'Tampa Coil', crest: 'tamCoil', club: 'tampa', primary:'#002868', secondary:'#101820' },
+    { name: 'Toronto Grind', crest: 'torGrind', club: 'toronto', primary:'#00205b', secondary:'#ffffff' },
+    { name: 'Carolina Warning', crest: 'carSiren', club: 'carolina', primary:'#cc0000', secondary:'#111111' },
+    { name: 'Columbus Cannonfire', crest: 'colCannon', club: 'columbus', primary:'#002654', secondary:'#ce1126' },
+    { name: 'Newark Ironbound', crest: 'newIron', club: 'newjersey', primary:'#ce1126', secondary:'#151515' },
+    { name: 'Island Yes Wave', crest: 'islYesWave', club: 'islanders', primary:'#00539b', secondary:'#f47d30' },
+    { name: 'Empire Salute', crest: 'nySalute', club: 'newyork', primary:'#0038a8', secondary:'#ce1126' },
+    { name: 'Philly Bellline', crest: 'phiBell', club: 'philadelphia', primary:'#f74902', secondary:'#000000' },
+    { name: 'Pittsburgh Gear', crest: 'pitGear', club: 'pittsburgh', primary:'#111111', secondary:'#fcb514' },
+    { name: 'Washington Fury', crest: 'wasFury', club: 'washington', primary:'#c8102e', secondary:'#041e42' },
+    { name: 'Chicago Curve', crest: 'chiCurve', club: 'chicago', primary:'#121318', secondary:'#cf0a2c' },
+    { name: 'Colorado Anthem', crest: 'colAnthem', club: 'colorado', primary:'#6f263d', secondary:'#236192' },
+    { name: 'Dallas Brimline', crest: 'dalHat', club: 'dallas', primary:'#006847', secondary:'#111111' },
+    { name: 'Minnesota Northwoods', crest: 'minNorth', club: 'minnesota', primary:'#154734', secondary:'#a6192e' },
+    { name: 'Nashville Riff', crest: 'nasRiff', club: 'nashville', primary:'#ffb81c', secondary:'#041e42' },
+    { name: 'St. Louis Towel Wave', crest: 'stlTowel', club: 'stlouis', primary:'#002f87', secondary:'#fcb514' },
+    { name: 'Utah Tusks Up', crest: 'utaTusks', club: 'utah', primary:'#15171a', secondary:'#79cfe8' },
+    { name: 'Winnipeg True North', crest: 'winNorth', club: 'winnipeg', primary:'#041e42', secondary:'#5b92c7' },
+    { name: 'Anaheim Rally Flight', crest: 'anaFlight', club: 'anaheim', primary:'#111111', secondary:'#f47a38' },
+    { name: 'Prairie Fire', crest: 'calFire', club: 'calgary', primary:'#c8102e', secondary:'#f1be48' },
+    { name: 'Edmonton Oil Country', crest: 'edmOil', club: 'edmonton', primary:'#041e42', secondary:'#ff4c00' },
+    { name: 'Los Angeles Royal Army', crest: 'laRoyal', club: 'losangeles', primary:'#111111', secondary:'#a7a9ac' },
+    { name: 'San Jose Chomp', crest: 'sjChomp', club: 'sanjose', primary:'#006d75', secondary:'#ea7200' },
+    { name: 'Seattle Rainline', crest: 'seaRain', club: 'seattle', primary:'#001628', secondary:'#99d9d9' },
+    { name: 'Vancouver Clock Chain', crest: 'vanClock', club: 'vancouver', primary:'#00205b', secondary:'#00843d' },
+    { name: 'Vegas Flamingo Toss', crest: 'vegFlamingo', club: 'vegas', primary:'#333f42', secondary:'#d4af37' }
+  ];
+  for (let i=0;i<options.length;i++) {
+    t.cityChoices[i].emit('click');
+    const expected=options[i];
+    assert.equal(t.elem('teamNameInput').value, expected.name);
+    assert.equal(t.elem('teamPrimary').value, expected.primary);
+    assert.equal(t.elem('teamSecondary').value, expected.secondary);
+    assert.equal(t.elem('previewTeamCrest').children.length, 1);
+    assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
+    assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
+    assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
+    // The SVG contains one or more original icon path elements beyond the shield.
+    assert.ok(t.elem('previewTeamCrest').children[0].children.length > 4);
+    t.submit('teamForm');
+    const saved=JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0].team;
+    for (const key of ['name','crest','club','primary','secondary']) assert.equal(saved[key], expected[key]);
+    assert.equal(t.elem('headerTeamCrest').children.length, 1);
+    // Reopening the team editor should always return to the compact state.
+    t.elem('cityClubGallery').open = true;
+    t.elem('customizeButton').emit('click');
+    assert.equal(t.elem('cityClubGallery').open, false);
+    assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
+  }
+
+  // Editing a city palette produces a custom derivative without losing its mark.
+  t.elem('teamNameInput').value = 'My Flamingo';
+  t.elem('teamNameInput').emit('input');
+  assert.equal(t.elem('cityClubSummary').textContent, 'Browse 32 original city teams');
+  t.submit('teamForm');
+  let saved=JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.club, null);
+  assert.equal(saved.crest, 'vegFlamingo');
+  assert.equal(saved.name, 'My Flamingo');
+
+  const again=boot(Object.fromEntries(t.storage));
+  again.elem('customizeButton').emit('click');
+  assert.equal(again.elem('previewTeamCrest').children.length, 1);
+  again.elem('cancelTeam').emit('click');
+  assert.ok(again.storage.has('frostline-player-profiles-v1'));
+  assert.ok(!again.storage.has('frostline-dev:frostline-player-profiles-v1'));
+});
+
+
+test('V1.7.1 profiles and existing record books survive the Stable V2.8 promotion', () => {
+  const oldProfile = {
+    players:[{ id:'v1-player', name:'Veteran Fan',
+      team:{ name:'Old Rink Club', primary:'#153371', secondary:'#ca3344', trim:'#fffadd' },
+      difficulty:'show',
+      records:{arcade:{show:{best:12,rounds:7,goals:53,shots:90,saves:21,misses:16}}} }],
+    activeId:'v1-player', legacyClaimed:true
+  };
+  const devBackup = '{"players":[{"id":"dev-player","name":"Different Fan"}]}';
+  const t = boot({
+    'frostline-player-profiles-v1': JSON.stringify(oldProfile),
+    'frostline-shootout-difficulty-v1':'show',
+    'frostline-dev:frostline-player-profiles-v1':devBackup
+  });
+  assert.equal(t.elem('playerDialog').open, false, 'returning player should not be asked to sign up');
+  assert.equal(t.elem('menuPlayerName').textContent, 'VETERAN FAN');
+  assert.equal(t.elem('teamNameDisplay').textContent, 'OLD RINK CLUB');
+  assert.equal(t.elem('best').textContent, 12);
+  let db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(db.activeId, 'v1-player');
+  assert.deepEqual(db.players[0].records, oldProfile.players[0].records, 'historic stats should remain intact');
+  assert.equal(db.players[0].team.primary, '#153371');
+  assert.equal(db.players[0].team.crest, 'monogram', 'old team gets a compatible shield');
+  t.elem('customizeButton').emit('click');
+  t.cityChoices.find(b => b.dataset.cityClub === 'newyork').emit('click');
+  t.submit('teamForm');
+  db = JSON.parse(t.storage.get('frostline-player-profiles-v1'));
+  assert.equal(db.players[0].team.club, 'newyork');
+  assert.equal(db.players[0].team.crest, 'nySalute');
+  assert.deepEqual(db.players[0].records, oldProfile.players[0].records, 'changing a team must not reset records');
+  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), devBackup, 'DEV data remains untouched');
+  const reloaded = boot(Object.fromEntries(t.storage));
+  assert.equal(reloaded.elem('teamNameDisplay').textContent, 'EMPIRE SALUTE');
+  assert.equal(reloaded.elem('best').textContent, 12);
 });

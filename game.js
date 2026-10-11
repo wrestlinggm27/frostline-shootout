@@ -3,6 +3,8 @@
 
   // All gameplay and art are drawn on a 420 x 680 virtual rink.
   // CSS scales that rink for phones and desktops; pointer coordinates are scaled back.
+  // Production uses the original unprefixed localStorage keys so V1.7.1
+  // player names, teams, and scores are preserved on upgrade.
   const W = 420;
   const H = 680;
   const ROUND_SECONDS = 30;
@@ -54,6 +56,381 @@
     aurora: { name: 'Aurora', primary: '#5c2590', secondary: '#41d4df', trim: '#ffffff' },
     black: { name: 'Black Ice', primary: '#202837', secondary: '#f4b942', trim: '#ffffff' }
   };
+  // Original hockey crests. Each team's identity is a serializable design ID
+  // and palette, reusable later when opponents are introduced.
+  const CREST_ART = {
+    monogram: { label: 'Captain', shapes: [] },
+    wolf: { label: 'Wolf', shapes: [
+      { d: 'M27 45 L35 32 L43 46 L50 41 L57 46 L65 32 L73 45 L71 69 L61 82 L50 75 L39 82 L29 69 Z' },
+      { d: 'M37 56 L45 59 L39 63 Z M55 59 L63 56 L61 63 Z', mode: 'cutout' },
+      { d: 'M44 67 L56 67 L50 73 Z', mode: 'cutout' }
+    ] },
+    bolt: { label: 'Lightning', shapes: [
+      { d: 'M55 29 L35 60 H51 L43 86 L70 52 H53 L63 29 Z' }
+    ] },
+    sticks: { label: 'Crossed Sticks', shapes: [
+      { d: 'M30 37 L67 77 M69 37 L32 78', mode: 'stroke' },
+      { d: 'M67 77 Q74 80 76 72 M32 78 Q26 80 24 73', mode: 'stroke' },
+      { d: 'M44 81 H56 V85 H44 Z' }
+    ] },
+    star: { label: 'Star', shapes: [
+      { d: 'M50 27 L58 47 L79 48 L63 62 L69 84 L50 72 L31 84 L37 62 L21 48 L42 47 Z' }
+    ] },
+    mountain: { label: 'Summit', shapes: [
+      { d: 'M23 78 L44 39 L55 58 L64 44 L78 78 Z' },
+      { d: 'M35 57 L44 39 L52 54 L44 51 L40 59 Z M58 55 L64 44 L72 59 L64 56 Z', mode: 'cutout' }
+    ] },
+    // Four entirely original fictional clubs based on real hockey-city traditions.
+    // Their colors nod to the local pro palettes; none uses an official name or logo.
+    nySalute: { label: 'New York Stick Salute', shapes: [
+      { d: 'M35 82 L27 38 Q25 31 18 33', mode: 'stroke', width: 5 },
+      { d: 'M65 82 L73 38 Q75 31 82 33', mode: 'stroke', width: 5 },
+      { d: 'M34 82 V64 H39 V57 H43 V45 H48 V38 H53 V52 H58 V46 H63 V62 H67 V82 Z', mode: 'accent' },
+      { d: 'M47 46 H50 V53 H47 Z M47 59 H50 V64 H47 Z M56 56 H59 V61 H56 Z M40 66 H43 V71 H40 Z', mode: 'trim' },
+      { d: 'M32 82 H68', mode: 'stroke', width: 2.5 },
+      { d: 'M45 87 H55', mode: 'stroke', width: 3.5 }
+    ] },
+    detOctopus: { label: 'Detroit Octopus', shapes: [
+      { d: 'M36 54 C25 47 20 60 27 72 C31 78 36 73 34 68', mode: 'stroke', width: 5.5 },
+      { d: 'M42 57 C31 63 30 79 37 85', mode: 'stroke', width: 5.5 },
+      { d: 'M48 58 C43 71 44 84 49 88', mode: 'stroke', width: 5 },
+      { d: 'M55 58 C64 65 66 81 60 86', mode: 'stroke', width: 5.5 },
+      { d: 'M63 54 C77 49 82 64 74 73 C70 77 67 71 71 68', mode: 'stroke', width: 5 },
+      { d: 'M38 51 C36 41 39 34 45 32 C53 28 62 34 64 44 C67 56 61 62 50 62 C41 62 38 57 38 51 Z', mode: 'trim' },
+      { d: 'M43 47 A2.6 2.6 0 1 0 48.2 47 A2.6 2.6 0 1 0 43 47 Z M54 47 A2.6 2.6 0 1 0 59.2 47 A2.6 2.6 0 1 0 54 47 Z', mode: 'base' },
+      { d: 'M48 55 Q50 58 53 55', mode: 'base-stroke', width: 2 },
+      { d: 'M27 66 L29 65 M70 62 L72 63', mode: 'base-stroke', width: 2.2 }
+    ] },
+    chiCurve: { label: 'Chicago Curved Stick', shapes: [
+      { d: 'M30 31 L51 70 C57 82 71 77 77 67', mode: 'stroke', width: 8 },
+      { d: 'M35 35 L53 69 C60 76 69 73 74 68', mode: 'base-stroke', width: 2 },
+      { d: 'M24 61 Q25 79 39 84', mode: 'accent-stroke', width: 4 },
+      { d: 'M44 86 Q61 91 74 80', mode: 'accent-stroke', width: 3 },
+      { d: 'M34 43 L36 39 L40 43 L37 47 Z', mode: 'accent' },
+      { d: 'M63 40 L65 35 L68 40 L73 42 L68 45 L66 50 L63 45 L59 43 Z', mode: 'accent' }
+    ] },
+    calFire: { label: 'Calgary Ring of Fire', shapes: [
+      { d: 'M27 78 C18 70 19 56 29 44 Q27 54 34 52 Q32 40 44 28 Q43 41 51 46 Q58 40 56 31 Q70 41 67 54 Q73 52 73 44 C85 62 80 78 68 84 C57 91 37 89 27 78 Z', mode: 'accent' },
+      { d: 'M50 48 C64 48 73 58 71 70 C69 82 57 88 46 85 C34 82 28 73 30 62 C32 54 40 48 50 48 Z', mode: 'base' },
+      { d: 'M50 50 C62 50 70 59 68 70 C66 80 57 84 48 82 C38 81 33 72 34 63 C36 55 42 51 50 50 Z', mode: 'stroke', width: 3.8 },
+      { d: 'M45 61 A5 5 0 1 0 55 61 A5 5 0 1 0 45 61 Z', mode: 'trim' },
+      { d: 'M44 69 Q50 74 57 69', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    // Batch two: fan, work-ethic, crowd-chant and steel-city traditions.
+    bosBanner: { label: 'Boston Fan Banner', shapes: [
+      // Gold rally pennant on a black shield, with an original block-B cutout.
+      { d: 'M27 34 Q46 27 73 38 L70 69 Q49 59 29 72 Z', mode: 'accent' },
+      { d: 'M30 36 L27 83', mode: 'stroke', width: 4.4 },
+      { d: 'M25 84 L36 84', mode: 'stroke', width: 3 },
+      { d: 'M38 42 V61 H49 C63 61 64 51 54 50 C62 43 54 38 47 40 Z', mode: 'base' },
+      { d: 'M43 44 H49 Q54 44 49 48 H43 Z M43 52 H50 Q56 52 50 57 H43 Z', mode: 'accent' },
+      { d: 'M59 72 Q69 73 76 78', mode: 'stroke', width: 2.2 }
+    ] },
+    torGrind: { label: 'Toronto Grit and Grind', shapes: [
+      // Forged G with grind wheel teeth and an ice-edge slash.
+      { d: 'M68 40 Q57 29 43 34 Q26 40 27 59 Q26 78 45 83 Q60 86 73 73 V58 H50 V67 H62 V70 Q56 76 47 75 Q35 72 35 60 Q35 44 47 42 Q55 41 61 47 Z', mode: 'trim' },
+      { d: 'M25 48 L33 45 M24 58 H32 M26 70 L34 73 M42 27 L45 35 M56 28 L55 36 M70 37 L65 44', mode: 'accent-stroke', width: 3.5 },
+      { d: 'M35 86 L70 80', mode: 'accent-stroke', width: 4 },
+      { d: 'M41 86 L72 86', mode: 'stroke', width: 2.3 }
+    ] },
+    monChant: { label: 'Montreal Olé Chant', shapes: [
+      // Heritage M with concentric arena-chant arcs, no hockey-league insignia.
+      { d: 'M31 78 V40 L50 58 L69 40 V78 H60 V59 L50 69 L40 59 V78 Z', mode: 'trim' },
+      { d: 'M24 47 Q20 34 32 26 M76 47 Q80 34 68 26', mode: 'accent-stroke', width: 4.1 },
+      { d: 'M27 58 Q15 44 21 31 M73 58 Q85 44 79 31', mode: 'stroke', width: 2.9 },
+      { d: 'M39 84 Q50 89 61 84', mode: 'stroke', width: 2.9 },
+      { d: 'M46 32 H54', mode: 'accent-stroke', width: 3 }
+    ] },
+    pitGear: { label: 'Pittsburgh Black and Gold Gear', shapes: [
+      // Bold eight-tooth industrial gear and a miniature original hockey jersey.
+      { d: 'M43 29 H57 L60 36 L67 34 L73 41 L70 48 L77 53 V65 L70 68 L73 76 L66 83 L59 80 L56 87 H44 L41 80 L34 83 L27 76 L30 68 L23 65 V53 L30 48 L27 41 L34 34 L41 36 Z', mode: 'accent' },
+      { d: 'M50 41 A18 18 0 1 0 50 77 A18 18 0 1 0 50 41 Z', mode: 'base' },
+      { d: 'M39 52 L45 46 H55 L61 52 L68 55 L63 65 L59 63 V73 H41 V63 L37 65 L32 55 Z', mode: 'trim' },
+      { d: 'M45 52 H55 M43 61 H57', mode: 'base-stroke', width: 2.8 },
+      { d: 'M41 75 H59', mode: 'stroke', width: 2.5 }
+    ] },
+    // Batch three: original civic bell, northwoods, live music, and coastal rain.
+    phiBell: { label: 'Philadelphia Bellline', shapes: [
+      { d: 'M50 30 C43 30 40 35 40 43 V57 C40 64 36 68 31 72 H69 C64 68 60 64 60 57 V43 C60 35 57 30 50 30 Z', mode: 'accent' },
+      { d: 'M44 73 C45 83 55 83 56 73 Z', mode: 'trim' },
+      { d: 'M50 28 V25 M34 76 H66', mode: 'stroke', width: 3.7 },
+      { d: 'M48 44 L52 50 L48 55 L54 64', mode: 'stroke', width: 2.7 },
+      { d: 'M32 83 H68', mode: 'stroke', width: 3.3 },
+      { d: 'M41 87 H59', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    minNorth: { label: 'Minnesota Northwoods', shapes: [
+      { d: 'M51 26 L55 34 L63 35 L57 41 L59 49 L51 45 L43 49 L45 41 L39 35 L47 34 Z', mode: 'accent' },
+      { d: 'M51 46 L39 60 H45 L33 73 H69 L57 60 H63 Z', mode: 'trim' },
+      { d: 'M47 70 H55 V83 H47 Z', mode: 'trim' },
+      { d: 'M26 83 Q35 78 44 83 T62 83 T78 83', mode: 'accent-stroke', width: 3.5 },
+      { d: 'M29 89 Q39 85 49 89 T71 89', mode: 'stroke', width: 2.7 }
+    ] },
+    nasRiff: { label: 'Nashville Music City Riff', shapes: [
+      { d: 'M45 29 L56 29 V53 L60 58 L58 67 L45 67 L42 60 L45 54 Z', mode: 'accent' },
+      { d: 'M45 30 L38 27 M45 38 L37 38 M56 31 L63 27 M56 39 L65 39', mode: 'stroke', width: 2.8 },
+      { d: 'M48 32 V59 M51 32 V59 M54 32 V59', mode: 'trim-stroke', width: 1.7 },
+      { d: 'M45 67 L45 81 Q46 87 54 87 H73 Q78 87 78 80 H62 Q57 80 56 75 L56 67 Z', mode: 'accent' },
+      { d: 'M60 81 H75', mode: 'trim-stroke', width: 2.3 },
+      { d: 'M27 48 V66 M32 52 V63 M73 45 V60 M79 49 V56', mode: 'stroke', width: 2.6 }
+    ] },
+    seaRain: { label: 'Seattle Rainline', shapes: [
+      { d: 'M50 27 L54 39 H46 Z', mode: 'trim' },
+      { d: 'M50 35 V75', mode: 'accent-stroke', width: 4.4 },
+      { d: 'M35 47 H65 L58 54 H42 Z', mode: 'trim' },
+      { d: 'M45 55 H55 L58 76 H42 Z', mode: 'accent' },
+      { d: 'M27 39 L23 49 M77 39 L73 49 M31 53 L27 62 M69 53 L73 62', mode: 'stroke', width: 3 },
+      { d: 'M23 81 Q35 69 47 81 T77 81', mode: 'trim-stroke', width: 4.1 },
+      { d: 'M24 88 Q37 80 50 88 T77 88', mode: 'accent-stroke', width: 3.2 }
+    ] },
+    // Batch four: original takes on the warning siren, rally rat, electric
+    // arena intro, and cowboy-hat tradition. No official marks are used.
+    carSiren: { label: 'Carolina Hurricane Warning Siren', shapes: [
+      // Sweeping twin alarm waves behind the loudspeaker dome.
+      { d: 'M29 36 Q18 49 26 64 M71 36 Q82 49 74 64', mode: 'stroke', width: 3.8 },
+      { d: 'M34 40 Q27 48 31 57 M66 40 Q73 48 69 57', mode: 'stroke', width: 2.5 },
+      { d: 'M46 27 L54 27 L57 35 H43 Z', mode: 'trim' },
+      { d: 'M29 55 L34 46 Q50 33 66 46 L71 55 Z', mode: 'trim' },
+      { d: 'M35 53 L65 53 L61 60 H39 Z', mode: 'accent' },
+      { d: 'M29 61 H71 V70 H29 Z', mode: 'trim' },
+      { d: 'M38 64 V68 M44 64 V68 M50 64 V68 M56 64 V68 M62 64 V68', mode: 'base-stroke', width: 2.6 },
+      { d: 'M46 70 H54 L56 83 H44 Z', mode: 'trim' },
+      { d: 'M38 84 H62 M32 88 H68', mode: 'stroke', width: 3.1 }
+    ] },
+    flaRat: { label: 'Florida Blue Rally Rat', shapes: [
+      // Navy-blue rat mascot, curved tail and white whiskers: entirely original.
+      { d: 'M32 53 Q24 42 29 35 Q34 29 43 41 Q54 35 61 43 Q68 31 74 37 Q79 43 68 55 Q71 64 77 70 L72 78 Q57 86 44 82 Q30 78 29 65 Q28 59 32 53 Z', mode: 'accent' },
+      { d: 'M33 40 Q37 38 41 47 M68 41 Q64 40 62 48', mode: 'stroke', width: 2.8 },
+      { d: 'M42 58 Q46 54 50 58 Q54 54 58 58', mode: 'stroke', width: 2.7 },
+      { d: 'M44 64 A3 3 0 1 0 50 64 A3 3 0 1 0 44 64 Z M55 64 A3 3 0 1 0 61 64 A3 3 0 1 0 55 64 Z', mode: 'gold' },
+      { d: 'M60 72 L65 70 L63 75 Z', mode: 'gold' },
+      { d: 'M63 74 L78 72 M61 77 L77 80 M42 73 L26 70 M42 77 L24 79', mode: 'stroke', width: 2.2 },
+      { d: 'M37 81 Q22 90 22 76 Q23 68 29 68', mode: 'gold-stroke', width: 3.7 },
+      { d: 'M46 83 Q56 89 66 83', mode: 'stroke', width: 2.5 }
+    ] },
+    tamCoil: { label: 'Tampa Tesla Coil Intro', shapes: [
+      // Electric arc forks above a freestanding induction coil tower.
+      { d: 'M36 35 L28 26 L33 42 L23 45 L35 49 M64 35 L72 26 L67 42 L77 45 L65 49', mode: 'stroke', width: 3.1 },
+      { d: 'M50 23 L44 36 H52 L47 47 L61 30 H53 L58 23 Z', mode: 'trim' },
+      { d: 'M42 47 H58 L62 54 L59 63 H41 L38 54 Z', mode: 'trim' },
+      { d: 'M39 53 H61 M40 59 H60', mode: 'base-stroke', width: 3.5 },
+      { d: 'M44 63 H56 V76 H44 Z', mode: 'trim' },
+      { d: 'M44 67 H56 M44 72 H56', mode: 'base-stroke', width: 2.8 },
+      { d: 'M39 77 H61 L64 84 H36 Z', mode: 'trim' },
+      { d: 'M31 87 H69', mode: 'stroke', width: 3.4 },
+      { d: 'M29 55 L21 61 L30 64 M71 55 L79 61 L70 64', mode: 'stroke', width: 2.7 }
+    ] },
+    dalHat: { label: 'Dallas Cowboy Hat', shapes: [
+      // Wide swept-up Western hat with a distinct crown and woven band.
+      { d: 'M33 61 Q38 55 37 40 Q39 35 45 41 Q50 46 55 41 Q61 35 64 41 L67 61 Q53 67 33 61 Z', mode: 'trim' },
+      { d: 'M38 56 Q49 61 63 56 L64 62 Q51 67 36 62 Z', mode: 'accent' },
+      { d: 'M22 67 Q25 63 34 64 Q50 72 66 64 Q76 61 80 67 Q72 82 50 82 Q28 82 22 67 Z', mode: 'trim' },
+      { d: 'M26 68 Q50 82 75 68', mode: 'base-stroke', width: 3 },
+      { d: 'M50 55 L52 59 L57 59 L53 63 L55 67 L50 64 L45 67 L47 63 L43 59 L48 59 Z', mode: 'trim' },
+      { d: 'M36 87 H64', mode: 'stroke', width: 3 },
+      { d: 'M42 91 H58', mode: 'stroke', width: 2.5 }
+    ] },
+    // Batch five: original marks inspired by Buffalo's hockey fan ritual,
+    // Ottawa's Roman heritage, Columbus's cannon salute and Newark ironwork.
+    bufBladeGang: { label: 'Buffalo Blade Gang Ritual', shapes: [
+      // Crossed skate blades with boot fittings, a rally halo and a central puck.
+      { d: 'M26 42 Q50 26 74 42', mode: 'accent-stroke', width: 4 },
+      { d: 'M31 36 L70 83', mode: 'stroke', width: 5.6 },
+      { d: 'M69 36 L30 83', mode: 'stroke', width: 5.6 },
+      { d: 'M27 82 Q23 87 33 87 L41 81 M73 82 Q77 87 67 87 L59 81', mode: 'accent-stroke', width: 4 },
+      { d: 'M36 42 L43 48 M57 48 L64 42', mode: 'accent-stroke', width: 3 },
+      { d: 'M50 57 A9 9 0 1 0 50 75 A9 9 0 1 0 50 57 Z', mode: 'accent' },
+      { d: 'M43 66 H57', mode: 'base-stroke', width: 2 },
+      { d: 'M46 31 L50 24 L54 31', mode: 'stroke', width: 2.9 }
+    ] },
+    ottLegion: { label: 'Ottawa Roman Legion', shapes: [
+      // Roman crested helmet drawn from basic geometric armor elements.
+      { d: 'M34 43 Q40 30 53 32 Q67 34 67 50 L60 58 L43 58 L36 51 Z', mode: 'trim' },
+      { d: 'M28 44 Q30 32 39 28 Q49 22 62 28 Q72 31 74 45 Q62 36 51 35 Q40 36 28 44 Z', mode: 'accent' },
+      { d: 'M36 47 L64 47 L62 55 L45 55 L44 65 L60 65 Q57 78 46 81 L38 68 L36 55 Z', mode: 'trim' },
+      { d: 'M46 55 L60 55 L56 62 H46 Z', mode: 'base' },
+      { d: 'M44 68 L55 68 L49 75 Z', mode: 'accent' },
+      { d: 'M31 51 L36 55 M64 55 L70 51', mode: 'stroke', width: 3.2 },
+      { d: 'M35 85 Q50 90 65 85', mode: 'accent-stroke', width: 3.5 }
+    ] },
+    colCannon: { label: 'Columbus Cannon Salute', shapes: [
+      // Broad cannon barrel, spoked wheel and three blast rays.
+      { d: 'M28 58 L59 44 L67 49 L37 65 Z', mode: 'trim' },
+      { d: 'M25 55 L34 52 L38 65 L29 68 Z', mode: 'accent' },
+      { d: 'M62 49 L72 44 M66 39 L74 32 M70 54 L80 55', mode: 'stroke', width: 3.8 },
+      { d: 'M75 38 L80 33 M75 46 L85 43', mode: 'silver-stroke', width: 2.7 },
+      { d: 'M44 63 L61 74 L56 80 L40 69 Z', mode: 'accent' },
+      { d: 'M50 64 A12 12 0 1 0 50 88 A12 12 0 1 0 50 64 Z', mode: 'silver' },
+      { d: 'M50 68 A8 8 0 1 0 50 84 A8 8 0 1 0 50 68 Z', mode: 'base' },
+      { d: 'M50 66 V86 M40 76 H60 M43 69 L57 83 M57 69 L43 83', mode: 'silver-stroke', width: 2 },
+      { d: 'M28 90 H71', mode: 'stroke', width: 3 }
+    ] },
+    newIron: { label: 'Newark Ironbound', shapes: [
+      // Newark-inspired industrial iron bridge, city towers and rivets.
+      { d: 'M31 77 V59 H37 V47 H43 V54 H47 V38 H55 V52 H62 V44 H68 V77 Z', mode: 'accent' },
+      { d: 'M49 43 H52 V48 H49 Z M39 58 H42 V63 H39 Z M59 56 H62 V61 H59 Z', mode: 'trim' },
+      { d: 'M24 75 Q50 48 76 75', mode: 'stroke', width: 5 },
+      { d: 'M24 77 H76', mode: 'stroke', width: 3.5 },
+      { d: 'M31 69 V83 M39 62 V84 M50 59 V84 M61 62 V84 M69 69 V83', mode: 'trim-stroke', width: 2.6 },
+      { d: 'M24 85 H76', mode: 'stroke', width: 3.5 },
+      { d: 'M30 90 H70', mode: 'accent-stroke', width: 2.8 }
+    ] },
+    // Batch six: original crowd-chant, arena-fury, mountain-singalong and
+    // rally-towel crests. The designs do not reproduce any licensed insignia.
+    islYesWave: { label: 'Island Yes Chant', shapes: [
+      // Three clear Y cheers form a rolling crowd wave beneath a sound halo.
+      { d: 'M25 42 Q50 22 75 42', mode: 'accent-stroke', width: 4.2 },
+      { d: 'M23 51 Q50 35 77 51', mode: 'stroke', width: 2.9 },
+      { d: 'M28 53 L35 62 L42 53 M35 62 V75', mode: 'stroke', width: 5 },
+      { d: 'M43 46 L50 55 L57 46 M50 55 V75', mode: 'stroke', width: 5.8 },
+      { d: 'M58 53 L65 62 L72 53 M65 62 V75', mode: 'stroke', width: 5 },
+      { d: 'M25 81 Q37 75 49 81 T75 81', mode: 'accent-stroke', width: 4.1 },
+      { d: 'M30 88 Q40 84 50 88 T70 88', mode: 'stroke', width: 2.5 }
+    ] },
+    wasFury: { label: 'Washington Unleashed Fury', shapes: [
+      // Angular F-shaped charge framed by fast slashes and a burst star.
+      { d: 'M34 32 H73 L69 43 H46 L42 53 H66 L62 63 H38 L31 83 H20 Z', mode: 'trim' },
+      { d: 'M41 35 H70 L67 40 H44 Z M39 56 H61 L59 60 H37 Z', mode: 'accent' },
+      { d: 'M67 66 L72 75 L81 77 L74 83 L75 91 L67 87 L59 91 L61 82 L55 77 L64 75 Z', mode: 'accent' },
+      { d: 'M29 44 L20 50 M32 59 L19 67 M34 75 L26 84', mode: 'stroke', width: 3 },
+      { d: 'M73 31 L78 26 M79 48 L83 44', mode: 'stroke', width: 2.5 }
+    ] },
+    colAnthem: { label: 'Colorado Mountain Anthem', shapes: [
+      // Original high-peak ridge and radiating chorus curves.
+      { d: 'M22 72 L42 39 L51 55 L61 43 L80 72 Z', mode: 'trim' },
+      { d: 'M36 49 L42 39 L49 52 L42 49 Z M56 50 L61 43 L67 53 L61 51 Z', mode: 'base' },
+      { d: 'M26 80 Q39 72 50 80 T75 80', mode: 'accent-stroke', width: 3.8 },
+      { d: 'M26 87 Q38 81 50 87 T74 87', mode: 'stroke', width: 2.9 },
+      { d: 'M24 46 Q16 55 19 63 M76 46 Q84 55 81 63', mode: 'stroke', width: 3.2 },
+      { d: 'M31 36 Q49 24 68 36', mode: 'accent-stroke', width: 2.8 },
+      { d: 'M48 28 V38 M48 28 Q56 29 55 34 Q52 39 48 35', mode: 'accent-stroke', width: 2 }
+    ] },
+    stlTowel: { label: 'St. Louis Rally Towel Man', shapes: [
+      // A cheering figure waves an oversized rally towel in a sweeping arc.
+      { d: 'M50 52 A7 7 0 1 0 50 66 A7 7 0 1 0 50 52 Z', mode: 'gold' },
+      { d: 'M44 65 Q50 69 56 65 L61 81 H39 Z', mode: 'trim' },
+      { d: 'M45 68 L32 57 L25 46 M55 68 L66 54 L70 43', mode: 'stroke', width: 4.2 },
+      { d: 'M63 28 Q75 24 81 35 L76 42 Q68 38 62 42 Q58 47 53 44 L54 34 Q60 37 63 28 Z', mode: 'trim' },
+      { d: 'M58 30 Q72 19 83 27 M62 47 Q75 46 82 56', mode: 'gold-stroke', width: 3.7 },
+      { d: 'M26 30 Q14 48 27 64', mode: 'gold-stroke', width: 3.4 },
+      { d: 'M29 87 H71', mode: 'stroke', width: 3.5 }
+    ] },
+    // Batch seven: original tributes to Utah's tusk rally, the northern
+    // crowd shout, Anaheim's hockey cheers and Edmonton's oil-country roots.
+    utaTusks: { label: 'Utah Tusks Up Rally', shapes: [
+      // Two proudly raised, inward-curving tusks frame a rocky high-desert peak.
+      { d: 'M26 38 Q17 65 29 84 Q37 95 46 81 Q32 83 32 65 Q31 50 37 41 Z', mode: 'trim' },
+      { d: 'M74 38 Q83 65 71 84 Q63 95 54 81 Q68 83 68 65 Q69 50 63 41 Z', mode: 'trim' },
+      { d: 'M26 38 L37 41 L32 50 Z M74 38 L63 41 L68 50 Z', mode: 'accent' },
+      { d: 'M37 70 L50 46 L63 70 Z', mode: 'accent' },
+      { d: 'M45 55 L50 46 L55 55 L50 52 Z', mode: 'trim' },
+      { d: 'M45 77 H55 M43 84 H57', mode: 'stroke', width: 3.1 },
+      { d: 'M43 32 L50 25 L57 32', mode: 'stroke', width: 3.2 }
+    ] },
+    winNorth: { label: 'Winnipeg True North Call', shapes: [
+      // Polar compass star above prairie horizon, with chant-echo arcs.
+      { d: 'M50 25 L55 42 L72 47 L55 52 L50 69 L45 52 L28 47 L45 42 Z', mode: 'trim' },
+      { d: 'M50 32 L53 44 L65 47 L53 50 L50 62 L47 50 L35 47 L47 44 Z', mode: 'accent' },
+      { d: 'M50 36 V57 M40 47 H60', mode: 'base-stroke', width: 2.3 },
+      { d: 'M30 68 Q50 56 70 68', mode: 'stroke', width: 3.8 },
+      { d: 'M25 76 Q50 60 75 76', mode: 'accent-stroke', width: 3.2 },
+      { d: 'M22 84 H78 M30 90 H70', mode: 'stroke', width: 3 },
+      { d: 'M36 30 L30 26 M64 30 L70 26', mode: 'stroke', width: 2.6 }
+    ] },
+    anaFlight: { label: 'Anaheim Rally Flight', shapes: [
+      // Original rising wing and three cheering speed trails; no duck symbol.
+      { d: 'M24 73 Q39 42 78 31 Q65 48 55 52 L69 48 Q54 63 43 65 L57 63 Q40 79 24 73 Z', mode: 'trim' },
+      { d: 'M31 69 Q48 48 70 40', mode: 'base-stroke', width: 3.3 },
+      { d: 'M39 69 Q52 56 64 53', mode: 'accent-stroke', width: 3 },
+      { d: 'M26 80 L52 80 M30 86 L60 86 M34 92 L51 92', mode: 'accent-stroke', width: 3.9 },
+      { d: 'M31 38 L35 32 L39 38 M47 29 L51 23 L55 29', mode: 'stroke', width: 3 },
+      { d: 'M70 67 L78 62', mode: 'stroke', width: 2.8 }
+    ] },
+    edmOil: { label: 'Edmonton Oil Country Identity', shapes: [
+      // Industrial pump silhouette inside a bold rising oil droplet.
+      { d: 'M50 24 C43 37 31 47 31 63 C31 77 39 85 50 85 C61 85 69 77 69 63 C69 47 57 37 50 24 Z', mode: 'trim' },
+      { d: 'M50 39 C45 47 40 55 40 64 C40 73 44 77 50 77 C56 77 60 73 60 64 C60 55 55 47 50 39 Z', mode: 'accent' },
+      { d: 'M37 62 H63 M43 58 L51 51 L57 58', mode: 'base-stroke', width: 3 },
+      { d: 'M50 52 V70 M42 70 H58', mode: 'base-stroke', width: 2.9 },
+      { d: 'M25 87 H75 M33 92 H67', mode: 'stroke', width: 3.4 },
+      { d: 'M30 40 L24 46 M70 40 L76 46', mode: 'stroke', width: 2.7 }
+    ] },
+    // Batch eight: original crests celebrating arena royal chants, shark
+    // chomps, the glittering clock chain and the victory flamingo tradition.
+    laRoyal: { label: 'Los Angeles Royal Army', shapes: [
+      { d: 'M25 44 L31 28 L41 41 L50 23 L59 41 L69 28 L75 44 L70 63 H30 Z', mode: 'trim' },
+      { d: 'M30 48 H70 L67 56 H33 Z', mode: 'accent' },
+      { d: 'M31 66 H69 L72 73 H28 Z', mode: 'trim' },
+      { d: 'M38 37 L41 42 L44 37 M47 33 L50 28 L53 33 M56 37 L59 42 L62 37', mode: 'base-stroke', width: 2.7 },
+      { d: 'M35 77 L65 86 M65 77 L35 86', mode: 'stroke', width: 3.7 },
+      { d: 'M32 88 H68', mode: 'accent-stroke', width: 3 },
+      { d: 'M46 55 H54', mode: 'base-stroke', width: 2.4 }
+    ] },
+    sjChomp: { label: 'San Jose Shark Chomp', shapes: [
+      { d: 'M24 44 Q41 28 59 36 L67 27 L70 44 Q78 51 77 61 Q65 65 55 60 L38 72 Q28 67 23 56 Z', mode: 'trim' },
+      { d: 'M30 52 Q43 43 63 49 L72 55 L61 60 L43 55 L34 63 Z', mode: 'base' },
+      { d: 'M34 56 L39 65 L43 57 L47 62 L51 56 L55 60 L60 54 L64 58', mode: 'accent-stroke', width: 2.8 },
+      { d: 'M39 42 A3 3 0 1 0 45 42 A3 3 0 1 0 39 42 Z', mode: 'base' },
+      { d: 'M52 73 Q62 79 75 70', mode: 'stroke', width: 3.5 },
+      { d: 'M27 80 Q39 73 48 82', mode: 'accent-stroke', width: 3.7 },
+      { d: 'M28 88 H72', mode: 'stroke', width: 3 }
+    ] },
+    vanClock: { label: 'Vancouver Bedazzled Clock Chain', shapes: [
+      { d: 'M37 26 Q25 39 34 53 M63 26 Q75 39 66 53', mode: 'stroke', width: 4.3 },
+      { d: 'M38 30 L43 35 M31 38 L37 42 M30 48 L35 52 M62 30 L57 35 M69 38 L63 42 M70 48 L65 52', mode: 'gold-stroke', width: 2.8 },
+      { d: 'M50 37 A24 24 0 1 0 50 85 A24 24 0 1 0 50 37 Z', mode: 'trim' },
+      { d: 'M50 43 A18 18 0 1 0 50 79 A18 18 0 1 0 50 43 Z', mode: 'base' },
+      { d: 'M50 47 V62 L61 68', mode: 'stroke', width: 3.2 },
+      { d: 'M50 45 V49 M50 75 V79 M31 61 H35 M65 61 H69', mode: 'gold-stroke', width: 2.8 },
+      { d: 'M26 32 L29 24 L32 32 L40 35 L32 38 L29 46 L26 38 L18 35 Z', mode: 'gold' },
+      { d: 'M73 69 L76 63 L79 69 L85 72 L79 75 L76 81 L73 75 L67 72 Z', mode: 'gold' }
+    ] },
+    vegFlamingo: { label: 'Vegas Victory Flamingo Toss', shapes: [
+      { d: 'M48 73 Q36 63 41 53 Q46 43 53 49 Q62 58 59 40 Q57 31 66 29 Q75 28 76 36 Q78 43 69 47 Q64 54 67 62 Q75 77 59 82 Q52 83 48 73 Z', mode: 'trim' },
+      { d: 'M48 56 Q41 51 37 59 Q37 70 51 77 Q62 82 67 73 Q57 72 54 66 Z', mode: 'accent' },
+      { d: 'M76 36 L84 39 L77 43 Z', mode: 'gold' },
+      { d: 'M68 34 A2 2 0 1 0 72 34 A2 2 0 1 0 68 34 Z', mode: 'base' },
+      { d: 'M52 80 L47 90 M61 79 L67 90', mode: 'stroke', width: 3.2 },
+      { d: 'M28 45 Q31 29 47 27 M24 58 Q19 48 25 35', mode: 'gold-stroke', width: 3.4 },
+      { d: 'M33 84 Q40 90 47 87', mode: 'accent-stroke', width: 2.8 }
+    ] }
+  };
+  const CITY_CLUBS = {
+    newyork: { name: 'Empire Salute', location: 'New York', primary: '#0038a8', secondary: '#ce1126', trim: '#ffffff', crest: 'nySalute', club: 'newyork' },
+    detroit: { name: 'Motor City Octopus', location: 'Detroit', primary: '#ce1126', secondary: '#ffffff', trim: '#ffffff', crest: 'detOctopus', club: 'detroit' },
+    chicago: { name: 'Chicago Curve', location: 'Chicago', primary: '#121318', secondary: '#cf0a2c', trim: '#f4e9d8', crest: 'chiCurve', club: 'chicago' },
+    calgary: { name: 'Prairie Fire', location: 'Calgary', primary: '#c8102e', secondary: '#f1be48', trim: '#ffffff', crest: 'calFire', club: 'calgary' },
+    boston: { name: 'Boston Banner', location: 'Boston', primary: '#101010', secondary: '#ffb81c', trim: '#ffffff', crest: 'bosBanner', club: 'boston' },
+    toronto: { name: 'Toronto Grind', location: 'Toronto', primary: '#00205b', secondary: '#ffffff', trim: '#ffffff', crest: 'torGrind', club: 'toronto' },
+    montreal: { name: 'Montreal Olé', location: 'Montreal', primary: '#af1e2d', secondary: '#192168', trim: '#ffffff', crest: 'monChant', club: 'montreal' },
+    pittsburgh: { name: 'Pittsburgh Gear', location: 'Pittsburgh', primary: '#111111', secondary: '#fcb514', trim: '#ffffff', crest: 'pitGear', club: 'pittsburgh' },
+    philadelphia: { name: 'Philly Bellline', location: 'Philadelphia', primary: '#f74902', secondary: '#000000', trim: '#ffffff', crest: 'phiBell', club: 'philadelphia' },
+    minnesota: { name: 'Minnesota Northwoods', location: 'Minnesota', primary: '#154734', secondary: '#a6192e', trim: '#ddcba4', crest: 'minNorth', club: 'minnesota' },
+    nashville: { name: 'Nashville Riff', location: 'Nashville', primary: '#ffb81c', secondary: '#041e42', trim: '#ffffff', crest: 'nasRiff', club: 'nashville' },
+    seattle: { name: 'Seattle Rainline', location: 'Seattle', primary: '#001628', secondary: '#99d9d9', trim: '#ffffff', crest: 'seaRain', club: 'seattle' },
+    carolina: { name: 'Carolina Warning', location: 'Carolina', primary: '#cc0000', secondary: '#111111', trim: '#ffffff', crest: 'carSiren', club: 'carolina' },
+    florida: { name: 'Florida Blue Rat', location: 'Florida', primary: '#c8102e', secondary: '#041e42', trim: '#ffffff', crest: 'flaRat', club: 'florida' },
+    tampa: { name: 'Tampa Coil', location: 'Tampa Bay', primary: '#002868', secondary: '#101820', trim: '#ffffff', crest: 'tamCoil', club: 'tampa' },
+    dallas: { name: 'Dallas Brimline', location: 'Dallas', primary: '#006847', secondary: '#111111', trim: '#c4ced4', crest: 'dalHat', club: 'dallas' },
+    buffalo: { name: 'Buffalo Blade Gang', location: 'Buffalo', primary: '#003087', secondary: '#ffb81c', trim: '#ffffff', crest: 'bufBladeGang', club: 'buffalo' },
+    ottawa: { name: 'Ottawa Legion', location: 'Ottawa', primary: '#151515', secondary: '#c52032', trim: '#c2912c', crest: 'ottLegion', club: 'ottawa' },
+    columbus: { name: 'Columbus Cannonfire', location: 'Columbus', primary: '#002654', secondary: '#ce1126', trim: '#ffffff', crest: 'colCannon', club: 'columbus' },
+    newjersey: { name: 'Newark Ironbound', location: 'Newark, New Jersey', primary: '#ce1126', secondary: '#151515', trim: '#ffffff', crest: 'newIron', club: 'newjersey' },
+    islanders: { name: 'Island Yes Wave', location: 'Long Island, New York', primary: '#00539b', secondary: '#f47d30', trim: '#ffffff', crest: 'islYesWave', club: 'islanders' },
+    washington: { name: 'Washington Fury', location: 'Washington, DC', primary: '#c8102e', secondary: '#041e42', trim: '#ffffff', crest: 'wasFury', club: 'washington' },
+    colorado: { name: 'Colorado Anthem', location: 'Colorado', primary: '#6f263d', secondary: '#236192', trim: '#ffffff', crest: 'colAnthem', club: 'colorado' },
+    stlouis: { name: 'St. Louis Towel Wave', location: 'St. Louis', primary: '#002f87', secondary: '#fcb514', trim: '#ffffff', crest: 'stlTowel', club: 'stlouis' },
+    utah: { name: 'Utah Tusks Up', location: 'Utah', primary: '#15171a', secondary: '#79cfe8', trim: '#ffffff', crest: 'utaTusks', club: 'utah' },
+    winnipeg: { name: 'Winnipeg True North', location: 'Winnipeg', primary: '#041e42', secondary: '#5b92c7', trim: '#d2d9e1', crest: 'winNorth', club: 'winnipeg' },
+    anaheim: { name: 'Anaheim Rally Flight', location: 'Anaheim', primary: '#111111', secondary: '#f47a38', trim: '#d6a85e', crest: 'anaFlight', club: 'anaheim' },
+    edmonton: { name: 'Edmonton Oil Country', location: 'Edmonton', primary: '#041e42', secondary: '#ff4c00', trim: '#ffffff', crest: 'edmOil', club: 'edmonton' },
+    losangeles: { name: 'Los Angeles Royal Army', location: 'Los Angeles', primary: '#111111', secondary: '#a7a9ac', trim: '#ffffff', crest: 'laRoyal', club: 'losangeles' },
+    sanjose: { name: 'San Jose Chomp', location: 'San Jose', primary: '#006d75', secondary: '#ea7200', trim: '#ffffff', crest: 'sjChomp', club: 'sanjose' },
+    vancouver: { name: 'Vancouver Clock Chain', location: 'Vancouver', primary: '#00205b', secondary: '#00843d', trim: '#ffffff', crest: 'vanClock', club: 'vancouver' },
+    vegas: { name: 'Vegas Flamingo Toss', location: 'Las Vegas', primary: '#333f42', secondary: '#d4af37', trim: '#ffffff', crest: 'vegFlamingo', club: 'vegas' }
+  };
+  const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
+  const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
+  const SHIELD_INNER = 'M50 14 L79 24 L77 61 Q74 83 50 101 Q26 83 23 61 L21 24 Z';
   const validHex = color => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
   function normalizeTeam(value) {
     const fallback = TEAM_PRESETS.broadway;
@@ -61,8 +438,93 @@
       name: typeof value?.name === 'string' ? (value.name.trim().slice(0, 24) || fallback.name) : fallback.name,
       primary: validHex(value?.primary) ? value.primary.toLowerCase() : fallback.primary,
       secondary: validHex(value?.secondary) ? value.secondary.toLowerCase() : fallback.secondary,
-      trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim
+      trim: validHex(value?.trim) ? value.trim.toLowerCase() : fallback.trim,
+      crest: normalizeCrest(value?.crest),
+      club: typeof value?.club === 'string' && Object.hasOwn(CITY_CLUBS, value.club) ? value.club : null
     };
+  }
+  function artPaint(shape, team) {
+    if (shape.mode === 'gold' || shape.mode === 'gold-stroke') return '#b9975b';
+    if (shape.mode === 'silver' || shape.mode === 'silver-stroke') return '#b5c1d0';
+    if (shape.mode === 'accent' || shape.mode === 'cutout' || shape.mode === 'accent-stroke') return team.secondary;
+    if (shape.mode === 'base' || shape.mode === 'base-stroke') return team.primary;
+    return team.trim;
+  }
+  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke','gold-stroke','silver-stroke'].includes(shape.mode); }
+  function makeCrestSvg(team, className = '') {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const create = (tag, attrs) => {
+      const node = document.createElementNS(svgNS, tag);
+      Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+      return node;
+    };
+    const svg = create('svg', { viewBox: '0 0 100 116', 'aria-hidden': 'true', class: className });
+    svg.append(create('path', { d: SHIELD_OUTER, fill: team.secondary, stroke: team.trim, 'stroke-width': 2.4 }));
+    svg.append(create('path', { d: SHIELD_INNER, fill: team.primary, stroke: team.trim, 'stroke-width': 1.5 }));
+    svg.append(create('path', { d: 'M30 28 H70', fill: 'none', stroke: team.trim, 'stroke-width': 2, opacity: .65 }));
+    if (team.crest === 'monogram') {
+      const label = create('text', {
+        x: 50, y: 69, 'font-family': 'system-ui, sans-serif',
+        'font-weight': 1000, 'font-size': 29,
+        'text-anchor': 'middle', 'letter-spacing': -1.5, fill: team.trim
+      });
+      label.textContent = initialsFor(team.name);
+      svg.append(label);
+    } else {
+      for (const shape of CREST_ART[team.crest].shapes) {
+        const attrs = { d: shape.d, fill: artIsStroke(shape) ? 'none' : artPaint(shape, team) };
+        if (artIsStroke(shape)) {
+          attrs.stroke = artPaint(shape, team);
+          attrs['stroke-width'] = shape.width || 5.5;
+          attrs['stroke-linecap'] = 'round';
+          attrs['stroke-linejoin'] = 'round';
+        }
+        svg.append(create('path', attrs));
+      }
+    }
+    return svg;
+  }
+  function renderCrest(node, team, className = '') {
+    node.replaceChildren(makeCrestSvg(team, className));
+  }
+  function drawIceCrest(team) {
+    // Share the same shield geometry and symbol paths as the SVG preview.
+    // The center-ice logo is decorative; older test contexts without Path2D
+    // use the initials fallback.
+    ctx.save();
+    ctx.globalAlpha = .58;
+    if (typeof Path2D === 'function') {
+      ctx.translate(-27, -42);
+      ctx.scale(.54, .54);
+      ctx.fillStyle = team.secondary; ctx.strokeStyle = team.trim; ctx.lineWidth = 2.4;
+      const outer = new Path2D(SHIELD_OUTER);
+      ctx.fill(outer); ctx.stroke(outer);
+      ctx.fillStyle = team.primary; ctx.lineWidth = 1.5;
+      const inner = new Path2D(SHIELD_INNER);
+      ctx.fill(inner); ctx.stroke(inner);
+      ctx.strokeStyle = team.trim; ctx.lineWidth = 2; ctx.globalAlpha = .3;
+      ctx.beginPath(); ctx.moveTo(30, 28); ctx.lineTo(70, 28); ctx.stroke();
+      ctx.globalAlpha = .58;
+      if (team.crest === 'monogram') {
+        ctx.fillStyle = team.trim; ctx.font = '1000 29px system-ui, sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText(initialsFor(team.name), 50, 69, 54);
+      } else {
+        for (const shape of CREST_ART[team.crest].shapes) {
+          const path = new Path2D(shape.d);
+          if (artIsStroke(shape)) {
+            ctx.strokeStyle = artPaint(shape, team); ctx.lineWidth = shape.width || 5.5;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(path);
+          } else {
+            ctx.fillStyle = artPaint(shape, team);
+            ctx.fill(path);
+          }
+        }
+      }
+    } else {
+      ctx.fillStyle = team.primary; ctx.font = '1000 25px system-ui, sans-serif';
+      ctx.fillText(initialsFor(team.name), 0, 0, 57);
+    }
+    ctx.restore();
   }
   function loadTeam() {
     try { return normalizeTeam(JSON.parse(localStorage.getItem(TEAM_KEY))); }
@@ -117,12 +579,21 @@
       const players = data.players.filter(p => p && typeof p.id === 'string' && cleanPlayerName(p.name)).map(p => ({
         id: p.id, name: cleanPlayerName(p.name),
         team: normalizeTeam(p.team),
+        logoVariant: typeof p.logoVariant === 'string' && ['power','speed','ice'].includes(p.logoVariant)
+          ? p.logoVariant : 'power',
         difficulty: Object.hasOwn(DIFFICULTIES, p.difficulty) ? p.difficulty : 'beer',
         records: p.records && typeof p.records === 'object' ? p.records : {}
       }));
       return { players, activeId: data.activeId, legacyClaimed: !!data.legacyClaimed };
     } catch { return blank; }
   }
+  const LOGO_VARIANTS = {
+    power: { name: 'A · POWER PLAY', symbol: '#frostline-power' },
+    speed: { name: 'B · SPEED RUSH', symbol: '#frostline-speed' },
+    ice: { name: 'C · ICE CUT', symbol: '#frostline-ice' }
+  };
+  const normalizeLogo = value => Object.hasOwn(LOGO_VARIANTS, value) ? value : 'power';
+
   const profileDB = loadProfileDB();
   function saveProfileDB() {
     try { localStorage.setItem(PROFILE_DB_KEY, JSON.stringify(profileDB)); }
@@ -918,10 +1389,7 @@
     ellipse(210, 414, 5, 5, game.team.secondary + '99');
     ctx.save(); ctx.translate(210, 399);
     ctx.textAlign = 'center';
-    ctx.globalAlpha = .5;
-    ellipse(0, -7, 33, 33, game.team.primary, game.team.secondary, 4);
-    ctx.fillStyle = game.team.trim; ctx.font = '1000 italic 25px system-ui, sans-serif';
-    ctx.fillText(initialsFor(game.team.name), 0, 1, 57);
+    drawIceCrest(game.team);
     ctx.globalAlpha = .55;
     ctx.fillStyle = game.team.primary; ctx.font = '900 11px system-ui, sans-serif';
     ctx.fillText(game.team.name.toUpperCase(), 0, 39, 170);
@@ -1132,6 +1600,27 @@
   const teamSecondary = $('teamSecondary');
   const teamTrim = $('teamTrim');
   const presetButtons = [...document.querySelectorAll('[data-team-preset]')];
+  const crestButtons = [...document.querySelectorAll('[data-team-crest]')];
+  const cityButtons = [...document.querySelectorAll('[data-city-club]')];
+  const cityClubGallery = $('cityClubGallery');
+  let crestDraft = 'monogram';
+  let clubDraft = null;
+  crestButtons.forEach(button => button.addEventListener('click', () => {
+    crestDraft = normalizeCrest(button.dataset.teamCrest);
+    clubDraft = null;
+    updateTeamPreview();
+  }));
+  cityButtons.forEach(button => button.addEventListener('click', () => {
+    const club = CITY_CLUBS[button.dataset.cityClub];
+    if (!club) return;
+    teamNameInput.value = club.name;
+    teamPrimary.value = club.primary;
+    teamSecondary.value = club.secondary;
+    teamTrim.value = club.trim;
+    crestDraft = club.crest;
+    clubDraft = club.club;
+    updateTeamPreview();
+  }));
   function applyTeam(team) {
     game.team = normalizeTeam(team);
     if (game.profile) {
@@ -1150,15 +1639,30 @@
     root.setProperty('--team-deep', mixHex(game.team.primary, '#071020', .72));
     root.setProperty('--team-darker', mixHex(game.team.primary, '#020914', .91));
     $('teamNameDisplay').textContent = game.team.name.toUpperCase();
+    renderCrest($('headerTeamCrest'), game.team, 'small-team-crest');
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', mixHex(game.team.primary, '#020914', .91));
   }
   function currentEditorTeam() {
     return normalizeTeam({ name:teamNameInput.value, primary:teamPrimary.value,
-      secondary:teamSecondary.value, trim:teamTrim.value });
+      secondary:teamSecondary.value, trim:teamTrim.value, crest:crestDraft, club:clubDraft });
   }
   function updateTeamPreview() {
     const team = currentEditorTeam();
-    $('previewInitials').textContent = initialsFor(team.name);
+    renderCrest($('previewTeamCrest'), team, 'large-team-crest');
+    $('previewTeamCrest').setAttribute('aria-label', team.name + ' ' + CREST_ART[team.crest].label + ' shield');
+    crestButtons.forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.teamCrest === team.crest));
+      renderCrest(button.querySelector('.crest-choice-preview'), { ...team, crest: button.dataset.teamCrest }, 'option-team-crest');
+    });
+    cityButtons.forEach(button => {
+      const club = CITY_CLUBS[button.dataset.cityClub];
+      button.setAttribute('aria-pressed', String(clubDraft === button.dataset.cityClub));
+      renderCrest(button.querySelector('.city-club-icon'), club, 'city-club-shield');
+    });
+    // Show the current choice without forcing the user to expand a long list.
+    $('cityClubSummary').textContent = team.club
+      ? 'Selected: ' + CITY_CLUBS[team.club].name
+      : 'Browse 32 original city teams';
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
     preview.style.setProperty('--preview-primary', team.primary);
@@ -1179,6 +1683,10 @@
     teamPrimary.value = team.primary;
     teamSecondary.value = team.secondary;
     teamTrim.value = team.trim;
+    crestDraft = normalizeCrest(team.crest);
+    clubDraft = team.club;
+    // Every time the editor opens, keep its tall city catalog out of the way.
+    cityClubGallery.open = false;
     updateTeamPreview();
     teamDialog.showModal();
   }
@@ -1194,9 +1702,14 @@
     teamPrimary.value = theme.primary;
     teamSecondary.value = theme.secondary;
     teamTrim.value = theme.trim;
+    clubDraft = null;
     updateTeamPreview();
   }));
-  [teamNameInput,teamPrimary,teamSecondary,teamTrim].forEach(el=>el.addEventListener('input',updateTeamPreview));
+  [teamNameInput,teamPrimary,teamSecondary,teamTrim].forEach(el=>el.addEventListener('input', () => {
+    // A customized city template still keeps its art, but becomes an original team identity.
+    clubDraft = null;
+    updateTeamPreview();
+  }));
   $('teamForm').addEventListener('submit', event => {
     event.preventDefault();
     const team = currentEditorTeam();
@@ -1245,6 +1758,7 @@
     game.profile = profile;
     profileDB.activeId = profile.id;
     applyTeam(profile.team);
+    applyLogo(normalizeLogo(profile.logoVariant));
     $('menuPlayerName').textContent = profile.name.toUpperCase();
     setDifficulty(profile.difficulty);
     returnToArcadeMenu();
@@ -1297,6 +1811,7 @@
       id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9),
       name,
       team: firstProfile ? loadTeam() : normalizeTeam(null),
+      logoVariant: 'power',
       difficulty: firstProfile ? initialDifficulty : 'beer',
       records: { arcade: {} }
     };
@@ -1340,6 +1855,46 @@
   }
   $('recordsButton').addEventListener('click', openRecords);
   $('closeRecords').addEventListener('click', () => recordDialog.close());
+
+  // Players can personalize the header logo and save it on their production profiles.
+  const logoDialog = $('logoLabDialog');
+  const logoChoices = [...document.querySelectorAll('[data-f-logo]')];
+  let logoDraft = 'power';
+  function applyLogo(kind) {
+    const logo = LOGO_VARIANTS[normalizeLogo(kind)];
+    $('brandLogoUse').setAttribute('href', logo.symbol);
+    $('logoPreviewUse').setAttribute('href', logo.symbol);
+    $('logoPreviewName').textContent = logo.name;
+    for (const button of logoChoices) {
+      button.setAttribute('aria-pressed', String(button.dataset.fLogo === normalizeLogo(kind)));
+    }
+  }
+  function openLogoLab() {
+    if (game.mode === 'playing' || game.mode === 'ending' || logoDialog.open || !game.profile) return;
+    logoDraft = normalizeLogo(game.profile.logoVariant);
+    applyLogo(logoDraft);
+    logoDialog.showModal();
+  }
+  function cancelLogoLab() {
+    applyLogo(normalizeLogo(game.profile?.logoVariant));
+    logoDialog.close();
+  }
+  $('logoLabButton').addEventListener('click', openLogoLab);
+  $('brandLogoButton').addEventListener('click', openLogoLab);
+  $('cancelLogoLab').addEventListener('click', cancelLogoLab);
+  $('closeLogoLab').addEventListener('click', cancelLogoLab);
+  logoDialog.addEventListener('cancel', event => { event.preventDefault(); cancelLogoLab(); });
+  logoChoices.forEach(button => button.addEventListener('click', () => {
+    logoDraft = normalizeLogo(button.dataset.fLogo);
+    applyLogo(logoDraft);
+  }));
+  $('saveLogoLab').addEventListener('click', () => {
+    if (!game.profile) return;
+    game.profile.logoVariant = logoDraft;
+    saveProfileDB();
+    logoDialog.close();
+  });
+  applyLogo('power');
 
   applyTeam(game.team);
   const resumed = profileDB.players.find(p => p.id === profileDB.activeId);

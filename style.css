@@ -282,7 +282,193 @@ h1 span{color:var(--team-highlight)}
  .overlay-hint{font-size:7px}
 }
 
-/* V1.7.1 Stable: approved Ice Cut F (option C), replacing the old three-stroke emblem.
-   Retains the original arcade badge border, slant, glow and team trim color. */
-.brand-mark{display:grid;place-items:center;color:var(--team-trim,#ffffff)}
-.brand-glyph{display:block;width:26px;height:26px;overflow:visible}
+
+/* V1.8 DEV: three original, crisp vector F marks within the original glowing badge. */
+.logo-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+button.brand-mark{appearance:none;-webkit-appearance:none;padding:0;display:grid;place-items:center;background:#091c38;color:var(--team-trim,#fff);flex:0 0 33px;cursor:pointer}
+button.brand-mark:hover{border-color:var(--team-highlight);filter:brightness(1.12)}
+button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.brand-glyph{width:27px;height:27px;display:block;overflow:visible}
+.logo-lab-trigger{display:block;width:min(100%,244px);margin:0 auto 8px;padding:7px 9px;font-size:9px;letter-spacing:.08em;font-weight:950;color:#f0f6ff;background:#102b4e;border:1px solid var(--team-highlight);border-radius:8px}
+.logo-lab-trigger:hover,.logo-lab-trigger:focus-visible{background:var(--team-primary);color:#fff}
+.logo-lab-dialog{position:fixed;inset:0;width:min(460px,calc(100vw - 22px));max-height:min(91dvh,730px);margin:auto;padding:0;overflow-y:auto;background:linear-gradient(155deg,var(--team-deep),var(--team-darker));border:1px solid var(--team-highlight);border-radius:17px;color:#fff;box-shadow:0 18px 55px #000a}
+.logo-lab-dialog::backdrop{background:#020916d9;backdrop-filter:blur(4px)}
+.logo-lab-content{display:grid;gap:13px;padding:18px}
+.logo-lab-content h2{font-size:clamp(22px,5vw,26px);letter-spacing:-.04em;margin:0;line-height:1.12}
+.logo-lab-intro,.logo-lab-note{margin:0;color:#c6d7f0;line-height:1.45;font-size:12px}
+.logo-lab-note{font-size:10px;color:#a6bddb}
+.logo-lab-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.logo-choice{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;padding:11px 4px;background:#08182f;border:1px solid #6381a8;border-radius:11px;color:#eaf2ff}
+.logo-choice:hover{border-color:#fff}
+.logo-choice[aria-pressed="true"]{background:#172d57;border:2px solid var(--team-highlight);padding:10px 3px;box-shadow:0 0 15px #91baff22}
+.logo-choice-badge,.logo-spotlight-badge{display:grid;place-items:center;background:#0c224b;border:2px solid var(--team-secondary);border-radius:13px;box-shadow:0 0 12px var(--team-secondary),inset 0 0 0 2px #07132d;color:#fff;transform:rotate(-13deg)}
+.logo-choice-badge{width:51px;height:53px}
+.logo-choice-badge svg{width:37px;height:37px}
+.logo-choice strong{font-size:clamp(9px,2.6vw,11px);line-height:1.17;text-align:center;overflow-wrap:anywhere}
+.logo-choice small{font-size:clamp(8px,2vw,10px);text-align:center;color:#b4c9e7;line-height:1.2}
+.logo-lab-spotlight{display:flex;gap:15px;align-items:center;padding:12px;background:#07152c;border:1px solid #566f99;border-radius:12px}
+.logo-spotlight-badge{width:70px;height:72px;flex-shrink:0;border-width:3px}
+.logo-spotlight-badge svg{width:54px;height:54px}
+.logo-lab-spotlight small{display:block;color:#acc3df;letter-spacing:.05em;font-size:9px;line-height:1.45}
+.logo-lab-spotlight strong{display:block;margin-top:4px;font-size:15px;font-weight:950}
+.logo-lab-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px}
+.logo-lab-actions button{min-height:43px;border-radius:8px;font-size:11px;font-weight:950;letter-spacing:.08em}
+.logo-lab-cancel{background:#132743;color:#cedef6;border:1px solid #5c739b}
+.logo-lab-save{background:var(--team-secondary);color:var(--team-action-ink,#fff);border:0}
+@media(max-width:375px){
+ .logo-lab-content{padding:13px;gap:10px}
+ .logo-choice{padding:9px 2px}
+ .logo-choice[aria-pressed="true"]{padding:8px 1px}
+ .logo-choice-badge{height:45px;width:44px}
+ .logo-choice-badge svg{height:31px;width:31px}
+ .logo-spotlight-badge{height:58px;width:56px}
+ .logo-spotlight-badge svg{height:44px;width:44px}
+ .logo-lab-spotlight{gap:10px}
+ .logo-lab-spotlight strong{font-size:13px}
+ .logo-lab-trigger{font-size:8px;padding:6px 8px;margin-bottom:6px}
+}
+@media(max-height:650px){
+ .logo-lab-content{padding:12px;gap:8px}
+ .logo-choice{padding-top:6px;padding-bottom:6px}
+ .logo-choice[aria-pressed="true"]{padding-top:5px;padding-bottom:5px}
+ .logo-lab-spotlight{padding:8px}
+ .logo-lab-intro{font-size:10px}
+}
+
+
+/* V1.9 DEV: original team shield system. Colors and crest travel together. */
+.team-header-identity{display:flex;align-items:center;gap:5px;margin-top:4px;min-width:0}
+.team-header-identity .team-name-display{margin:0;min-width:0;max-width:190px}
+.team-header-crest{display:block;width:19px;height:22px;flex:0 0 19px}
+.team-header-crest svg{height:100%;width:100%;display:block}
+.team-preview .preview-crest{clip-path:none;background:transparent;border:0;width:70px;height:80px;box-shadow:none;display:grid;place-items:center;flex:none}
+.large-team-crest{width:70px;height:80px;filter:drop-shadow(0 2px 5px #0008);display:block}
+.team-crest-studio{min-width:0;margin:0;padding:10px 9px 9px;border:1px solid #536b9d;border-radius:11px}
+.team-crest-studio legend{font-weight:950;color:#d9e7ff;letter-spacing:.1em;font-size:10px;padding:0 6px}
+.crest-studio-description{font-size:10px;color:#a8bfdb;line-height:1.35;margin:0 0 10px}
+.team-crest-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.team-crest-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:7px 4px;min-width:0;min-height:99px;border:1px solid #536b93;border-radius:9px;background:#081c38;color:#e6f1ff}
+.team-crest-choice:hover{border-color:#c5dbff;background:#15365b}
+.team-crest-choice[aria-pressed="true"]{border:2px solid var(--team-highlight);background:#25406c;box-shadow:0 0 13px #92baff30;padding:6px 3px}
+.team-crest-choice:focus-visible{outline:2px solid white;outline-offset:2px}
+.crest-choice-preview{display:grid;place-items:center;width:45px;height:57px}
+.option-team-crest{width:45px;height:55px;filter:drop-shadow(0 1px 3px #0008);display:block}
+.team-crest-choice strong{font-size:9px;font-weight:950;line-height:1.15;letter-spacing:.025em;text-align:center}
+@media(max-width:390px){
+ .team-crest-options{gap:4px}
+ .team-crest-studio{padding:8px 6px}
+ .team-crest-choice{min-height:83px;padding:5px 3px}
+ .team-crest-choice[aria-pressed="true"]{padding:4px 2px}
+ .crest-choice-preview{width:39px;height:48px}
+ .option-team-crest{width:38px;height:46px}
+ .team-crest-choice strong{font-size:8px}
+ .team-preview .preview-crest{width:60px;height:73px}
+ .large-team-crest{width:60px;height:70px}
+ .team-header-identity .team-name-display{max-width:156px}
+}
+@media(max-height:700px){
+ .team-crest-choice{min-height:75px;gap:2px}
+ .crest-choice-preview{height:41px}
+ .option-team-crest{height:40px}
+ .crest-studio-description{margin-bottom:6px}
+}
+
+
+/* V2.0 DEV: four fictional city clubs, original artwork and hockey-inspired palettes. */
+.city-club-gallery{margin:0;padding:9px 9px 11px;min-width:0;border:1px solid #7c9cc6;border-radius:12px;background:linear-gradient(155deg,#091b3b9c,#0f285398)}
+.city-club-gallery legend{font-weight:1000;letter-spacing:.08em;font-size:10px;color:#e0edff;padding:0 6px}
+.city-club-intro{margin:0 0 10px;color:#b3c8e6;font-size:10px;line-height:1.45}
+.city-club-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.city-club-choice{position:relative;display:flex;align-items:center;gap:7px;min-width:0;min-height:112px;padding:9px 6px;border:1px solid #496b9a;border-radius:11px;background:linear-gradient(135deg,#0c2248,#061327);color:#fff;text-align:left}
+.city-club-choice:hover{border-color:#cde6ff;background:#1d3a68}
+.city-club-choice[aria-pressed="true"]{border:2px solid var(--team-highlight);background:#244673;padding:8px 5px;box-shadow:0 0 17px #8db5ff42}
+.city-club-choice:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.city-club-icon{display:grid;place-items:center;width:54px;height:74px;flex:0 0 54px}
+.city-club-shield{height:72px;width:60px;overflow:visible;filter:drop-shadow(0 4px 4px #0008)}
+.city-club-detail{display:grid;align-content:center;gap:3px;min-width:0}
+.city-club-detail small{display:block;font-size:8px;letter-spacing:.13em;color:#a4c9fb;font-weight:900}
+.city-club-detail strong{display:block;font-size:clamp(10px,2.8vw,12px);line-height:1.17;letter-spacing:.015em;font-weight:1000;overflow-wrap:anywhere}
+.city-club-detail em{display:block;font-size:9px;font-style:normal;line-height:1.24;color:#c1d2ec}
+.city-club-swatches{display:flex;gap:3px;margin-top:5px}
+.city-club-swatches i{display:block;background:var(--swatch);width:13px;height:7px;border:1px solid #ffffff5b;border-radius:2px}
+@media(max-width:390px){
+ .city-club-gallery{padding:8px 6px}
+ .city-club-options{gap:5px}
+ .city-club-choice{min-height:95px;gap:3px;padding:6px 3px}
+ .city-club-choice[aria-pressed="true"]{padding:5px 2px}
+ .city-club-icon{width:43px;flex-basis:43px;height:63px}
+ .city-club-shield{width:47px;height:60px}
+ .city-club-detail small{font-size:7px}
+ .city-club-detail strong{font-size:9px}
+ .city-club-detail em{font-size:8px}
+ .city-club-swatches{margin-top:2px}
+ .city-club-swatches i{height:6px;width:11px}
+}
+
+
+/* V2.1 DEV: eight original city clubs, grouped in easy-to-scan batches. */
+.city-club-group-label{
+  grid-column:1 / -1;margin:4px 0 0;padding:7px 3px 3px;
+  border-top:1px solid #9bbbea5c;color:#b9d4f4;
+  font-size:9px;font-weight:950;letter-spacing:.12em;
+}
+@media(max-width:390px){
+  .city-club-group-label{font-size:8px;padding-top:6px}
+}
+
+
+/* DEV V2.4: compact, keyboard-accessible expand/collapse control for city clubs. */
+.city-club-gallery{padding:0;overflow:clip}
+.city-club-toggle{
+  display:flex;align-items:center;justify-content:space-between;gap:9px;
+  min-height:66px;padding:11px 12px;list-style:none;cursor:pointer;
+  background:linear-gradient(130deg,#102b56,#081a36);
+  -webkit-tap-highlight-color:transparent;
+}
+.city-club-toggle::-webkit-details-marker{display:none}
+.city-club-toggle::marker{content:''}
+.city-club-toggle:hover{background:linear-gradient(130deg,#214677,#0a254c)}
+.city-club-toggle:focus-visible{outline:2px solid #ffffff;outline-offset:-4px;border-radius:11px}
+.city-club-toggle-info{display:grid;gap:5px;min-width:0}
+.city-club-toggle-info strong{font-size:11px;font-weight:1000;letter-spacing:.085em;color:#f0f6ff}
+.city-club-toggle-info small{font-size:10px;line-height:1.3;color:#bcd1ef;overflow-wrap:anywhere}
+.city-club-count{display:inline-grid;place-items:center;margin-left:4px;padding:2px 5px;border-radius:5px;
+  background:#355b8e;color:white;font-size:10px;letter-spacing:0}
+.city-club-toggle-control{display:flex;align-items:center;justify-content:flex-end;gap:6px;
+  flex:none;font-size:9px;font-weight:1000;letter-spacing:.055em;color:#e9f2ff}
+.city-club-chevron{display:block;width:9px;height:9px;border-right:2px solid #e9f2ff;
+  border-bottom:2px solid #e9f2ff;transform:rotate(45deg);transition:transform .15s ease}
+.city-club-hide{display:none}
+.city-club-gallery[open] .city-club-hide{display:inline}
+.city-club-gallery[open] .city-club-show{display:none}
+.city-club-gallery[open] .city-club-chevron{transform:rotate(225deg);margin-top:5px}
+.city-club-gallery[open] .city-club-toggle{border-bottom:1px solid #5b79a555}
+.city-club-gallery .city-club-intro{padding:0 10px;margin:10px 0 8px}
+.city-club-gallery .city-club-options{padding:0 10px 11px}
+.city-club-gallery:not([open]) > .city-club-intro,
+.city-club-gallery:not([open]) > .city-club-options{display:none}
+@media(max-width:390px){
+  .city-club-gallery{padding:0}
+  .city-club-toggle{padding:9px 8px;min-height:59px}
+  .city-club-toggle-info strong{font-size:10px}
+  .city-club-toggle-info small{font-size:9px}
+  .city-club-toggle-control{font-size:8px}
+  .city-club-gallery .city-club-options{padding:0 5px 8px}
+}
+@media(prefers-reduced-motion:reduce){.city-club-chevron{transition:none}}
+
+/* DEV V2.8: real NHL-conference/division organization for 32 fictional clubs. */
+.city-club-conference{grid-column:1/-1;margin:10px 0 0;padding:9px 9px 7px;
+  border-bottom:2px solid #679ad7;color:#f2f8ff;background:#1a3b69;
+  border-radius:7px 7px 0 0;font-size:12px;letter-spacing:.11em;font-weight:1000}
+.city-club-division{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;min-width:0;margin:0 0 6px}
+.city-club-division-title{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;
+  margin:3px 0 0;padding:8px 7px 6px;border-bottom:1px solid #a3bee65c;
+  color:#bed9f7;font-size:10px;letter-spacing:.1em;font-weight:950}
+.city-club-division-title span{font-size:9px;letter-spacing:.04em;color:#8cafda}
+@media(max-width:390px){
+  .city-club-division{gap:5px}
+  .city-club-conference{font-size:10px;padding:8px 6px}
+  .city-club-division-title{font-size:9px;padding:7px 4px 5px}
+}

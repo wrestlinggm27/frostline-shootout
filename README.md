@@ -1,4 +1,12 @@
-# Frostline Shootout — Version 1.7.1
+# Frostline Shootout — Stable Version 2.8
+
+## Stable V2.8: Complete 32-Team City Collection
+
+**Promoted from the fully tested DEV V2.8 build.** All 32 fictional, original city-inspired hockey teams are available in an expandable, collapsible team picker. The city clubs are organized into Eastern and Western conferences, with eight clubs in each of the Atlantic, Metropolitan, Central and Pacific divisions. Players can also select six generic hockey shields and three original F brand logos.
+
+**Existing players are preserved.** Stable still uses the original unprefixed storage keys: `frostline-player-profiles-v1`, `frostline-shootout-difficulty-v1`, and legacy high-score keys. Saved names, colors, difficulties, and record books from V1.7.1 remain accessible; older teams receive the default crest when one has not been chosen. The DEV preview continues to use separate `frostline-dev:` storage and is not imported into Stable.
+
+All logos are original fictional artwork inspired by arena rituals, not copied NHL insignia.
 
 ## Stable and Development environments
 
@@ -6,7 +14,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V1.7 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.8 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
