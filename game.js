@@ -2214,12 +2214,44 @@
   const startupScreen = $('startupScreen');
   const startupWelcome = $('startupWelcome');
   const startupIntro = $('startupIntro');
+  const frostEdgeOverlay = $('frostEdgeOverlay');
   let startupPhase = 'start';
   let startupTimer = null;
   startupScreen.dataset.phase = 'start';
   startupScreen.hidden = false;
   startupWelcome.hidden = false;
   startupIntro.hidden = true;
+  frostEdgeOverlay.dataset.frost = 'off';
+  function startCornerFrost() {
+    if (frostEdgeOverlay.dataset.frost === 'on') return;
+    // CSS grows the ice in from all corners. This layer remains in the DOM
+    // after the opening ends and never receives mouse or touch events.
+    frostEdgeOverlay.dataset.frost = 'on';
+  }
+  function playIntroIce() {
+    // PRESS START is a user gesture, allowing Web Audio to unlock on phones.
+    // Generate this effect locally; no licensed sound files are needed.
+    if (!game.audioEnabled) return;
+    const ac = audioReady();
+    if (!ac) return;
+    try {
+      const t = ac.currentTime;
+      noiseBurst(ac, t, .43, 2400, .65, .12, arenaAudio.master, .03);
+      noiseBurst(ac, t + .035, .10, 4600, 2.6, .19, arenaAudio.master, .002);
+      noiseBurst(ac, t + .18, .12, 3200, 2.2, .15, arenaAudio.master, .003);
+      noiseBurst(ac, t + .36, .11, 5200, 3.1, .10, arenaAudio.master, .002);
+      const ring = ac.createOscillator();
+      ring.type = 'triangle';
+      ring.frequency.setValueAtTime(1320, t + .04);
+      ring.frequency.exponentialRampToValueAtTime(430, t + .48);
+      const gain = ac.createGain();
+      volumeFade(gain, t + .04, .075, .014, .48);
+      ring.connect(gain);
+      gain.connect(arenaAudio.master);
+      ring.start(t + .04);
+      ring.stop(t + .54);
+    } catch { /* The animation still works where sound is unsupported. */ }
+  }
   function finishStartup() {
     if (startupPhase === 'ready') return;
     if (startupTimer !== null) {
@@ -2227,6 +2259,7 @@
       startupTimer = null;
     }
     startupPhase = 'ready';
+    startCornerFrost();
     startupScreen.dataset.phase = 'ready';
     startupScreen.hidden = true;
     // Onboarding happens only after the opening sequence, never behind it.
@@ -2236,9 +2269,11 @@
     if (startupPhase !== 'start') return;
     startupPhase = 'intro';
     startupScreen.dataset.phase = 'intro';
+    startCornerFrost();
+    playIntroIce();
     startupWelcome.hidden = true;
     startupIntro.hidden = false;
-    // Temporary credit beat; future frost / skate / music sequence plugs in here.
+    // Keep the existing short credit beat. Music and title choreography come later.
     startupTimer = setTimeout(finishStartup, 1900);
   }
   $('startupBeginButton').addEventListener('click', beginStartupIntro);
