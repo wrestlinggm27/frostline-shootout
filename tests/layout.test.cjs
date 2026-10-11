@@ -51,6 +51,29 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       const errors = [];
       page.on('pageerror', err => errors.push(err.message));
       await page.goto(url);
+      assert.equal(await page.locator('#startupScreen').getAttribute('data-phase'), 'start',
+        viewport.label + ': DEV opens in startup state');
+      assert.equal(await page.locator('#startupScreen').isVisible(), true);
+      assert.equal(await page.locator('#playerDialog').evaluate(el => el.open), false,
+        viewport.label + ': onboarding should wait for the intro');
+      assert.equal(await page.locator('#startupWelcome .startup-ice-f use').getAttribute('href'), '#frostline-ice',
+        viewport.label + ': use approved Ice Cut F');
+      const startupFits = await page.locator('#startupBeginButton').evaluate(button => {
+        const r = button.getBoundingClientRect();
+        return r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
+      });
+      assert.ok(startupFits, viewport.label + ': startup button out of viewport');
+      if (viewport.label === 'desktop window') {
+        await page.locator('#startupBeginButton').click();
+        assert.equal(await page.locator('#startupScreen').getAttribute('data-phase'), 'intro');
+        assert.equal(await page.locator('#startupIntro').isVisible(), true);
+        // The temporary credit beat should hand off automatically, without another click.
+        await page.waitForFunction(() => document.getElementById('startupScreen').hidden, { timeout: 5000 });
+      } else {
+        await page.locator('#startupSkipButton').click();
+      }
+      assert.equal(await page.locator('#startupScreen').isVisible(), false,
+        viewport.label + ': intro needs to release the existing game');
       await page.waitForSelector('#playerDialog[open]', { timeout:3000 });
       await page.locator('#playerNameInput').fill('Arcade Test Driver');
       await page.locator('#createPlayerButton').click();
