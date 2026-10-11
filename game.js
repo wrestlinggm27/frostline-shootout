@@ -234,6 +234,51 @@
       { d: 'M50 55 L52 59 L57 59 L53 63 L55 67 L50 64 L45 67 L47 63 L43 59 L48 59 Z', mode: 'trim' },
       { d: 'M36 87 H64', mode: 'stroke', width: 3 },
       { d: 'M42 91 H58', mode: 'stroke', width: 2.5 }
+    ] },
+    // Batch five: original marks inspired by Buffalo's hockey fan ritual,
+    // Ottawa's Roman heritage, Columbus's cannon salute and Newark ironwork.
+    bufBladeGang: { label: 'Buffalo Blade Gang Ritual', shapes: [
+      // Crossed skate blades with boot fittings, a rally halo and a central puck.
+      { d: 'M26 42 Q50 26 74 42', mode: 'accent-stroke', width: 4 },
+      { d: 'M31 36 L70 83', mode: 'stroke', width: 5.6 },
+      { d: 'M69 36 L30 83', mode: 'stroke', width: 5.6 },
+      { d: 'M27 82 Q23 87 33 87 L41 81 M73 82 Q77 87 67 87 L59 81', mode: 'accent-stroke', width: 4 },
+      { d: 'M36 42 L43 48 M57 48 L64 42', mode: 'accent-stroke', width: 3 },
+      { d: 'M50 57 A9 9 0 1 0 50 75 A9 9 0 1 0 50 57 Z', mode: 'accent' },
+      { d: 'M43 66 H57', mode: 'base-stroke', width: 2 },
+      { d: 'M46 31 L50 24 L54 31', mode: 'stroke', width: 2.9 }
+    ] },
+    ottLegion: { label: 'Ottawa Roman Legion', shapes: [
+      // Roman crested helmet drawn from basic geometric armor elements.
+      { d: 'M34 43 Q40 30 53 32 Q67 34 67 50 L60 58 L43 58 L36 51 Z', mode: 'trim' },
+      { d: 'M28 44 Q30 32 39 28 Q49 22 62 28 Q72 31 74 45 Q62 36 51 35 Q40 36 28 44 Z', mode: 'accent' },
+      { d: 'M36 47 L64 47 L62 55 L45 55 L44 65 L60 65 Q57 78 46 81 L38 68 L36 55 Z', mode: 'trim' },
+      { d: 'M46 55 L60 55 L56 62 H46 Z', mode: 'base' },
+      { d: 'M44 68 L55 68 L49 75 Z', mode: 'accent' },
+      { d: 'M31 51 L36 55 M64 55 L70 51', mode: 'stroke', width: 3.2 },
+      { d: 'M35 85 Q50 90 65 85', mode: 'accent-stroke', width: 3.5 }
+    ] },
+    colCannon: { label: 'Columbus Cannon Salute', shapes: [
+      // Broad cannon barrel, spoked wheel and three blast rays.
+      { d: 'M28 58 L59 44 L67 49 L37 65 Z', mode: 'trim' },
+      { d: 'M25 55 L34 52 L38 65 L29 68 Z', mode: 'accent' },
+      { d: 'M62 49 L72 44 M66 39 L74 32 M70 54 L80 55', mode: 'stroke', width: 3.8 },
+      { d: 'M75 38 L80 33 M75 46 L85 43', mode: 'silver-stroke', width: 2.7 },
+      { d: 'M44 63 L61 74 L56 80 L40 69 Z', mode: 'accent' },
+      { d: 'M50 64 A12 12 0 1 0 50 88 A12 12 0 1 0 50 64 Z', mode: 'silver' },
+      { d: 'M50 68 A8 8 0 1 0 50 84 A8 8 0 1 0 50 68 Z', mode: 'base' },
+      { d: 'M50 66 V86 M40 76 H60 M43 69 L57 83 M57 69 L43 83', mode: 'silver-stroke', width: 2 },
+      { d: 'M28 90 H71', mode: 'stroke', width: 3 }
+    ] },
+    newIron: { label: 'Newark Ironbound', shapes: [
+      // Newark-inspired industrial iron bridge, city towers and rivets.
+      { d: 'M31 77 V59 H37 V47 H43 V54 H47 V38 H55 V52 H62 V44 H68 V77 Z', mode: 'accent' },
+      { d: 'M49 43 H52 V48 H49 Z M39 58 H42 V63 H39 Z M59 56 H62 V61 H59 Z', mode: 'trim' },
+      { d: 'M24 75 Q50 48 76 75', mode: 'stroke', width: 5 },
+      { d: 'M24 77 H76', mode: 'stroke', width: 3.5 },
+      { d: 'M31 69 V83 M39 62 V84 M50 59 V84 M61 62 V84 M69 69 V83', mode: 'trim-stroke', width: 2.6 },
+      { d: 'M24 85 H76', mode: 'stroke', width: 3.5 },
+      { d: 'M30 90 H70', mode: 'accent-stroke', width: 2.8 }
     ] }
   };
   const CITY_CLUBS = {
@@ -252,7 +297,11 @@
     carolina: { name: 'Carolina Warning', location: 'Carolina', primary: '#cc0000', secondary: '#111111', trim: '#ffffff', crest: 'carSiren', club: 'carolina' },
     florida: { name: 'Florida Blue Rat', location: 'Florida', primary: '#c8102e', secondary: '#041e42', trim: '#ffffff', crest: 'flaRat', club: 'florida' },
     tampa: { name: 'Tampa Coil', location: 'Tampa Bay', primary: '#002868', secondary: '#101820', trim: '#ffffff', crest: 'tamCoil', club: 'tampa' },
-    dallas: { name: 'Dallas Brimline', location: 'Dallas', primary: '#006847', secondary: '#111111', trim: '#c4ced4', crest: 'dalHat', club: 'dallas' }
+    dallas: { name: 'Dallas Brimline', location: 'Dallas', primary: '#006847', secondary: '#111111', trim: '#c4ced4', crest: 'dalHat', club: 'dallas' },
+    buffalo: { name: 'Buffalo Blade Gang', location: 'Buffalo', primary: '#003087', secondary: '#ffb81c', trim: '#ffffff', crest: 'bufBladeGang', club: 'buffalo' },
+    ottawa: { name: 'Ottawa Legion', location: 'Ottawa', primary: '#151515', secondary: '#c52032', trim: '#c2912c', crest: 'ottLegion', club: 'ottawa' },
+    columbus: { name: 'Columbus Cannonfire', location: 'Columbus', primary: '#002654', secondary: '#ce1126', trim: '#ffffff', crest: 'colCannon', club: 'columbus' },
+    newjersey: { name: 'Newark Ironbound', location: 'Newark, New Jersey', primary: '#ce1126', secondary: '#151515', trim: '#ffffff', crest: 'newIron', club: 'newjersey' }
   };
   const normalizeCrest = value => typeof value === 'string' && Object.hasOwn(CREST_ART, value) ? value : 'monogram';
   const SHIELD_OUTER = 'M50 4 L88 17 L86 61 Q82 91 50 113 Q18 91 14 61 L12 17 Z';
@@ -271,11 +320,12 @@
   }
   function artPaint(shape, team) {
     if (shape.mode === 'gold' || shape.mode === 'gold-stroke') return '#b9975b';
+    if (shape.mode === 'silver' || shape.mode === 'silver-stroke') return '#b5c1d0';
     if (shape.mode === 'accent' || shape.mode === 'cutout' || shape.mode === 'accent-stroke') return team.secondary;
     if (shape.mode === 'base' || shape.mode === 'base-stroke') return team.primary;
     return team.trim;
   }
-  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke','gold-stroke'].includes(shape.mode); }
+  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke','gold-stroke','silver-stroke'].includes(shape.mode); }
   function makeCrestSvg(team, className = '') {
     const svgNS = 'http://www.w3.org/2000/svg';
     const create = (tag, attrs) => {
@@ -1487,7 +1537,7 @@
     // Show the current choice without forcing the user to expand a long list.
     $('cityClubSummary').textContent = team.club
       ? 'Selected: ' + CITY_CLUBS[team.club].name
-      : 'Browse 16 original city teams';
+      : 'Browse 20 original city teams';
     $('previewTeamName').textContent = team.name.toUpperCase();
     const preview = document.querySelector('.team-preview');
     preview.style.setProperty('--preview-primary', team.primary);
