@@ -372,3 +372,35 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
  .option-team-crest{height:40px}
  .crest-studio-description{margin-bottom:6px}
 }
+
+
+/* V2.0 DEV: four fictional city clubs, original artwork and hockey-inspired palettes. */
+.city-club-gallery{margin:0;padding:9px 9px 11px;min-width:0;border:1px solid #7c9cc6;border-radius:12px;background:linear-gradient(155deg,#091b3b9c,#0f285398)}
+.city-club-gallery legend{font-weight:1000;letter-spacing:.08em;font-size:10px;color:#e0edff;padding:0 6px}
+.city-club-intro{margin:0 0 10px;color:#b3c8e6;font-size:10px;line-height:1.45}
+.city-club-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.city-club-choice{position:relative;display:flex;align-items:center;gap:7px;min-width:0;min-height:112px;padding:9px 6px;border:1px solid #496b9a;border-radius:11px;background:linear-gradient(135deg,#0c2248,#061327);color:#fff;text-align:left}
+.city-club-choice:hover{border-color:#cde6ff;background:#1d3a68}
+.city-club-choice[aria-pressed="true"]{border:2px solid var(--team-highlight);background:#244673;padding:8px 5px;box-shadow:0 0 17px #8db5ff42}
+.city-club-choice:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.city-club-icon{display:grid;place-items:center;width:54px;height:74px;flex:0 0 54px}
+.city-club-shield{height:72px;width:60px;overflow:visible;filter:drop-shadow(0 4px 4px #0008)}
+.city-club-detail{display:grid;align-content:center;gap:3px;min-width:0}
+.city-club-detail small{display:block;font-size:8px;letter-spacing:.13em;color:#a4c9fb;font-weight:900}
+.city-club-detail strong{display:block;font-size:clamp(10px,2.8vw,12px);line-height:1.17;letter-spacing:.015em;font-weight:1000;overflow-wrap:anywhere}
+.city-club-detail em{display:block;font-size:9px;font-style:normal;line-height:1.24;color:#c1d2ec}
+.city-club-swatches{display:flex;gap:3px;margin-top:5px}
+.city-club-swatches i{display:block;background:var(--swatch);width:13px;height:7px;border:1px solid #ffffff5b;border-radius:2px}
+@media(max-width:390px){
+ .city-club-gallery{padding:8px 6px}
+ .city-club-options{gap:5px}
+ .city-club-choice{min-height:95px;gap:3px;padding:6px 3px}
+ .city-club-choice[aria-pressed="true"]{padding:5px 2px}
+ .city-club-icon{width:43px;flex-basis:43px;height:63px}
+ .city-club-shield{width:47px;height:60px}
+ .city-club-detail small{font-size:7px}
+ .city-club-detail strong{font-size:9px}
+ .city-club-detail em{font-size:8px}
+ .city-club-swatches{margin-top:2px}
+ .city-club-swatches i{height:6px;width:11px}
+}
