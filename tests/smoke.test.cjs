@@ -177,6 +177,69 @@ test('Stable sound toggle switches SVG icons and mutes/unmutes the audio bus', (
   assert.deepEqual([...t.storage.entries()], existingStorage, 'mute should not change player or game saves');
 });
 
+test('Stable goalie palettes offer 32 rival cities, save per player, and preserve existing team and records', () => {
+  const t = boot();
+  const options = t.elem('goaliePaletteOptions').children;
+  assert.equal(options.length, 33, '32 current cities plus original Frostline goalie');
+  const choice = id => options.find(button => button.dataset.goaliePalette === id);
+  for (const id of ['original','anaheim','boston','detroit','newyork','islanders','utah','vegas','seattle','winnipeg']) {
+    assert.ok(choice(id), id + ' palette must be selectable');
+  }
+  assert.equal(t.elem('goaliePaletteGallery').open, false);
+
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Boston Rival';
+  t.submit('playerForm');
+  assert.equal(t.elem('goaliePaletteGallery').open, false, 'goalie options start collapsed');
+  t.submit('teamForm');
+  const key = 'frostline-player-profiles-v1';
+  let saved = JSON.parse(t.storage.get(key));
+  const originalTeam = JSON.stringify(saved.players[0].team);
+  assert.equal(saved.players[0].goaliePalette, 'original');
+
+  t.elem('customizeButton').emit('click');
+  choice('boston').emit('click');
+  assert.equal(choice('boston').getAttribute('aria-pressed'),'true');
+  assert.equal(t.elem('goaliePaletteSummary').textContent,'Selected: Boston');
+  assert.equal(t.elem('goaliePalettePreview').textContent,'BOSTON');
+  t.elem('cancelTeam').emit('click');
+  assert.equal(JSON.parse(t.storage.get(key)).players[0].goaliePalette,'original',
+    'cancel must discard unsaved goalie choice');
+  t.elem('customizeButton').emit('click');
+  assert.equal(t.elem('goaliePaletteSummary').textContent,'Selected: Frostline Original',
+    'reopened selector resets canceled choice');
+
+  choice('boston').emit('click');
+  t.submit('teamForm');
+  saved = JSON.parse(t.storage.get(key));
+  assert.equal(saved.players[0].goaliePalette, 'boston');
+  assert.equal(JSON.stringify(saved.players[0].team), originalTeam, 'opponent choice cannot change own team');
+  assert.equal(saved.players[0].records.arcade.beer.best, 0);
+
+  t.elem('playButton').emit('click');
+  t.elem('mainMenuButton').emit('click');
+  assert.equal(JSON.parse(t.storage.get(key)).players[0].goaliePalette,'boston');
+  t.elem('switchPlayerButton').emit('click');
+  t.elem('playerNameInput').value = 'New Opponent';
+  t.submit('playerForm');
+  t.submit('teamForm');
+  saved = JSON.parse(t.storage.get(key));
+  assert.equal(saved.players.length, 2);
+  assert.equal(saved.players[0].goaliePalette, 'boston');
+  assert.equal(saved.players[1].goaliePalette, 'original', 'different player uses independent goalie');
+  assert.equal(t.storage.has('frostline-dev:frostline-player-profiles-v1'), false, 'Stable cannot touch DEV data');
+
+  const reloaded = boot(Object.fromEntries(t.storage));
+  reloaded.elem('switchPlayerButton').emit('click');
+  const oldPlayer = reloaded.elem('existingPlayers').children.find(button => button.textContent==='Boston Rival');
+  oldPlayer.emit('click');
+  reloaded.elem('customizeButton').emit('click');
+  assert.equal(reloaded.elem('goaliePaletteSummary').textContent,'Selected: Boston',
+    'saved goalie choice survives browser reload');
+  assert.equal(reloaded.elem('goaliePaletteGallery').open,false);
+  reloaded.elem('cancelTeam').emit('click');
+});
+
 test('Stable Main Menu abandons a round safely and can start a clean game or new profile', () => {
   const t = boot();
   t.frame(16);
