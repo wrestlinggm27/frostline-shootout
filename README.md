@@ -1,4 +1,4 @@
-# Frostline Shootout — DEV V2.3: Sixteen City Clubs
+# Frostline Shootout — DEV V2.4: Collapsible City Teams
 
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
@@ -11,6 +11,12 @@ A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with
 - [Development source branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) — edit here, validate, then promote intentionally.
 
 Use separate profiles in the dev preview. Both pages share the same host but the development game adds a prefix to its browser storage keys to avoid changing stable records.
+
+## Compact City Club Picker — DEV V2.4
+
+**Customize Team** now begins with the **Frostline City Clubs** gallery collapsed. Its accessible **EXPAND** control reveals all 16 city-team cards; the same control changes to **COLLAPSE** and hides them again. The collapsed header shows the current city selection if one is active. Each time the player reopens the team editor, the catalog starts compact, while color themes, custom team names and generic crests remain immediately accessible.
+
+This uses a native HTML `details` / `summary` disclosure (no new dependencies) with keyboard focus styles and phone-sized layouts. Existing profiles and team-selection data remain unchanged, and the game stays separate from Stable.
 
 ## City clubs — fourth batch (DEV V2.3)
 
