@@ -56,8 +56,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#createPlayerButton').click();
       await page.waitForSelector('#teamDialog[open]', { timeout:3000 });
       assert.equal(await page.locator('[data-team-crest]').count(), 6, viewport.label + ': six shield designs');
-      assert.equal(await page.locator('[data-city-club]').count(), 24, viewport.label + ': twenty-four city clubs');
-      assert.equal(await page.locator('.city-club-icon svg').count(), 24, viewport.label + ': twenty-four original SVG crests');
+      assert.equal(await page.locator('[data-city-club]').count(), 28, viewport.label + ': twenty-eight city clubs');
+      assert.equal(await page.locator('.city-club-icon svg').count(), 28, viewport.label + ': twenty-eight original SVG crests');
       assert.equal(await page.locator('#previewTeamCrest svg').count(), 1, viewport.label + ': shield SVG preview');
       // The growing team catalog must be compact by default, but fully available on demand.
       const clubToggle = page.locator('#cityClubGallery > summary');
@@ -83,7 +83,9 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         ['buffalo','Buffalo Blade Gang'], ['ottawa','Ottawa Legion'],
         ['columbus','Columbus Cannonfire'], ['newjersey','Newark Ironbound'],
         ['islanders','Island Yes Wave'], ['washington','Washington Fury'],
-        ['colorado','Colorado Anthem'], ['stlouis','St. Louis Towel Wave']]) {
+        ['colorado','Colorado Anthem'], ['stlouis','St. Louis Towel Wave'],
+        ['utah','Utah Tusks Up'], ['winnipeg','Winnipeg True North'],
+        ['anaheim','Anaheim Rally Flight'], ['edmonton','Edmonton Oil Country']]) {
         await page.locator('[data-city-club="' + id + '"]').click();
         assert.equal(await page.locator('#teamNameInput').inputValue(), name, viewport.label + ': chosen club name');
         assert.equal(await page.locator('[data-city-club="' + id + '"]').getAttribute('aria-pressed'), 'true');
@@ -102,7 +104,7 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         viewport.label + ': collapse control closes the catalog');
       assert.equal(await page.locator('.city-club-options').isVisible(), false,
         viewport.label + ': closed catalog hides choices');
-      assert.ok((await page.locator('#cityClubSummary').textContent()).includes('St. Louis Towel Wave'),
+      assert.ok((await page.locator('#cityClubSummary').textContent()).includes('Edmonton Oil Country'),
         viewport.label + ': collapsed label still shows selected club');
       await page.locator('[data-team-crest="wolf"]').click();
       assert.equal(await page.locator('[data-team-crest="wolf"]').getAttribute('aria-pressed'), 'true');
@@ -136,7 +138,7 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.ok((await page.locator('#cityClubSummary').textContent()).includes('Motor City Octopus'),
         viewport.label + ': saved city team is identified in collapsed header');
       await clubToggle.click();
-      await page.locator('[data-city-club="stlouis"]').click();
+      await page.locator('[data-city-club="edmonton"]').click();
       await page.locator('#cancelTeam').click();
       const afterCancel = await page.evaluate(() => JSON.parse(localStorage.getItem('frostline-dev:frostline-player-profiles-v1')).players[0].team);
       assert.equal(afterCancel.club, 'detroit', viewport.label + ': cancelling city selection must not overwrite saved club');
