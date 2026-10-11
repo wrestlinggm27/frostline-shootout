@@ -120,6 +120,9 @@ function boot(seed = {}, options = {}) {
   };
   try { vm.runInNewContext(gameCode, sandbox, { filename: 'game.js', timeout: 2000 }); }
   catch (error) { errors.push(error); throw error; }
+  // Existing gameplay tests bypass the DEV-only introduction. Explicit startup
+  // tests use manualStartup to verify the actual opening sequence.
+  if (!options.manualStartup) elem('startupSkipButton').emit('click');
   function frame(ms = 100) {
     time += ms;
     const cb = raf.shift();
@@ -138,6 +141,62 @@ test('UI contains player, team and local record book elements', () => {
   }
   assert.ok(css.includes('.profile-dialog'));
   assert.ok(html.includes('ARCADE SHOOTOUT'));
+});
+
+test('DEV startup gates onboarding and supports separate start / intro / ready states', () => {
+  const t = boot({}, { manualStartup: true });
+  const opening = t.elem('startupScreen');
+  assert.equal(opening.dataset.phase, 'start');
+  assert.equal(opening.hidden, false);
+  assert.equal(t.elem('startupWelcome').hidden, false);
+  assert.equal(t.elem('startupIntro').hidden, true);
+  assert.equal(t.elem('playerDialog').open, false, 'onboarding must not cover startup');
+  t.frame(16);
+  assert.equal(t.elem('playerDialog').open, false, 'first frame must leave opening on screen');
+  assert.equal(t.storage.size, 0, 'startup must not write local player saves');
+
+  t.elem('startupBeginButton').emit('click');
+  assert.equal(opening.dataset.phase, 'intro');
+  assert.equal(t.elem('startupWelcome').hidden, true);
+  assert.equal(t.elem('startupIntro').hidden, false);
+  assert.equal(t.elem('playerDialog').open, false);
+  t.elem('startupBeginButton').emit('click'); // double-taps cannot restart intro
+  assert.equal(opening.dataset.phase, 'intro');
+  t.elem('startupSkipButton').emit('click');
+  assert.equal(opening.dataset.phase, 'ready');
+  assert.equal(opening.hidden, true);
+  assert.equal(t.elem('playerDialog').open, true, 'new players enter existing onboarding');
+  t.elem('startupSkipButton').emit('click');
+  assert.equal(t.storage.size, 0, 'skipping never changes player records');
+  assert.equal(t.elem('playerDialog').open, true);
+  t.elem('playerNameInput').value = 'Intro Tester';
+  t.submit('playerForm');
+  t.submit('teamForm');
+  const saved = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].name, 'Intro Tester');
+  assert.equal(t.storage.has('frostline-player-profiles-v1'), false, 'Stable records isolated');
+});
+
+test('DEV intro can be skipped with an existing player without resetting the score', () => {
+  const first = boot();
+  first.elem('playerNameInput').value = 'Returning Player';
+  first.submit('playerForm');
+  first.submit('teamForm');
+  const key = 'frostline-dev:frostline-player-profiles-v1';
+  let profileDB = JSON.parse(first.storage.get(key));
+  profileDB.players[0].records.arcade.beer.best = 12;
+  const saved = JSON.stringify(profileDB);
+  const loaded = boot({ [key]: saved }, { manualStartup: true });
+  assert.equal(loaded.elem('startupScreen').dataset.phase, 'start');
+  assert.equal(loaded.elem('playerDialog').open, false);
+  loaded.elem('startupSkipButton').emit('click');
+  assert.equal(loaded.elem('startupScreen').hidden, true);
+  assert.equal(loaded.elem('playerDialog').open, false);
+  assert.equal(loaded.elem('menuPlayerName').textContent, 'RETURNING PLAYER');
+  assert.equal(loaded.elem('best').textContent, '12');
+  const preserved = JSON.parse(loaded.storage.get(key));
+  assert.equal(preserved.players[0].records.arcade.beer.best, 12);
+  assert.equal(preserved.players[0].name, 'Returning Player');
 });
 
 test('DEV sound toggle switches SVG icons and mutes/unmutes the audio bus', () => {
