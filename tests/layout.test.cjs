@@ -326,6 +326,21 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       assert.equal(await page.locator('#overlayCopy').isVisible(), true,
         viewport.label + ': concise shooting instructions remain visible');
       assert.ok(start.cardFits, viewport.label + ': start menu escaped rink, ' + JSON.stringify(start));
+      // The start menu now fills the spare ice vertically rather than sitting
+      // as a small middle card. Small phones still use the fit-to-rink fallback.
+      if (viewport.width >= 390) {
+        const coverage = await page.evaluate(() => {
+          const frame = document.querySelector('#rinkFrame').getBoundingClientRect();
+          const card = document.querySelector('.overlay-card').getBoundingClientRect();
+          return { heightFraction:card.height / frame.height,
+            sideFraction:card.width / frame.width };
+        });
+        assert.ok(coverage.heightFraction >= 0.88,
+          viewport.label + ': start menu should reach both highlighted rink areas, ' + JSON.stringify(coverage));
+        assert.ok(coverage.sideFraction >= 0.80,
+          viewport.label + ': start menu should stay broad and readable, ' + JSON.stringify(coverage));
+      }
+
       assert.ok(start.visible.every(v => v.fits), viewport.label + ': start content escaped rink, ' + JSON.stringify(start));
       assert.ok(start.overflow.every(v => !v.exceeds), viewport.label + ': start button overflow, ' + JSON.stringify(start));
 
