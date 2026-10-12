@@ -319,7 +319,25 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#closeGoalieDialog').click();
 
       const start = await inspect(page);
+      assert.equal(await page.locator('#overlayTitle').isVisible(), false,
+        viewport.label + ': duplicate opening title must stay hidden in start menu');
+      assert.equal(await page.locator('#overlayCopy').isVisible(), true,
+        viewport.label + ': shooting instructions must remain visible');
       assert.ok(start.cardFits, viewport.label + ': start menu escaped rink, ' + JSON.stringify(start));
+      // The player-approved layout should fill the yellow-highlighted ice,
+      // while tiny rinks still fit all controls without clipping.
+      if (viewport.width >= 390) {
+        const coverage = await page.evaluate(() => {
+          const frame = document.querySelector('#rinkFrame').getBoundingClientRect();
+          const card = document.querySelector('.overlay-card').getBoundingClientRect();
+          return { heightFraction:card.height / frame.height,
+            sideFraction:card.width / frame.width };
+        });
+        assert.ok(coverage.heightFraction >= 0.88,
+          viewport.label + ': start menu should use most of the rink height, ' + JSON.stringify(coverage));
+        assert.ok(coverage.sideFraction >= 0.80,
+          viewport.label + ': start menu should stay broad and readable, ' + JSON.stringify(coverage));
+      }
       assert.ok(start.visible.every(v => v.fits), viewport.label + ': start content escaped rink, ' + JSON.stringify(start));
       assert.ok(start.overflow.every(v => !v.exceeds), viewport.label + ': start button overflow, ' + JSON.stringify(start));
 
@@ -351,6 +369,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#mainMenuButton').click();
       assert.equal(await page.locator('#overlay').isVisible(), true,
         viewport.label + ': returning to menu should show overlay');
+      assert.equal(await page.locator('#overlayTitle').isVisible(), false,
+        viewport.label + ': start menu should not restore duplicate headline');
       assert.match(await page.locator('#playButton').textContent(), /START GAME/);
 
       await page.evaluate(() => {
@@ -369,6 +389,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         window.dispatchEvent(new Event('resize'));
       });
       const result = await inspect(page);
+      assert.equal(await page.locator('#overlayTitle').isVisible(), true,
+        viewport.label + ': results should retain its headline');
       assert.ok(result.cardFits, viewport.label + ': result menu escaped rink, ' + JSON.stringify(result));
       assert.ok(result.visible.every(v => v.fits), viewport.label + ': results escaped rink, ' + JSON.stringify(result));
       assert.ok(result.overflow.every(v => !v.exceeds), viewport.label + ': results button overflow, ' + JSON.stringify(result));
