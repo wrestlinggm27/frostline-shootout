@@ -1,4 +1,10 @@
-# Frostline Shootout — Stable Version 2.10
+# Frostline Shootout — Stable Version 2.14
+
+## Stable V2.14: Expanded Arcade Menu (Approved)
+
+The player-approved DEV Arcade menu has been promoted to Stable. The start menu now fills the available rink height, uses larger league and customization controls, and removes the duplicate “Thirty Seconds. One Net.” start-menu heading already shown during the opening. The final-buzzer result headline remains visible. The layout stays responsive within the same compact rink on phones and desktops.
+
+**Safe, isolated promotion:** Only Stable styling, its CSS cache reference, layout regression checks, and release documentation were updated. Stable gameplay code, Ice Cut F branding, all approved national-team flag shields, local player names, teams, records, storage keys, and the isolated /dev/ experience are untouched.
 
 ## Stable V2.10: Eight Accurate National Flag Teams
 
@@ -28,7 +34,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.10 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.14 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
