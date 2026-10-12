@@ -224,15 +224,15 @@ test('DEV ice startup sound is triggered by PRESS START and never by silent skip
   const soundTest = boot({}, { manualStartup: true, AudioContext: FakeIceAudio });
   soundTest.elem('startupBeginButton').emit('click');
   assert.equal(soundTest.elem('frostEdgeOverlay').dataset.frost, 'on');
-  assert.equal(cracks, 4, 'four subtle ice crackle noise layers');
-  assert.equal(rings, 1, 'one falling ice shimmer');
+  assert.equal(cracks, 8, 'eight tightly spaced ice fracture impulses');
+  assert.equal(rings, 0, 'no melodic oscillator or descending woo sound');
   soundTest.elem('startupBeginButton').emit('click');
-  assert.equal(cracks, 4, 'repeated taps do not replay intro sound');
+  assert.equal(cracks, 8, 'repeated taps do not replay intro sound');
   soundTest.elem('startupSkipButton').emit('click');
 
   const silent = boot({}, { manualStartup: true, AudioContext: FakeIceAudio });
   silent.elem('startupSkipButton').emit('click');
-  assert.equal(cracks, 4, 'skip does not trigger an unexpected crack sound');
+  assert.equal(cracks, 8, 'skip does not trigger an unexpected crack sound');
   assert.equal(silent.elem('frostEdgeOverlay').dataset.frost, 'on');
   assert.equal(silent.storage.has('frostline-player-profiles-v1'), false);
 });
