@@ -241,6 +241,10 @@ h1 span{color:var(--team-highlight)}
 .overlay .play-button{width:100%;max-width:100%;padding:11px 13px}
 .overlay-hint{margin-top:10px;line-height:1.3;overflow-wrap:break-word}
 
+/* The opening already announces "Thirty seconds. One net." Keep the
+   results headline, but reclaim its space on the Arcade start menu. */
+.overlay:not(.results) #overlayTitle{display:none}
+
 /* Results prioritize the score and replay. No decorative filler steals space. */
 .overlay.results .overlay-icon,
 .overlay.results .overlay-copy,
