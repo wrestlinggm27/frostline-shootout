@@ -2220,10 +2220,75 @@
   });
   applyLogo('ice');
 
+  // Frostline production opening and intro presentation state.
+  // No localStorage keys, saved profiles, game rules or difficulty are changed.
+  const startupScreen = $('startupScreen');
+  const startupWelcome = $('startupWelcome');
+  const startupIntro = $('startupIntro');
+  const frostEdgeOverlay = $('frostEdgeOverlay');
+  let startupPhase = 'start';
+  let startupTimer = null;
+  startupScreen.dataset.phase = 'start';
+  startupScreen.hidden = false;
+  startupWelcome.hidden = false;
+  startupIntro.hidden = true;
+  frostEdgeOverlay.dataset.frost = 'off';
+  function startCornerFrost() {
+    if (frostEdgeOverlay.dataset.frost === 'on') return;
+    // CSS grows the ice in from all corners. This layer remains in the DOM
+    // after the opening ends and never receives mouse or touch events.
+    frostEdgeOverlay.dataset.frost = 'on';
+  }
+  function playIntroIce() {
+    // PRESS START is a user gesture, allowing Web Audio to unlock on phones.
+    // Generate this effect locally; no licensed sound files are needed.
+    if (!game.audioEnabled) return;
+    const ac = audioReady();
+    if (!ac) return;
+    try {
+      const t = ac.currentTime;
+      // Dry, irregular ice fractures: CRK-sk-sk. Fast broadband noise transients
+      // with no tonal oscillator, pitch fall, long whoosh or reverb tail.
+      noiseBurst(ac, t,        .029,  780,  .75, .32, arenaAudio.master, .001);
+      noiseBurst(ac, t + .009, .034, 1850,  .88, .38, arenaAudio.master, .001);
+      noiseBurst(ac, t + .022, .028, 4300, 1.15, .23, arenaAudio.master, .001);
+      noiseBurst(ac, t + .079, .022, 5200, 1.25, .25, arenaAudio.master, .001);
+      noiseBurst(ac, t + .126, .040, 2100,  .92, .29, arenaAudio.master, .001);
+      noiseBurst(ac, t + .172, .025, 5700, 1.15, .22, arenaAudio.master, .001);
+      noiseBurst(ac, t + .229, .044, 3300, 1.10, .18, arenaAudio.master, .001);
+      noiseBurst(ac, t + .290, .024, 4800, 1.45, .13, arenaAudio.master, .001);
+    } catch { /* The animation still works where sound is unsupported. */ }
+  }
+  function finishStartup() {
+    if (startupPhase === 'ready') return;
+    if (startupTimer !== null) {
+      clearTimeout(startupTimer);
+      startupTimer = null;
+    }
+    startupPhase = 'ready';
+    startCornerFrost();
+    startupScreen.dataset.phase = 'ready';
+    startupScreen.hidden = true;
+    // Onboarding happens only after the opening sequence, never behind it.
+    if (!game.profile) openPlayerDialog();
+  }
+  function beginStartupIntro() {
+    if (startupPhase !== 'start') return;
+    startupPhase = 'intro';
+    startupScreen.dataset.phase = 'intro';
+    startCornerFrost();
+    playIntroIce();
+    startupWelcome.hidden = true;
+    startupIntro.hidden = false;
+    // Keep the existing short credit beat. Music and title choreography come later.
+    startupTimer = setTimeout(finishStartup, 1900);
+  }
+  $('startupBeginButton').addEventListener('click', beginStartupIntro);
+  $('startupSkipButton').addEventListener('click', finishStartup);
+
   applyTeam(game.team);
   const resumed = profileDB.players.find(p => p.id === profileDB.activeId);
   if (resumed) activateProfile(resumed);
-  else requestAnimationFrame(openPlayerDialog);
   updateHUD();
   resizeCanvas();
   requestAnimationFrame(frame);
