@@ -75,6 +75,44 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         return r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
       });
       assert.ok(startupFits, viewport.label + ': startup button out of viewport');
+      // The phone layout centers the complete brand identity, while desktop
+      // retains its approved compact left-aligned header.
+      const brandHeader = await page.evaluate(() => {
+        const topbar = document.querySelector('.topbar');
+        const brand = document.querySelector('.topbar .brand');
+        const logo = document.getElementById('brandLogoButton');
+        const title = document.querySelector('.topbar h1');
+        const team = document.querySelector('.topbar .team-header-identity');
+        const speaker = document.getElementById('soundButton');
+        const tb = topbar.getBoundingClientRect();
+        const middle = r => (r.left + r.right) / 2;
+        return {
+          topbarCenter: middle(tb),
+          logoCenter: middle(logo.getBoundingClientRect()),
+          titleCenter: middle(title.getBoundingClientRect()),
+          teamCenter: middle(team.getBoundingClientRect()),
+          speakerRight: speaker.getBoundingClientRect().right,
+          speakerLeft: speaker.getBoundingClientRect().left,
+          logoRight: logo.getBoundingClientRect().right,
+          brandDirection: getComputedStyle(brand).flexDirection,
+          titleAlign: getComputedStyle(title).textAlign,
+          titleOverflows: title.scrollWidth > title.clientWidth + 2
+        };
+      });
+      if (viewport.width <= 600) {
+        assert.equal(brandHeader.brandDirection, 'column', viewport.label + ': mobile brand should stack');
+        assert.equal(brandHeader.titleAlign, 'center', viewport.label + ': mobile title should be centered');
+        for (const key of ['logoCenter', 'titleCenter', 'teamCenter']) {
+          assert.ok(Math.abs(brandHeader[key] - brandHeader.topbarCenter) <= 3,
+            viewport.label + ': ' + key + ' not centered, ' + JSON.stringify(brandHeader));
+        }
+        assert.ok(brandHeader.logoRight < brandHeader.speakerLeft,
+          viewport.label + ': speaker overlaps centered logo');
+        assert.equal(brandHeader.titleOverflows, false, viewport.label + ': mobile title clipped');
+      } else {
+        assert.equal(brandHeader.brandDirection, 'row', viewport.label + ': desktop brand should remain inline');
+        assert.notEqual(brandHeader.titleAlign, 'center', viewport.label + ': desktop brand alignment changed');
+      }
       if (viewport.label === 'desktop window') {
         await page.locator('#startupBeginButton').click();
         assert.equal(await page.locator('#frostEdgeOverlay').getAttribute('data-frost'), 'on',
