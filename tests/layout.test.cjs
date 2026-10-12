@@ -64,7 +64,7 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         viewport.label + ': frosted corners use soft procedural grain');
       const frostEdgeStyle = await page.locator('.frost-corner').first().evaluate(el =>
         getComputedStyle(el).filter);
-      assert.match(frostEdgeStyle, /blur\\(/,
+      assert.ok(frostEdgeStyle.includes('blur('),
         viewport.label + ': frosted edges should remain optically soft');
       assert.equal(await page.locator('#playerDialog').evaluate(el => el.open), false,
         viewport.label + ': onboarding should wait for the intro');
