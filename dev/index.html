@@ -7,8 +7,8 @@
   <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
   <meta name="robots" content="noindex, nofollow">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.12-dev-frost1">
-  <script src="game.js?v=2.12-dev-frost1" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.12-dev-frost2">
+  <script src="game.js?v=2.12-dev-frost2" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -19,19 +19,57 @@
     <symbol id="frostline-speed" viewBox="0 0 32 32">
       <path d="M8 27 L12.5 6.5 H28 L24 11 H16.3 L15.4 15.2 H23.4 L19.4 19.5 H14.5 L12.9 27 Z" fill="currentColor"/>
     </symbol>
-    <!-- Original corner-ice vectors, reused on all four screen corners. -->
+    <!-- Soft atmospheric ice, with finely branched natural cracks (not polygon tiles).
+         Shared by all four corners. Approved Ice Cut F symbols remain unchanged. -->
+    <defs>
+      <radialGradient id="frost-vapor" gradientUnits="userSpaceOnUse" cx="-2" cy="-5" r="195">
+        <stop offset="0" stop-color="#ebfaff" stop-opacity=".61"/>
+        <stop offset=".24" stop-color="#c9eafa" stop-opacity=".40"/>
+        <stop offset=".51" stop-color="#a9d8ed" stop-opacity=".19"/>
+        <stop offset=".78" stop-color="#b6eaff" stop-opacity=".05"/>
+        <stop offset="1" stop-color="#d8f8ff" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="frost-grain-fade" gradientUnits="userSpaceOnUse" cx="-4" cy="-5" r="171">
+        <stop offset="0" stop-color="white"/>
+        <stop offset=".54" stop-color="#b3b3b3"/>
+        <stop offset="1" stop-color="black"/>
+      </radialGradient>
+      <mask id="frost-grain-mask">
+        <rect width="180" height="180" fill="url(#frost-grain-fade)"/>
+      </mask>
+      <filter id="frost-grain" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".082" numOctaves="3" seed="12" stitchTiles="stitch"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 .74  0 0 0 0 .91  0 0 0 0 1  1.3 -1 0 0 -.03"/>
+        <feGaussianBlur stdDeviation=".48"/>
+      </filter>
+      <filter id="frost-soft-edge" x="-18%" y="-18%" width="136%" height="136%">
+        <feGaussianBlur stdDeviation="5.5"/>
+      </filter>
+    </defs>
     <symbol id="frostline-corner-ice" viewBox="0 0 180 180">
-      <path d="M0 0H180L158 6 145 15 131 12 114 24 99 28 91 38 78 42 66 58 48 62 48 84 32 94 28 114 18 126 13 152 0 180Z" fill="#ccecff" opacity=".20"/>
-      <path d="M0 0H139L119 10 102 13 92 25 74 32 65 46 49 48 43 70 27 81 23 101 11 115 0 141Z" fill="#edffff" opacity=".30"/>
-      <path d="M0 0H90L77 10 60 11 49 22 30 29 24 46 11 50 0 76Z" fill="#f7ffff" opacity=".41"/>
-      <g fill="none" stroke="#e6fbff" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M0 135 28 102 38 73 65 54 80 30 111 17 131 0" stroke-width="2.4" opacity=".77"/>
-        <path d="M0 92 20 70 29 46 48 31 57 8" stroke-width="1.7" opacity=".7"/>
-        <path d="M13 119 35 116 51 125M28 102 46 96 59 101M38 73 25 57 24 46M65 54 83 61 95 56M80 30 77 13 69 0M111 17 110 37 121 44" stroke-width="1.4" opacity=".74"/>
-        <path d="M0 44 33 40 44 50 58 43M9 17 29 25 40 21M38 73 56 78 68 75" stroke-width="1.1" opacity=".59"/>
-        <path d="M0 159 9 142 20 139M52 0 46 14 52 22M109 0 116 9" stroke-width="1.2" opacity=".55"/>
+      <rect width="180" height="180" fill="url(#frost-vapor)"/>
+      <path d="M-12-10 H172 C143 9 140 18 126 24 C108 28 108 42 88 46 C72 55 73 66 58 75 C48 87 48 103 35 108 C20 122 17 146 -8 170Z"
+            fill="#e1f7ff" opacity=".19" filter="url(#frost-soft-edge)"/>
+      <rect width="180" height="180" fill="#d6f4ff" filter="url(#frost-grain)"
+            mask="url(#frost-grain-mask)" opacity=".37"/>
+      <g fill="none" stroke="#f2fcff" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 139 8 125 16 117 20 99 30 92 32 80 49 72 50 58 64 49 68 36 82 29 88 18 105 10 114 0"
+              stroke-width="1.2" opacity=".69"/>
+        <path d="M0 93 12 82 16 69 25 62 26 52 40 43 43 32 58 24 63 11 79 0"
+              stroke-width="1.05" opacity=".59"/>
+        <path d="M0 52 13 48 17 38 30 34 34 24 47 20 53 7 61 0"
+              stroke-width=".88" opacity=".54"/>
+        <path d="M20 99 37 102 44 111 53 112M32 80 21 76 17 69M49 72 60 80 72 81M50 58 41 52 40 43M68 36 80 43 88 44M88 18 95 26 110 27"
+              stroke-width=".88" opacity=".57"/>
+        <path d="M8 125 24 130 30 139M30 92 40 90 48 95M26 52 21 44 17 38M58 24 71 25 82 29M63 11 59 3M0 31 13 27 19 29"
+              stroke-width=".64" opacity=".45"/>
+        <path d="M16 117 27 114 33 118M49 72 57 69 64 70M82 29 87 33 93 32M25 62 15 59 9 53"
+              stroke-width=".49" opacity=".50"/>
       </g>
-      <g fill="#fff" opacity=".69"><circle cx="33" cy="41" r="2"/><circle cx="59" cy="52" r="1.5"/><circle cx="21" cy="99" r="1.5"/><circle cx="77" cy="28" r="1.4"/></g>
+      <g fill="none" stroke="#9fdaf3" stroke-linecap="round" stroke-linejoin="round" opacity=".33">
+        <path d="M1 143 10 128 18 118 22 101 33 95 35 81 52 74 53 59 66 51" stroke-width="2.3"/>
+        <path d="M0 96 15 84 20 71 29 65 29 53 43 46" stroke-width="1.9"/>
+      </g>
     </symbol>
     <symbol id="frostline-ice" viewBox="0 0 32 32">
       <path d="M8 6 H28 L25.4 10.2 H13.8 V14.9 H23.2 L20.5 19.2 H13.8 V26.5 H8 Z" fill="currentColor"/>
