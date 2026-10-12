@@ -614,3 +614,17 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){
   .frost-corner{transition:none;will-change:auto}
 }
+
+/* Mobile-only Frostline identity: center the entire logo/title/team stack.
+   The sound button stays independently anchored at the top-right. */
+@media (max-width:600px) {
+  .topbar{position:relative;justify-content:center}
+  .topbar .brand{
+    width:100%;min-width:0;padding:0 39px;
+    flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  }
+  .topbar .brand > div{width:100%;min-width:0;text-align:center}
+  .topbar .brand h1{font-size:clamp(13px,4.4vw,20px)}
+  .topbar .team-header-identity{justify-content:center}
+  .topbar .sound-button{position:absolute;right:0;top:0}
+}
