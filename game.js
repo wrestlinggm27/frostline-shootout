@@ -1862,7 +1862,7 @@
     updateTeamPreview();
   }));
   // An independent opponent choice: changing the goalie never changes your own team.
-  const goaliePaletteGallery = $('goaliePaletteGallery');
+  const goalieDialog = $('goalieDialog');
   const goaliePaletteOptions = $('goaliePaletteOptions');
   const goaliePaletteSummary = $('goaliePaletteSummary');
   const goaliePalettePreview = $('goaliePalettePreview');
@@ -1902,6 +1902,33 @@
     goalieButtons.push(button);
     goaliePaletteOptions.append(button);
   }
+  function openGoalieEditor() {
+    if (game.mode === 'playing' || game.mode === 'ending') return;
+    // Canceling never commits a draft; start with this player's saved choice.
+    goalieDraft = normalizeGoaliePalette(game.goaliePalette);
+    updateGoaliePalettePreview();
+    goalieDialog.showModal();
+  }
+  function closeGoalieEditor() { goalieDialog.close(); }
+  $('goalieCustomizeButton').addEventListener('click', openGoalieEditor);
+  $('closeGoalieDialog').addEventListener('click', closeGoalieEditor);
+  $('cancelGoalie').addEventListener('click', closeGoalieEditor);
+  goalieDialog.addEventListener('click', event => {
+    if (event.target === goalieDialog) closeGoalieEditor();
+  });
+  goalieDialog.addEventListener('cancel', event => {
+    event.preventDefault();
+    closeGoalieEditor();
+  });
+  $('goalieForm').addEventListener('submit', event => {
+    event.preventDefault();
+    game.goaliePalette = normalizeGoaliePalette(goalieDraft);
+    if (game.profile) {
+      game.profile.goaliePalette = game.goaliePalette;
+      saveProfileDB();
+    }
+    closeGoalieEditor();
+  });
   function applyTeam(team) {
     game.team = normalizeTeam(team);
     if (game.profile) {
@@ -1968,9 +1995,6 @@
     $('teamDialogTitle').textContent = firstTime ? 'BUILD YOUR TEAM' : 'CUSTOMIZE TEAM';
     $('cancelTeam').textContent = firstTime ? 'KEEP THIS TEAM' : 'CANCEL';
     const team = game.team;
-    goalieDraft = normalizeGoaliePalette(game.goaliePalette);
-    goaliePaletteGallery.open = false;
-    updateGoaliePalettePreview();
     teamNameInput.value = team.name;
     teamPrimary.value = team.primary;
     teamSecondary.value = team.secondary;
@@ -2011,12 +2035,7 @@
     event.preventDefault();
     const team = currentEditorTeam();
     applyTeam(team);
-    game.goaliePalette = normalizeGoaliePalette(goalieDraft);
-    if (game.profile) {
-      game.profile.goaliePalette = game.goaliePalette;
-      saveProfileDB();
-    }
-    // Profile-specific team saves replace the old one-team-per-browser key.
+    // Profile-specific home team saves remain independent from the goalie choice.
     closeTeamEditor();
     resizeCanvas();
   });
