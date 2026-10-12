@@ -655,3 +655,58 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .goalie-dialog form{padding:12px;gap:8px}
   .goalie-dialog .customizer-head h2{font-size:20px}
 }
+
+/* DEV V2.13: use the open ice above and below the start menu.
+   Preserve the final-buzzer results layout and rink-sized cabinet. */
+.overlay:not(.results) .overlay-card{
+  width:min(390px,calc(100% - 12px));max-width:none;
+  min-height:calc(100% - 20px);
+  display:flex;flex-direction:column;justify-content:space-evenly;
+  padding:clamp(12px,3.6cqw,20px) clamp(9px,3cqw,16px);
+}
+.overlay:not(.results) .overlay-icon{margin-bottom:0}
+.overlay:not(.results) .overlay-kicker{
+  margin:0;font-size:clamp(9px,2.9cqw,12px);letter-spacing:.12em
+}
+.overlay:not(.results) .player-bar{
+  width:100%;max-width:none;min-height:clamp(35px,11.5cqw,48px);
+  margin:0;padding:6px clamp(7px,2.8cqw,12px)
+}
+.overlay:not(.results) .player-bar>span{font-size:clamp(9px,2.8cqw,11px)}
+.overlay:not(.results) .player-bar strong{font-size:clamp(11px,3.15cqw,13px)}
+.overlay:not(.results) .player-bar button{
+  font-size:clamp(9px,2.65cqw,11px);padding:6px 8px
+}
+.overlay:not(.results) .overlay-copy{
+  margin:0;max-width:100%;font-size:clamp(11px,3.6cqw,14px);line-height:1.45
+}
+.overlay:not(.results) .difficulty-select{width:100%;margin:0}
+.overlay:not(.results) .difficulty-label{
+  font-size:clamp(10px,3.15cqw,12px);margin:0 0 7px
+}
+.overlay:not(.results) .difficulty-options{gap:clamp(5px,1.8cqw,9px)}
+.overlay:not(.results) .difficulty-choice{
+  min-height:clamp(51px,17cqw,68px);padding:6px 2px;gap:4px
+}
+.overlay:not(.results) .difficulty-choice span{
+  font-size:clamp(10px,3.35cqw,13px);line-height:1.12
+}
+.overlay:not(.results) .difficulty-choice small{font-size:clamp(9px,2.7cqw,11px)}
+.overlay:not(.results) .difficulty-description{
+  margin:7px 0 0;font-size:clamp(10px,3.1cqw,12px);line-height:1.4
+}
+.overlay:not(.results) .menu-utility-actions{
+  width:100%;gap:clamp(6px,1.9cqw,10px);margin:0
+}
+.overlay:not(.results) .menu-utility-actions .customize-button{
+  min-height:clamp(42px,14cqw,54px);
+  padding:7px 4px;font-size:clamp(10px,3.35cqw,13px);line-height:1.15
+}
+.overlay:not(.results) .play-button{
+  min-height:clamp(47px,16cqw,64px);font-size:clamp(13px,3.9cqw,17px);
+  padding:12px 13px
+}
+.overlay:not(.results) .overlay-hint{
+  margin:0;font-size:clamp(9px,2.7cqw,11px);line-height:1.35;
+  letter-spacing:.045em
+}
