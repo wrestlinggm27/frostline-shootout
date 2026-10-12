@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#071f54">
   <meta name="description" content="Frostline Shootout — a 30-second hockey arcade with 32 original city clubs, 8 national teams and custom shields.">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.11-goalie-colors">
-  <script src="game.js?v=2.11-goalie-colors" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.12-frost-intro">
+  <script src="game.js?v=2.12-frost-intro" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -18,11 +18,86 @@
     <symbol id="frostline-speed" viewBox="0 0 32 32">
       <path d="M8 27 L12.5 6.5 H28 L24 11 H16.3 L15.4 15.2 H23.4 L19.4 19.5 H14.5 L12.9 27 Z" fill="currentColor"/>
     </symbol>
+    <!-- Soft atmospheric ice, with finely branched natural cracks (not polygon tiles).
+         Shared by all four corners. Approved Ice Cut F symbols remain unchanged. -->
+    <defs>
+      <radialGradient id="frost-vapor" gradientUnits="userSpaceOnUse" cx="-2" cy="-5" r="195">
+        <stop offset="0" stop-color="#ebfaff" stop-opacity=".61"/>
+        <stop offset=".24" stop-color="#c9eafa" stop-opacity=".40"/>
+        <stop offset=".51" stop-color="#a9d8ed" stop-opacity=".19"/>
+        <stop offset=".78" stop-color="#b6eaff" stop-opacity=".05"/>
+        <stop offset="1" stop-color="#d8f8ff" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="frost-grain-fade" gradientUnits="userSpaceOnUse" cx="-4" cy="-5" r="171">
+        <stop offset="0" stop-color="white"/>
+        <stop offset=".54" stop-color="#b3b3b3"/>
+        <stop offset="1" stop-color="black"/>
+      </radialGradient>
+      <mask id="frost-grain-mask">
+        <rect width="180" height="180" fill="url(#frost-grain-fade)"/>
+      </mask>
+      <filter id="frost-grain" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".082" numOctaves="3" seed="12" stitchTiles="stitch"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 .74  0 0 0 0 .91  0 0 0 0 1  1.3 -1 0 0 -.03"/>
+        <feGaussianBlur stdDeviation=".48"/>
+      </filter>
+      <filter id="frost-soft-edge" x="-18%" y="-18%" width="136%" height="136%">
+        <feGaussianBlur stdDeviation="5.5"/>
+      </filter>
+    </defs>
+    <symbol id="frostline-corner-ice" viewBox="0 0 180 180">
+      <rect width="180" height="180" fill="url(#frost-vapor)"/>
+      <path d="M-12-10 H172 C143 9 140 18 126 24 C108 28 108 42 88 46 C72 55 73 66 58 75 C48 87 48 103 35 108 C20 122 17 146 -8 170Z"
+            fill="#e1f7ff" opacity=".19" filter="url(#frost-soft-edge)"/>
+      <rect width="180" height="180" fill="#d6f4ff" filter="url(#frost-grain)"
+            mask="url(#frost-grain-mask)" opacity=".37"/>
+      <g fill="none" stroke="#f2fcff" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 139 8 125 16 117 20 99 30 92 32 80 49 72 50 58 64 49 68 36 82 29 88 18 105 10 114 0"
+              stroke-width="1.2" opacity=".69"/>
+        <path d="M0 93 12 82 16 69 25 62 26 52 40 43 43 32 58 24 63 11 79 0"
+              stroke-width="1.05" opacity=".59"/>
+        <path d="M0 52 13 48 17 38 30 34 34 24 47 20 53 7 61 0"
+              stroke-width=".88" opacity=".54"/>
+        <path d="M20 99 37 102 44 111 53 112M32 80 21 76 17 69M49 72 60 80 72 81M50 58 41 52 40 43M68 36 80 43 88 44M88 18 95 26 110 27"
+              stroke-width=".88" opacity=".57"/>
+        <path d="M8 125 24 130 30 139M30 92 40 90 48 95M26 52 21 44 17 38M58 24 71 25 82 29M63 11 59 3M0 31 13 27 19 29"
+              stroke-width=".64" opacity=".45"/>
+        <path d="M16 117 27 114 33 118M49 72 57 69 64 70M82 29 87 33 93 32M25 62 15 59 9 53"
+              stroke-width=".49" opacity=".50"/>
+      </g>
+      <g fill="none" stroke="#9fdaf3" stroke-linecap="round" stroke-linejoin="round" opacity=".33">
+        <path d="M1 143 10 128 18 118 22 101 33 95 35 81 52 74 53 59 66 51" stroke-width="2.3"/>
+        <path d="M0 96 15 84 20 71 29 65 29 53 43 46" stroke-width="1.9"/>
+      </g>
+    </symbol>
     <symbol id="frostline-ice" viewBox="0 0 32 32">
       <path d="M8 6 H28 L25.4 10.2 H13.8 V14.9 H23.2 L20.5 19.2 H13.8 V26.5 H8 Z" fill="currentColor"/>
       <path d="M19.2 6 L16.9 10.2 M16.8 14.9 L14.6 19.2" fill="none" stroke="#07132d" stroke-width="1.9"/>
     </symbol>
   </svg>
+  <!-- Frostline opening sequence and persistent corner ice. -->
+  <section id="startupScreen" class="startup-screen" data-phase="start" aria-label="Frostline Shootout opening screen">
+    <div id="startupWelcome" class="startup-panel">
+      <svg class="startup-ice-f" viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-ice"></use></svg>
+      <p class="startup-kicker">THE ICE IS YOURS</p>
+      <h2 class="startup-title">FROSTLINE <span>SHOOTOUT</span></h2>
+      <p class="startup-caption">30 SECONDS. ONE NET. YOUR GAME.</p>
+      <button id="startupBeginButton" class="startup-primary" type="button">PRESS START</button>
+    </div>
+    <div id="startupIntro" class="startup-panel" hidden aria-live="polite">
+      <p class="startup-kicker">BUILT WITH OPENAI TOOLS</p>
+      <p class="startup-credit">CREATED BY <strong>EDDIEH27</strong></p>
+      <svg class="startup-ice-f startup-intro-f" viewBox="0 0 32 32" aria-hidden="true"><use href="#frostline-ice"></use></svg>
+    </div>
+    <button id="startupSkipButton" class="startup-skip" type="button">SKIP INTRO</button>
+  </section>
+  <!-- Persistent decorative edge frost. Outside the startup screen so it survives the intro. -->
+  <div id="frostEdgeOverlay" class="frost-edge-overlay" data-frost="off" aria-hidden="true">
+    <svg class="frost-corner frost-top-left" viewBox="0 0 180 180"><use href="#frostline-corner-ice"></use></svg>
+    <svg class="frost-corner frost-top-right" viewBox="0 0 180 180"><use href="#frostline-corner-ice"></use></svg>
+    <svg class="frost-corner frost-bottom-right" viewBox="0 0 180 180"><use href="#frostline-corner-ice"></use></svg>
+    <svg class="frost-corner frost-bottom-left" viewBox="0 0 180 180"><use href="#frostline-corner-ice"></use></svg>
+  </div>
   <main class="app" aria-label="Frostline Shootout hockey game">
     <header class="topbar">
       <div class="brand">
