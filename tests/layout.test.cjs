@@ -60,6 +60,12 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         viewport.label + ': edge ice cannot steal taps or drag gestures');
       assert.equal(await page.locator('.frost-corner').count(), 4,
         viewport.label + ': four frosted corners remain mounted');
+      assert.equal(await page.locator('#frost-grain feTurbulence').count(), 1,
+        viewport.label + ': frosted corners use soft procedural grain');
+      const frostEdgeStyle = await page.locator('.frost-corner').first().evaluate(el =>
+        getComputedStyle(el).filter);
+      assert.match(frostEdgeStyle, /blur\\(/,
+        viewport.label + ': frosted edges should remain optically soft');
       assert.equal(await page.locator('#playerDialog').evaluate(el => el.open), false,
         viewport.label + ': onboarding should wait for the intro');
       assert.equal(await page.locator('#startupWelcome .startup-ice-f use').getAttribute('href'), '#frostline-ice',
