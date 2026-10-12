@@ -628,3 +628,26 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .topbar .team-header-identity{justify-content:center}
   .topbar .sound-button{position:absolute;right:0;top:0}
 }
+
+/* Goalie Colors has its own Arcade menu button and dialog. */
+.menu-utility-actions .goalie-menu-button{color:#d3f2ff;border-color:#6fa7ca;background:#0d3053ad}
+.menu-utility-actions .logo-menu-button{color:#eef5ff;border-color:#a1b7db;background:#11284db0}
+.goalie-dialog{
+  position:fixed;inset:0;width:min(430px,calc(100vw - 24px));
+  max-height:min(90dvh,790px);overflow-y:auto;margin:auto;padding:0;
+  background:linear-gradient(155deg,var(--team-deep),var(--team-darker));
+  border:1px solid var(--team-highlight);border-radius:18px;color:#fff;
+  box-shadow:0 25px 85px #000c;
+}
+.goalie-dialog::backdrop{background:#020a1de0;backdrop-filter:blur(5px)}
+.goalie-dialog form{display:grid;gap:10px;padding:16px}
+.goalie-dialog .goalie-palette-intro{padding:0;margin:0;color:#bfcee5}
+.goalie-dialog .goalie-palette-preview{margin:0;padding:10px}
+.goalie-dialog .goalie-palette-summary{margin:0;color:#bad6f6;font-size:11px;font-weight:850;letter-spacing:.025em}
+.goalie-dialog .goalie-palette-options{padding:0 1px 2px}
+.goalie-dialog .goalie-save-note{margin:0;color:#a6c0da;font-size:10px;line-height:1.4}
+.goalie-dialog .customizer-actions{margin-top:3px}
+@media(max-width:390px){
+  .goalie-dialog form{padding:12px;gap:8px}
+  .goalie-dialog .customizer-head h2{font-size:20px}
+}
