@@ -2236,20 +2236,16 @@
     if (!ac) return;
     try {
       const t = ac.currentTime;
-      noiseBurst(ac, t, .43, 2400, .65, .12, arenaAudio.master, .03);
-      noiseBurst(ac, t + .035, .10, 4600, 2.6, .19, arenaAudio.master, .002);
-      noiseBurst(ac, t + .18, .12, 3200, 2.2, .15, arenaAudio.master, .003);
-      noiseBurst(ac, t + .36, .11, 5200, 3.1, .10, arenaAudio.master, .002);
-      const ring = ac.createOscillator();
-      ring.type = 'triangle';
-      ring.frequency.setValueAtTime(1320, t + .04);
-      ring.frequency.exponentialRampToValueAtTime(430, t + .48);
-      const gain = ac.createGain();
-      volumeFade(gain, t + .04, .075, .014, .48);
-      ring.connect(gain);
-      gain.connect(arenaAudio.master);
-      ring.start(t + .04);
-      ring.stop(t + .54);
+      // Dry, irregular ice fractures: CRK-sk-sk. Fast broadband noise transients
+      // with no tonal oscillator, pitch fall, long whoosh or reverb tail.
+      noiseBurst(ac, t,        .029,  780,  .75, .32, arenaAudio.master, .001);
+      noiseBurst(ac, t + .009, .034, 1850,  .88, .38, arenaAudio.master, .001);
+      noiseBurst(ac, t + .022, .028, 4300, 1.15, .23, arenaAudio.master, .001);
+      noiseBurst(ac, t + .079, .022, 5200, 1.25, .25, arenaAudio.master, .001);
+      noiseBurst(ac, t + .126, .040, 2100,  .92, .29, arenaAudio.master, .001);
+      noiseBurst(ac, t + .172, .025, 5700, 1.15, .22, arenaAudio.master, .001);
+      noiseBurst(ac, t + .229, .044, 3300, 1.10, .18, arenaAudio.master, .001);
+      noiseBurst(ac, t + .290, .024, 4800, 1.45, .13, arenaAudio.master, .001);
     } catch { /* The animation still works where sound is unsupported. */ }
   }
   function finishStartup() {
