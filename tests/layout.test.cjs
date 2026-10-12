@@ -25,7 +25,10 @@ async function inspect(page) {
     const pad = 1.5;
     const fits = b => b.left >= frame.left - pad && b.right <= frame.right + pad
       && b.top >= frame.top - pad && b.bottom <= frame.bottom + pad;
-    const visible = selectors.filter(selector => document.querySelector(selector))
+    const visible = selectors.filter(selector => {
+      const el = document.querySelector(selector);
+      return el && getComputedStyle(el).display !== 'none';
+    })
       .map(selector => {
         const element = document.querySelector(selector);
         const rect = element.getBoundingClientRect();
@@ -318,6 +321,10 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#closeGoalieDialog').click();
 
       const start = await inspect(page);
+      assert.equal(await page.locator('#overlayTitle').isVisible(), false,
+        viewport.label + ': oversized intro headline must be removed from start menu');
+      assert.equal(await page.locator('#overlayCopy').isVisible(), true,
+        viewport.label + ': concise shooting instructions remain visible');
       assert.ok(start.cardFits, viewport.label + ': start menu escaped rink, ' + JSON.stringify(start));
       assert.ok(start.visible.every(v => v.fits), viewport.label + ': start content escaped rink, ' + JSON.stringify(start));
       assert.ok(start.overflow.every(v => !v.exceeds), viewport.label + ': start button overflow, ' + JSON.stringify(start));
@@ -350,6 +357,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       await page.locator('#mainMenuButton').click();
       assert.equal(await page.locator('#overlay').isVisible(), true,
         viewport.label + ': returning to menu should show overlay');
+      assert.equal(await page.locator('#overlayTitle').isVisible(), false,
+        viewport.label + ': return-to-menu must stay free of duplicate intro title');
       assert.match(await page.locator('#playButton').textContent(), /START GAME/);
 
       await page.evaluate(() => {
@@ -368,6 +377,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         window.dispatchEvent(new Event('resize'));
       });
       const result = await inspect(page);
+      assert.equal(await page.locator('#overlayTitle').isVisible(), true,
+        viewport.label + ': full-size results headline must remain visible');
       assert.ok(result.cardFits, viewport.label + ': result menu escaped rink, ' + JSON.stringify(result));
       assert.ok(result.visible.every(v => v.fits), viewport.label + ': results escaped rink, ' + JSON.stringify(result));
       assert.ok(result.overflow.every(v => !v.exceeds), viewport.label + ': results button overflow, ' + JSON.stringify(result));
