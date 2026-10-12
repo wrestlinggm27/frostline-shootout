@@ -133,6 +133,14 @@ function boot(seed = {}, options = {}) {
   return { elem, leagues, presets, logoChoices, crestChoices, cityChoices, nationChoices, storage, localStorage, frame, submit, errors, raf };
 }
 
+test('DEV Arcade menu removes the oversized startup tagline without hiding results headlines', () => {
+  assert.ok(html.includes('id="overlayTitle"'), 'title node remains for game-over results');
+  assert.ok(css.includes('.overlay:not(.results) #overlayTitle{display:none}'),
+    'only the Arcade start menu hides the redundant title');
+  assert.ok(html.includes('30 SECONDS. ONE NET. YOUR GAME.'),
+    'the separate opening screen still introduces the 30-second challenge');
+});
+
 test('UI contains player, team and local record book elements', () => {
   for (const id of ['playerDialog', 'playerForm', 'playerNameInput', 'switchPlayerButton',
       'teamDialog', 'recordsDialog', 'recordsButton', 'recordRows', 'playButton',
