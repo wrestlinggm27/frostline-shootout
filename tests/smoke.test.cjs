@@ -372,6 +372,46 @@ test('DEV goalie colors are an independent main-menu editor with per-player save
   reloaded.elem('cancelGoalie').emit('click');
 });
 
+test('DEV paused shot diagnostics preserve time, scores and saved player records', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Test Shooter';
+  t.submit('playerForm');
+  t.submit('teamForm');
+  t.elem('playButton').emit('click');
+  const scoreBefore = t.elem('score').textContent;
+  const shotsBefore = t.elem('shots').textContent;
+  const timeBefore = t.elem('time').innerHTML;
+  const savedBefore = t.storage.get('frostline-dev:frostline-player-profiles-v1');
+  assert.equal(t.elem('devTestButton').hidden, false);
+  t.elem('devTestButton').emit('click');
+  assert.equal(t.elem('devTestButton').textContent, 'RESUME');
+  assert.equal(t.elem('devTestHint').hidden, false);
+  // The stopwatch must not run during any number of diagnostic frames.
+  for (let i = 0; i < 20; i++) t.frame(100);
+  assert.equal(t.elem('time').innerHTML, timeBefore);
+  const rink = t.elem('rink');
+  // Place the goalie towards the left without changing the score.
+  rink.emit('pointerdown', { pointerId: 56, clientX:210, clientY:225 });
+  rink.emit('pointermove', { pointerId: 56, clientX:150, clientY:225 });
+  rink.emit('pointerup', { pointerId: 56, clientX:150, clientY:225 });
+  rink.emit('pointerdown', { pointerId: 57, clientX:210, clientY:563 });
+  rink.emit('pointermove', { pointerId: 57, clientX:190, clientY:650 });
+  rink.emit('pointerup', { pointerId: 57, clientX:190, clientY:650 });
+  for (let i = 0; i < 14; i++) t.frame(100);
+  assert.equal(t.elem('shots').textContent, shotsBefore);
+  assert.equal(t.elem('score').textContent, scoreBefore);
+  assert.equal(t.elem('time').innerHTML, timeBefore);
+  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), savedBefore);
+  t.elem('devTestButton').emit('click');
+  assert.equal(t.elem('devTestButton').textContent, 'TEST');
+  t.frame(100);
+  assert.notEqual(t.elem('time').innerHTML, timeBefore, 'normal gameplay clock resumes');
+  t.elem('mainMenuButton').emit('click');
+  assert.equal(t.elem('devTestButton').hidden, true);
+  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), savedBefore);
+});
+
 test('DEV Main Menu abandons a round safely and can start a clean game or new profile', () => {
   const t = boot();
   t.frame(16);
