@@ -16,6 +16,15 @@ const viewports = [
 
 // Team preset cards are followed by a very long editor on phones.
 // Tapping a preset should expose the Save button without another swipe.
+// Check the goalie's own scrollable dialog, not the page behind it.
+async function goalieSaveIsInView(page) {
+  return page.evaluate(() => {
+    const dialog = document.getElementById('goalieDialog').getBoundingClientRect();
+    const save = document.querySelector('#goalieForm .save-team').getBoundingClientRect();
+    return save.top >= dialog.top - 2 && save.bottom <= dialog.bottom + 2;
+  });
+}
+
 async function teamSaveIsInView(page) {
   return page.evaluate(() => {
     const dialog = document.getElementById('teamDialog').getBoundingClientRect();
@@ -303,6 +312,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         viewport.label + ': main menu keeps team, records, goalie, and logo options');
       await page.locator('#goalieCustomizeButton').click();
       assert.equal(await page.locator('#goalieDialog').evaluate(el => el.open), true);
+      assert.equal(await page.locator('#goalieDialog').evaluate(el => el.scrollTop), 0,
+        viewport.label + ': opening goalie colors should start at top');
       assert.equal(await page.locator('[data-goalie-palette]').count(), 33,
         viewport.label + ': 32 city palettes plus Frostline original');
       assert.equal(await page.locator('.goalie-palette-choice').first().isVisible(), true);
@@ -316,10 +327,14 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       });
       assert.ok(paletteFit, viewport.label + ': goalie palettes overflow their own dialog');
       await page.locator('[data-goalie-palette="boston"]').click();
+      assert.equal(await goalieSaveIsInView(page), true,
+        viewport.label + ': Boston selection should jump to Save Goalie');
       assert.equal(await page.locator('[data-goalie-palette="boston"]').getAttribute('aria-pressed'), 'true');
       assert.equal(await page.locator('#goaliePaletteSummary').textContent(), 'Selected: Boston');
       await page.locator('#cancelGoalie').click();
       await page.locator('#goalieCustomizeButton').click();
+      assert.equal(await page.locator('#goalieDialog').evaluate(el => el.scrollTop), 0,
+        viewport.label + ': reopening goalie colors should reset to top');
       assert.equal(await page.locator('#goaliePaletteSummary').textContent(),
         'Selected: Frostline Original', viewport.label + ': Cancel must not save Boston');
       await page.locator('[data-goalie-palette="boston"]').click();
