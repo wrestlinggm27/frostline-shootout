@@ -292,6 +292,8 @@ test('DEV goalie colors are an independent main-menu editor with per-player save
     'team editor should not contain goalie colors');
 
   const t = boot();
+  // Model a scrollable mobile goalie dialog so the jump-to-save rule is checked.
+  t.elem('goalieDialog').scrollHeight = 1500;
   const options = t.elem('goaliePaletteOptions').children;
   assert.equal(options.length, 33, '32 city colors plus Frostline original');
   const choice = id => options.find(button => button.dataset.goaliePalette === id);
@@ -310,7 +312,10 @@ test('DEV goalie colors are an independent main-menu editor with per-player save
 
   t.elem('goalieCustomizeButton').emit('click');
   assert.equal(t.elem('goalieDialog').open, true);
+  assert.equal(t.elem('goalieDialog').scrollTop, 0, 'opening goalie colors starts at the top');
   choice('boston').emit('click');
+  assert.equal(t.elem('goalieDialog').scrollTop, 1500,
+    'choosing goalie colors must jump to Save Goalie');
   assert.equal(choice('boston').getAttribute('aria-pressed'), 'true');
   assert.equal(t.elem('goaliePaletteSummary').textContent, 'Selected: Boston');
   assert.equal(t.elem('goaliePalettePreview').textContent, 'BOSTON');
@@ -319,8 +324,10 @@ test('DEV goalie colors are an independent main-menu editor with per-player save
   assert.equal(JSON.parse(t.storage.get(key)).players[0].goaliePalette, 'original',
     'cancel discards unsaved goalie color');
   t.elem('goalieCustomizeButton').emit('click');
+  assert.equal(t.elem('goalieDialog').scrollTop, 0, 'reopening resets scroll');
   assert.equal(t.elem('goaliePaletteSummary').textContent, 'Selected: Frostline Original');
   choice('boston').emit('click');
+  assert.equal(t.elem('goalieDialog').scrollTop, 1500, 'jump works after reopening');
   t.submit('goalieForm');
   assert.equal(t.elem('goalieDialog').open, false);
   saved = JSON.parse(t.storage.get(key));
