@@ -762,6 +762,8 @@
   const soundOnIcon = $('soundOnIcon');
   const soundOffIcon = $('soundOffIcon');
   const mainMenuButton = $('mainMenuButton');
+  const devTestButton = $('devTestButton');
+  const devTestHint = $('devTestHint');
   const resultsMenuButton = $('resultsMenuButton');
 
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -844,6 +846,7 @@
     goalie: { x: 210, targetX: 210, lean: 0, flash: 0 },
     shot: null, cooldown: 0, toastTimer: 0, shake: 0,
     aiming: null, particles: [], previousTargets: [],
+    devTest: { active:false, dragPointer:null, priorGoalieX:210, lastOutcome:'' },
     audioEnabled: true, audioContext: null, lastTime: 0,
     statsRefresh: 0
   };
@@ -1211,12 +1214,54 @@
   difficultyButtons.forEach(button => button.addEventListener('click', () => setDifficulty(button.dataset.difficulty)));
   setDifficulty(initialDifficulty);
 
+  // DEV diagnostics never save scores, records or profile preferences.
+  function updateDevTestUI() {
+    devTestButton.hidden = game.mode !== 'playing';
+    devTestButton.textContent = game.devTest.active ? 'RESUME' : 'TEST';
+    devTestButton.setAttribute('aria-pressed', String(game.devTest.active));
+    devTestHint.hidden = !game.devTest.active;
+    if (game.devTest.active) devTestHint.textContent = 'TEST: ' +
+      (game.devTest.lastOutcome || 'DRAG GOALIE + SHOOT') + ' · TIMER PAUSED';
+  }
+  function toggleDevTest() {
+    if (game.mode !== 'playing') return;
+    if (!game.devTest.active) {
+      if (game.puck.moving || game.cooldown > 0 || game.aiming) return;
+      game.devTest.priorGoalieX = game.goalie.x;
+      game.devTest.active = true;
+      game.devTest.lastOutcome = '';
+      game.goalie.lean = 0;
+    } else {
+      stopWindup();
+      if (game.aiming && canvas.hasPointerCapture(game.aiming.pointerId)) canvas.releasePointerCapture(game.aiming.pointerId);
+      if (game.devTest.dragPointer !== null && canvas.hasPointerCapture(game.devTest.dragPointer)) canvas.releasePointerCapture(game.devTest.dragPointer);
+      game.aiming = null;
+      game.devTest.dragPointer = null;
+      game.devTest.active = false;
+      game.goalie.x = game.devTest.priorGoalieX;
+      game.goalie.targetX = game.goalie.x;
+      game.goalie.lean = 0;
+      game.cooldown = 0;
+      resetPuck();
+      game.shake = 0;
+      game.particles = [];
+      game.toastTimer = 0;
+      toast.className = 'shot-toast';
+    }
+    updateDevTestUI();
+    game.lastTime = performance.now();
+    updateHUD();
+  }
+  devTestButton.addEventListener('click', toggleDevTest);
   function startGame() {
     if (!game.profile) { openPlayerDialog(); return; }
     stopWindup();
     const ac = audioReady(); // Start button provides the user gesture Safari needs.
     if (ac) preloadCrowd(ac);
     game.mode = 'playing';
+    game.devTest.active = false;
+    game.devTest.dragPointer = null;
+    game.devTest.lastOutcome = '';
     // Snapshot the selected mode's record, even after switching levels on the menu.
     game.best = readBest(game.difficulty);
     game.remaining = ROUND_SECONDS;
@@ -1238,6 +1283,7 @@
     toast.className = 'shot-toast';
     toast.textContent = '';
     $('controlHint').textContent = 'PULL BACK & RELEASE  ·  OR FLICK FORWARD';
+    updateDevTestUI();
     updateHUD();
     game.lastTime = performance.now();
   }
@@ -1246,6 +1292,9 @@
     if (game.mode === 'finished') return;
     stopWindup();
     game.mode = 'finished';
+    game.devTest.active = false;
+    game.devTest.dragPointer = null;
+    updateDevTestUI();
     overlay.classList.add('results');
     if (game.profile) {
       const record = getRecord(game.difficulty);
@@ -1315,23 +1364,23 @@
     if (!game.shot || !game.puck.moving) return; // Never double-count a shot.
     const p = game.puck;
     if (type === 'goal') {
-      game.goals++;
+      if (!game.devTest.active) game.goals++;
       game.shake = 4;
       showToast('GOAL!', 'goal');
       playSound('goal');
       addParticles(p.x, GOAL.line, ['#35e9b8', '#ffffff', '#f8d78e', '#74d5ff'], 36, 230);
-      if (game.goals > game.best) {
+      if (!game.devTest.active && game.goals > game.best) {
         game.best = game.goals;
         saveBest(game.best);
       }
     } else if (type === 'save') {
-      game.saves++;
+      if (!game.devTest.active) game.saves++;
       game.goalie.flash = .24;
       showToast('SAVE!', 'save');
       playSound('save');
       addParticles(p.x, GOALIE_LINE, ['#ffffff', '#6cdff0', '#bfdbe8'], 13, 110);
     } else {
-      game.misses++;
+      if (!game.devTest.active) game.misses++;
       if (type === 'post') {
         showToast('MISS · POST!', 'miss');
         playSound('post');
@@ -1350,6 +1399,7 @@
     p.moving = false;
     game.shot = null;
     game.cooldown = .29;
+    if (game.devTest.active) { game.devTest.lastOutcome = type.toUpperCase(); updateDevTestUI(); }
     updateHUD();
   }
 
@@ -1379,9 +1429,17 @@
   }
 
   canvas.addEventListener('pointerdown', (event) => {
-    if (game.mode !== 'playing' || game.puck.moving || game.cooldown > 0 || game.aiming) return;
+    if (game.mode !== 'playing' || game.devTest.dragPointer !== null) return;
     if (event.button !== undefined && event.button !== 0) return;
     const pt = worldPoint(event);
+    if (game.devTest.active && Math.abs(pt.x - game.goalie.x) <= 65
+        && Math.abs(pt.y - GOALIE_LINE) <= 65) {
+      event.preventDefault();
+      canvas.setPointerCapture(event.pointerId);
+      game.devTest.dragPointer = event.pointerId;
+      return;
+    }
+    if (game.puck.moving || game.cooldown > 0 || game.aiming) return;
     // Finger-sized hit area; still requires starting on/near the actual puck.
     if (distance(pt, PUCK_START) > 67) return;
     event.preventDefault();
@@ -1390,6 +1448,13 @@
   });
 
   canvas.addEventListener('pointermove', (event) => {
+    if (game.devTest.dragPointer === event.pointerId) {
+      event.preventDefault();
+      game.goalie.x = clamp(worldPoint(event).x, 146, 274);
+      game.goalie.targetX = game.goalie.x;
+      game.goalie.lean = 0;
+      return;
+    }
     if (!game.aiming || event.pointerId !== game.aiming.pointerId) return;
     event.preventDefault();
     game.aiming.current = worldPoint(event);
@@ -1414,9 +1479,21 @@
     firePuck(gesture);
   }
 
-  canvas.addEventListener('pointerup', (event) => releaseAim(event));
-  canvas.addEventListener('pointercancel', (event) => releaseAim(event, true));
+  function finishDevGoalieDrag(event) {
+    if (game.devTest.dragPointer !== event.pointerId) return false;
+    event.preventDefault();
+    game.devTest.dragPointer = null;
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    return true;
+  }
+  canvas.addEventListener('pointerup', (event) => {
+    if (!finishDevGoalieDrag(event)) releaseAim(event);
+  });
+  canvas.addEventListener('pointercancel', (event) => {
+    if (!finishDevGoalieDrag(event)) releaseAim(event, true);
+  });
   canvas.addEventListener('lostpointercapture', (event) => {
+    if (game.devTest.dragPointer === event.pointerId) game.devTest.dragPointer = null;
     if (game.aiming?.pointerId === event.pointerId) {
       game.aiming = null;
       stopWindup();
@@ -1435,7 +1512,7 @@
     const predictedNetX = gesture.directionY < -.025
       ? PUCK_START.x + (GOAL.line - PUCK_START.y) * gesture.directionX / gesture.directionY
       : PUCK_START.x + 1200 * gesture.directionX;
-    game.shots++;
+    if (!game.devTest.active) game.shots++;
     const progress = clamp(game.elapsed / ROUND_SECONDS, 0, 1);
     const settings = DIFFICULTIES[game.difficulty];
     const lastTargets = game.previousTargets;
@@ -1448,10 +1525,9 @@
         - (repeat ? settings.repeatBoost : 0),
       // High-power shots can occasionally sail up into the crossbar.
       // The chance rises with force, so max power has a small risk/reward tradeoff.
-      crossbar: gesture.power > .86 && Math.random() < (gesture.power - .86) * 1.05
+      crossbar: !game.devTest.active && gesture.power > .86 && Math.random() < (gesture.power - .86) * 1.05
     };
-    lastTargets.push(predictedNetX);
-    if (lastTargets.length > 4) lastTargets.shift();
+    if (!game.devTest.active) { lastTargets.push(predictedNetX); if (lastTargets.length > 4) lastTargets.shift(); }
     playSound('fire');
     updateHUD();
   }
@@ -1519,8 +1595,8 @@
   }
 
   function tick(dt, realDt = dt) {
-    game.elapsed += realDt * (game.mode === 'playing' ? 1 : 0);
-    if (game.mode === 'playing') {
+    game.elapsed += realDt * (game.mode === 'playing' && !game.devTest.active ? 1 : 0);
+    if (game.mode === 'playing' && !game.devTest.active) {
       game.remaining = Math.max(0, game.remaining - realDt);
       if (game.remaining <= 0) {
         game.mode = 'ending';
@@ -1529,7 +1605,8 @@
       }
     }
     if (game.mode === 'playing' || game.mode === 'ending') {
-      updateGoalie(dt);
+      if (!game.devTest.active) updateGoalie(dt);
+      else game.goalie.flash = Math.max(0, game.goalie.flash - dt);
       updatePuck(dt);
       if (!game.puck.moving && game.cooldown > 0) {
         game.cooldown = Math.max(0, game.cooldown - dt);
@@ -1780,6 +1857,17 @@
     drawIce();
     drawGoalAndCrease();
     drawGoalie();
+    if (game.devTest.active) {
+      const settings = DIFFICULTIES[game.difficulty];
+      const half = settings.saveStart + settings.saveGain * clamp(game.elapsed / ROUND_SECONDS, 0, 1);
+      ctx.save();
+      ctx.fillStyle = '#ffbe3666';
+      ctx.fillRect(game.goalie.x - half, GOALIE_LINE - 3, half * 2, 6);
+      ctx.strokeStyle = '#ffdc7c';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(game.goalie.x - half, GOALIE_LINE - 7, half * 2, 14);
+      ctx.restore();
+    }
     drawShotPrediction();
     drawPuck();
     drawParticles();
@@ -2062,6 +2150,10 @@
   function returnToArcadeMenu() {
     stopWindup();
     game.mode = 'idle';
+    game.devTest.active = false;
+    game.devTest.dragPointer = null;
+    game.devTest.lastOutcome = '';
+    updateDevTestUI();
     // Abandon only the active round. Never erase saved profiles or record books.
     if (game.aiming && canvas.hasPointerCapture(game.aiming.pointerId)) {
       canvas.releasePointerCapture(game.aiming.pointerId);
@@ -2311,6 +2403,7 @@
   applyTeam(game.team);
   const resumed = profileDB.players.find(p => p.id === profileDB.activeId);
   if (resumed) activateProfile(resumed);
+  updateDevTestUI();
   updateHUD();
   resizeCanvas();
   requestAnimationFrame(frame);
