@@ -14,6 +14,16 @@ const viewports = [
   { width: 320, height: 568, label: 'small phone portrait' }
 ];
 
+// Team preset cards are followed by a very long editor on phones.
+// Tapping a preset should expose the Save button without another swipe.
+async function teamSaveIsInView(page) {
+  return page.evaluate(() => {
+    const dialog = document.getElementById('teamDialog').getBoundingClientRect();
+    const save = document.querySelector('#teamForm .save-team').getBoundingClientRect();
+    return save.top >= dialog.top - 2 && save.bottom <= dialog.bottom + 2;
+  });
+}
+
 async function inspect(page) {
   return page.evaluate(() => {
     const frame = document.querySelector('#rinkFrame').getBoundingClientRect();
@@ -175,6 +185,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         ['losangeles','Los Angeles Royal Army'], ['sanjose','San Jose Chomp'],
         ['vancouver','Vancouver Clock Chain'], ['vegas','Vegas Flamingo Toss']]) {
         await page.locator('[data-city-club="' + id + '"]').click();
+        assert.equal(await teamSaveIsInView(page), true,
+          viewport.label + ': selecting city club ' + id + ' must reveal Save My Team');
         assert.equal(await page.locator('#teamNameInput').inputValue(), name, viewport.label + ': chosen club name');
         assert.equal(await page.locator('[data-city-club="' + id + '"]').getAttribute('aria-pressed'), 'true');
         assert.equal(await page.locator('#previewTeamCrest svg').count(), 1);
@@ -246,6 +258,8 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
       for(const [id,name] of [['usa','USA'],['canada','Canada'],['sweden','Sweden'],['finland','Finland'],
         ['czechia','Czechia'],['slovakia','Slovakia'],['germany','Germany'],['switzerland','Switzerland']]){
         await page.locator('[data-national-team="'+id+'"]').click();
+        assert.equal(await teamSaveIsInView(page), true,
+          viewport.label + ': selecting national team ' + id + ' must reveal Save My Team');
         assert.equal(await page.locator('#teamNameInput').inputValue(),name,viewport.label+': '+name+' selected');
         assert.equal(await page.locator('[data-national-team="'+id+'"]').getAttribute('aria-pressed'),'true');
         assert.equal(await page.locator('#previewTeamCrest svg').count(),1);
