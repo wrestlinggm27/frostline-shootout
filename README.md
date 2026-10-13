@@ -1,4 +1,10 @@
-# Frostline Shootout — Stable Version 2.15
+# Frostline Shootout — Stable Version 2.16
+
+## Stable V2.16: Save Goalie Jump (Approved)
+
+Selecting any Frostline Original or pro-hockey city goalie color palette now automatically jumps to **SAVE GOALIE** inside the Goalie Colors dialog, matching the already approved home-team selection behavior. Reopening the chooser returns to the top. Palette selection remains a draft until Save is pressed, and Cancel still discards unsaved choices.
+
+Promoted only the reviewed DEV Goalie Colors handling to Stable, along with asset cache refresh and regression checks. The Ice Cut F logo, approved national flag shields, 32 city crests, gameplay, player profiles, saved records, storage keys, and independent DEV environment remain unchanged.
 
 ## Stable V2.15: One-tap Access to Save Team (Approved)
 
@@ -40,7 +46,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.15 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.16 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
