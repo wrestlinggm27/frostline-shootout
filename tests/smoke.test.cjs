@@ -412,6 +412,40 @@ test('DEV paused shot diagnostics preserve time, scores and saved player records
   assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), savedBefore);
 });
 
+test('DEV glove collision saves puck contact on both arms but permits clear corner goals', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Glove Auditor';
+  t.submit('playerForm');
+  t.submit('teamForm');
+  t.elem('playButton').emit('click');
+  t.elem('devTestButton').emit('click');
+  assert.equal(t.elem('devTestButton').textContent, 'RESUME');
+  const rink = t.elem('rink');
+  const baseline = t.storage.get('frostline-dev:frostline-player-profiles-v1');
+
+  // Aim from the puck at x=210,y=563. At y=225, a 15px side pull hits the
+  // visible glove; an 18px pull clears it while still entering the net.
+  const shoot = (id, sidePull, expected) => {
+    rink.emit('pointerdown', { pointerId:id, clientX:210, clientY:563 });
+    rink.emit('pointermove', { pointerId:id, clientX:210+sidePull, clientY:663 });
+    rink.emit('pointerup', { pointerId:id, clientX:210+sidePull, clientY:663 });
+    for (let i=0; i<16; i++) t.frame(100);
+    assert.match(t.elem('devTestHint').textContent, new RegExp('TEST: '+expected),
+      'a shot with '+sidePull+'px pull should be '+expected);
+  };
+  shoot(60, -15, 'SAVE'); // puck overlapping the goalie's right glove
+  shoot(61, 15, 'SAVE'); // puck overlapping the goalie's left glove
+  shoot(62, -18, 'GOAL'); // just outside the right glove
+  shoot(63, 18, 'GOAL'); // just outside the left glove
+
+  assert.equal(t.elem('shots').textContent, 0, 'test shots cannot count');
+  assert.equal(t.elem('score').textContent, 0, 'test goals cannot count');
+  assert.equal(t.elem('saves').textContent, 0, 'test saves cannot count');
+  assert.equal(t.storage.get('frostline-dev:frostline-player-profiles-v1'), baseline,
+    'all testing leaves player records unchanged');
+});
+
 test('DEV Main Menu abandons a round safely and can start a clean game or new profile', () => {
   const t = boot();
   t.frame(16);
