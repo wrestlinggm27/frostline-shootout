@@ -274,6 +274,18 @@ test('Stable sound toggle switches SVG icons and mutes/unmutes the audio bus', (
 });
 
 
+test('Stable excludes private DEV goalie diagnostic controls and storage', () => {
+  for (const forbidden of [
+    'devTestButton', 'devTestHint', 'dev-test-button',
+    'toggleDevTest', 'devTest.dragPointer', 'DEV_STORAGE_PREFIX',
+    'frostline-dev:'
+  ]) {
+    assert.equal(gameCode.includes(forbidden), false, forbidden + ' must not ship in game.js');
+    assert.equal(html.includes(forbidden), false, forbidden + ' must not ship in index.html');
+    assert.equal(css.includes(forbidden), false, forbidden + ' must not ship in style.css');
+  }
+});
+
 test('Stable goalie gloves block both sides while clear shooting lanes can score', () => {
   // Normal live rounds only. No DEV diagnostic mode or private test controls.
   for (const difficulty of ['pond', 'beer', 'show']) {
