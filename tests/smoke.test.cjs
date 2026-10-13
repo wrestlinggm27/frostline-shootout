@@ -273,6 +273,35 @@ test('Stable sound toggle switches SVG icons and mutes/unmutes the audio bus', (
   assert.deepEqual([...t.storage.entries()], existingStorage, 'mute should not change player or game saves');
 });
 
+
+test('Stable goalie gloves block both sides while clear shooting lanes can score', () => {
+  // Normal live rounds only. No DEV diagnostic mode or private test controls.
+  for (const difficulty of ['pond', 'beer', 'show']) {
+    for (const [pull, outcome] of [[-15, 'save'], [8, 'save'], [17, 'goal']]) {
+      const t = boot();
+      t.frame(16);
+      t.elem('playerNameInput').value = 'Glove Check';
+      t.submit('playerForm');
+      t.submit('teamForm');
+      t.leagues.find(button => button.dataset.difficulty === difficulty).emit('click');
+      t.elem('playButton').emit('click');
+      const rink = t.elem('rink');
+      rink.emit('pointerdown', { pointerId:67, clientX:210, clientY:563 });
+      rink.emit('pointermove', { pointerId:67, clientX:210+pull, clientY:663 });
+      rink.emit('pointerup', { pointerId:67, clientX:210+pull, clientY:663 });
+      for (let i=0; i<13; i++) t.frame(100);
+      assert.equal(t.elem('shots').textContent, 1, difficulty + ': one valid live shot');
+      assert.equal(t.elem('saves').textContent, outcome === 'save' ? 1 : 0,
+        difficulty + ': glove result for pull ' + pull);
+      assert.equal(t.elem('score').textContent, outcome === 'goal' ? 1 : 0,
+        difficulty + ': goal result for pull ' + pull);
+      assert.equal(t.elem('misses').textContent, 0, difficulty + ': test shot stays on target');
+      assert.equal(t.storage.has('frostline-dev:frostline-player-profiles-v1'), false,
+        'Stable never creates DEV records');
+    }
+  }
+});
+
 test('Stable goalie colors are an independent main-menu editor with per-player saves', () => {
   assert.ok(html.includes('id="goalieCustomizeButton"'), 'independent main-menu button');
   assert.ok(html.includes('id="goalieDialog"'), 'independent dialog');
