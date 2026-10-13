@@ -1826,6 +1826,11 @@
   const nationButtons = [...document.querySelectorAll('[data-national-team]')];
   const cityClubGallery = $('cityClubGallery');
   const nationalTeamGallery = $('nationalTeamGallery');
+  // Selecting a preset only updates the draft; Save My Team still confirms it.
+  // Reveal the action row without scrolling the page behind the dialog.
+  function revealTeamSaveActions() {
+    if (teamDialog.open) teamDialog.scrollTop = teamDialog.scrollHeight;
+  }
   let crestDraft = 'monogram';
   let clubDraft = null;
   let nationDraft = null;
@@ -1847,6 +1852,7 @@
     nationDraft = null;
     nationalTeamGallery.open = false;
     updateTeamPreview();
+    revealTeamSaveActions();
   }));
   nationButtons.forEach(button => button.addEventListener('click', () => {
     const country = NATIONAL_TEAMS[button.dataset.nationalTeam];
@@ -1860,6 +1866,7 @@
     clubDraft = null;
     cityClubGallery.open = false;
     updateTeamPreview();
+    revealTeamSaveActions();
   }));
   // An independent opponent choice: changing the goalie never changes your own team.
   const goalieDialog = $('goalieDialog');
