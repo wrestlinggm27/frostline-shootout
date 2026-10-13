@@ -1885,6 +1885,11 @@
   const goaliePaletteOptions = $('goaliePaletteOptions');
   const goaliePaletteSummary = $('goaliePaletteSummary');
   const goaliePalettePreview = $('goaliePalettePreview');
+  // Goalie color choices are drafts until Save Goalie is pressed. Bring the
+  // actions into view after a choice, just like the home-team selector.
+  function revealGoalieSaveActions() {
+    if (goalieDialog.open) goalieDialog.scrollTop = goalieDialog.scrollHeight;
+  }
   let goalieDraft = 'original';
   const goalieButtons = [];
   function updateGoaliePalettePreview() {
@@ -1917,6 +1922,7 @@
     button.addEventListener('click', () => {
       goalieDraft = id;
       updateGoaliePalettePreview();
+      revealGoalieSaveActions();
     });
     goalieButtons.push(button);
     goaliePaletteOptions.append(button);
@@ -1927,6 +1933,7 @@
     goalieDraft = normalizeGoaliePalette(game.goaliePalette);
     updateGoaliePalettePreview();
     goalieDialog.showModal();
+    goalieDialog.scrollTop = 0;
   }
   function closeGoalieEditor() { goalieDialog.close(); }
   $('goalieCustomizeButton').addEventListener('click', openGoalieEditor);
