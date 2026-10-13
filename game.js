@@ -17,6 +17,11 @@
   const PUCK_START = { x: 210, y: 563 };
   const GOAL = { left: 120, right: 300, line: 172 };
   const GOALIE_LINE = 225;
+  // Drawn glove outer edges are x=-47/+44 from the goalie center. The puck
+  // measures roughly 12 units in radius. A visible glove touch must be a save.
+  // This physical minimum is shared across leagues; goalie speed and reaction
+  // times still control difficulty.
+  const GOALIE_CONTACT = { leftGlove:47, rightGlove:44, puckRadius:11 };
   const LEGACY_HIGH_SCORE_KEY = 'frostline-shootout-high-score-v1';
   const PROFILE_DB_KEY = 'frostline-player-profiles-v1';
   const GAME_STYLE = 'arcade'; // Future styles get their own record namespaces.
@@ -1562,28 +1567,47 @@
     g.flash = Math.max(0, g.flash - dt);
   }
 
+  function goalieContactBounds(goalieX) {
+    return {
+      left: goalieX - GOALIE_CONTACT.leftGlove - GOALIE_CONTACT.puckRadius,
+      right: goalieX + GOALIE_CONTACT.rightGlove + GOALIE_CONTACT.puckRadius
+    };
+  }
+
+  function crossingX(beforeX, beforeY, afterX, afterY, lineY) {
+    // Test where the puck actually crosses the goalie/net line, not wherever
+    // a large animation frame happens to leave its center.
+    const fraction = (beforeY - lineY) / (beforeY - afterY);
+    return beforeX + (afterX - beforeX) * fraction;
+  }
+
   function updatePuck(dt) {
     const p = game.puck;
     if (!p.moving) return;
+    const beforeX = p.x;
     const beforeY = p.y;
     p.trail.unshift({ x: p.x, y: p.y });
     if (p.trail.length > 11) p.trail.pop();
     p.x += p.vx * dt;
     p.y += p.vy * dt;
 
-    // Goalie collision is checked when crossing its plane, not per-pixel overlap.
     if (beforeY > GOALIE_LINE && p.y <= GOALIE_LINE) {
-      const settings = DIFFICULTIES[game.difficulty];
-      const goalieWidth = settings.saveStart + settings.saveGain * clamp(game.elapsed / ROUND_SECONDS, 0, 1);
-      if (Math.abs(p.x - game.goalie.x) <= goalieWidth) {
+      const contactX = crossingX(beforeX, beforeY, p.x, p.y, GOALIE_LINE);
+      const bounds = goalieContactBounds(game.goalie.x);
+      if (contactX >= bounds.left && contactX <= bounds.right) {
+        p.x = contactX;
+        p.y = GOALIE_LINE;
         registerOutcome('save');
         return;
       }
     }
     if (beforeY > GOAL.line && p.y <= GOAL.line) {
-      const onPost = Math.abs(p.x - GOAL.left) < 9 || Math.abs(p.x - GOAL.right) < 9;
+      const netX = crossingX(beforeX, beforeY, p.x, p.y, GOAL.line);
+      p.x = netX;
+      p.y = GOAL.line;
+      const onPost = Math.abs(netX - GOAL.left) < 9 || Math.abs(netX - GOAL.right) < 9;
       if (onPost) registerOutcome('post');
-      else if (p.x > GOAL.left + 8 && p.x < GOAL.right - 8) {
+      else if (netX > GOAL.left + 8 && netX < GOAL.right - 8) {
         if (game.shot?.crossbar) registerOutcome('crossbar');
         else registerOutcome('goal');
       } else registerOutcome('miss');
@@ -1858,14 +1882,13 @@
     drawGoalAndCrease();
     drawGoalie();
     if (game.devTest.active) {
-      const settings = DIFFICULTIES[game.difficulty];
-      const half = settings.saveStart + settings.saveGain * clamp(game.elapsed / ROUND_SECONDS, 0, 1);
+      const bounds = goalieContactBounds(game.goalie.x);
       ctx.save();
       ctx.fillStyle = '#ffbe3666';
-      ctx.fillRect(game.goalie.x - half, GOALIE_LINE - 3, half * 2, 6);
+      ctx.fillRect(bounds.left, GOALIE_LINE - 3, bounds.right - bounds.left, 6);
       ctx.strokeStyle = '#ffdc7c';
       ctx.lineWidth = 2;
-      ctx.strokeRect(game.goalie.x - half, GOALIE_LINE - 7, half * 2, 14);
+      ctx.strokeRect(bounds.left, GOALIE_LINE - 7, bounds.right - bounds.left, 14);
       ctx.restore();
     }
     drawShotPrediction();
