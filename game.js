@@ -1429,9 +1429,17 @@
   }
 
   canvas.addEventListener('pointerdown', (event) => {
-    if (game.mode !== 'playing' || game.puck.moving || game.cooldown > 0 || game.aiming) return;
+    if (game.mode !== 'playing' || game.devTest.dragPointer !== null) return;
     if (event.button !== undefined && event.button !== 0) return;
     const pt = worldPoint(event);
+    if (game.devTest.active && Math.abs(pt.x - game.goalie.x) <= 65
+        && Math.abs(pt.y - GOALIE_LINE) <= 65) {
+      event.preventDefault();
+      canvas.setPointerCapture(event.pointerId);
+      game.devTest.dragPointer = event.pointerId;
+      return;
+    }
+    if (game.puck.moving || game.cooldown > 0 || game.aiming) return;
     // Finger-sized hit area; still requires starting on/near the actual puck.
     if (distance(pt, PUCK_START) > 67) return;
     event.preventDefault();
@@ -1440,6 +1448,13 @@
   });
 
   canvas.addEventListener('pointermove', (event) => {
+    if (game.devTest.dragPointer === event.pointerId) {
+      event.preventDefault();
+      game.goalie.x = clamp(worldPoint(event).x, 146, 274);
+      game.goalie.targetX = game.goalie.x;
+      game.goalie.lean = 0;
+      return;
+    }
     if (!game.aiming || event.pointerId !== game.aiming.pointerId) return;
     event.preventDefault();
     game.aiming.current = worldPoint(event);
@@ -1464,9 +1479,21 @@
     firePuck(gesture);
   }
 
-  canvas.addEventListener('pointerup', (event) => releaseAim(event));
-  canvas.addEventListener('pointercancel', (event) => releaseAim(event, true));
+  function finishDevGoalieDrag(event) {
+    if (game.devTest.dragPointer !== event.pointerId) return false;
+    event.preventDefault();
+    game.devTest.dragPointer = null;
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    return true;
+  }
+  canvas.addEventListener('pointerup', (event) => {
+    if (!finishDevGoalieDrag(event)) releaseAim(event);
+  });
+  canvas.addEventListener('pointercancel', (event) => {
+    if (!finishDevGoalieDrag(event)) releaseAim(event, true);
+  });
   canvas.addEventListener('lostpointercapture', (event) => {
+    if (game.devTest.dragPointer === event.pointerId) game.devTest.dragPointer = null;
     if (game.aiming?.pointerId === event.pointerId) {
       game.aiming = null;
       stopWindup();
