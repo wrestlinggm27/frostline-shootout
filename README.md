@@ -1,4 +1,10 @@
-# Frostline Shootout — Stable Version 2.16
+# Frostline Shootout — Stable Version 2.17
+
+## Stable V2.17: Glove Contact Fix (Approved)
+
+Shots contacting either drawn goalie glove/arm now register as saves rather than slipping through a narrow, center-only hit zone. The puck's horizontal position is also calculated at its precise crossing point of the goalie and goal lines, improving fast diagonal shot accuracy. These changes affect live Arcade shooting; goalie tracking, league-specific reaction/movement settings, team customization and records are unchanged.
+
+**Release boundary:** Only the corrected physical collision bounds and puck-line crossing calculations were promoted from DEV. The paused TEST/RESUME mode, manual goalie dragging, hit-zone overlay and all developer diagnostic logic are **DEV-only and must never ship in Stable**. Automated source-level/gameplay regression tests are permitted, but developer testing controls are not. Production player storage remains unchanged.
 
 ## Stable V2.16: Save Goalie Jump (Approved)
 
@@ -46,7 +52,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.16 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.17 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
