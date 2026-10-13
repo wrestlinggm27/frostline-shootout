@@ -7,8 +7,8 @@
   <meta name="description" content="Frostline Shootout — development preview for upcoming game features.">
   <meta name="robots" content="noindex, nofollow">
   <title>Frostline Shootout</title>
-  <link rel="stylesheet" href="style.css?v=2.14-dev-menu-expanded1">
-  <script src="game.js?v=2.16-dev-goalie-save-jump1" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.17-dev-shot-diagnostics1">
+  <script src="game.js?v=2.17-dev-shot-diagnostics1" defer></script>
 </head>
 <body>
   <!-- Original vector logo alternatives are shared by the header and Logo Lab. -->
@@ -135,6 +135,8 @@
       <div class="rink-vignette" aria-hidden="true"></div>
       <div id="shotToast" class="shot-toast" aria-live="polite" aria-atomic="true"></div>
       <button id="mainMenuButton" class="rink-menu-button" type="button" aria-label="Return to main menu" hidden>MENU</button>
+      <button id="devTestButton" class="dev-test-button" type="button" aria-pressed="false" hidden>TEST</button>
+      <div id="devTestHint" class="dev-test-hint" aria-live="polite" hidden></div>
       <div id="overlay" class="overlay">
         <div class="overlay-card">
           <div class="overlay-icon" aria-hidden="true">✦</div>
