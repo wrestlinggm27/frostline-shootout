@@ -1,4 +1,10 @@
-# Frostline Shootout — Stable Version 2.14
+# Frostline Shootout — Stable Version 2.15
+
+## Stable V2.15: One-tap Access to Save Team (Approved)
+
+Choosing any of the 32 city clubs or 8 national teams now automatically scrolls the team-customization dialog to the **SAVE MY TEAM** controls, so players do not have to swipe through the remainder of the long roster. The choice remains a draft until the player presses Save; Cancel preserves the previously saved team.
+
+This is a narrow promotion of the reviewed DEV change into Stable. The official Ice Cut F and all approved city and national-team shields remain unchanged. Stable player profiles, records, goalie palettes, game rules and storage keys remain untouched; DEV maintains its separate saved records.
 
 ## Stable V2.14: Expanded Arcade Menu (Approved)
 
@@ -34,7 +40,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.14 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.15 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
