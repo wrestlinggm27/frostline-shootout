@@ -200,6 +200,22 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         assert.equal(await page.locator('[data-city-club="' + id + '"]').getAttribute('aria-pressed'), 'true');
         assert.equal(await page.locator('#previewTeamCrest svg').count(), 1);
       }
+      // The menu uses location above nickname only; picking a club still loads
+      // its full original name into the editor and player records.
+      for (const [id, location, nickname] of [
+        ['pittsburgh','PITTSBURGH','GEAR'],
+        ['washington','WASHINGTON','FURY'],
+        ['vancouver','VANCOUVER','CLOCK CHAIN'],
+        ['philadelphia','PHILADELPHIA','BELLLINE'],
+        ['vegas','LAS VEGAS','FLAMINGO TOSS'],
+        ['islanders','LONG ISLAND','ISLAND YES WAVE']
+      ]) {
+        const card = page.locator('[data-city-club="' + id + '"]');
+        assert.equal(await card.locator('small').first().textContent(), location,
+          viewport.label + ': correct ' + id + ' city label');
+        assert.equal(await card.locator('strong').first().textContent(), nickname,
+          viewport.label + ': ' + id + ' card shows nickname without repeating location');
+      }
       const cityOptionsFit = await page.evaluate(() => {
         const gallery = document.querySelector('.city-club-gallery');
         return [...gallery.querySelectorAll('.city-club-choice')].every(el => {
