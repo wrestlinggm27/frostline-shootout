@@ -682,10 +682,17 @@
     // The center-ice logo is decorative; older test contexts without Path2D
     // use the initials fallback.
     ctx.save();
-    ctx.globalAlpha = .58;
+    ctx.globalAlpha = .76;
     if (typeof Path2D === 'function') {
-      ctx.translate(-27, -42);
-      ctx.scale(.54, .54);
+      // Center-ice-only: 25% larger shield, centered in the faceoff circle.
+      // SHIELD_OUTER spans x=12..88 and y=4..113; its midpoint is (50,58.5).
+      // The caller is at (210,429), 15px below the circle center (210,414).
+      // Give the approved shield more width without raising it into the
+      // curved city/nickname lettering. Both axes retain the same center.
+      const rinkCrestScaleX = .78;
+      const rinkCrestScaleY = .675;
+      ctx.translate(-50 * rinkCrestScaleX, -15 - 58.5 * rinkCrestScaleY);
+      ctx.scale(rinkCrestScaleX, rinkCrestScaleY);
       const flag = NATIONAL_FLAG_VECTORS[team.crest];
       const isFlag = !!flag;
       ctx.fillStyle = isFlag ? '#06254b' : team.secondary;
@@ -1614,6 +1621,109 @@
     if (stroke) { ctx.lineWidth = lineWidth; ctx.strokeStyle = stroke; ctx.stroke(); }
   }
 
+  // Decorative center-ice identity: approved crest in the middle, readable
+  // city on the upper arc and nickname/tradition on the lower arc.
+  // Derived at draw time; never modify saved team names or shield designs.
+  function centerIceIdentity(team) {
+    if (team.nation && Object.hasOwn(NATIONAL_TEAMS, team.nation)) {
+      return { city: NATIONAL_TEAMS[team.nation].name, nickname: '' };
+    }
+    if (team.club && Object.hasOwn(CITY_CLUBS, team.club)) {
+      const club = CITY_CLUBS[team.club];
+      const city = club.location.split(',')[0].trim();
+      let nickname = team.name.trim();
+      // Some traditions already include the city, others deliberately don't.
+      // Only remove a genuine location word/prefix, preserving nicknames.
+      const variants = [city, ...city.split(/\s+/)]
+        .filter(x => x.length > 3).sort((a,b) => b.length - a.length);
+      for (const prefix of variants) {
+        if (nickname.toUpperCase().startsWith(prefix.toUpperCase() + ' ')) {
+          nickname = nickname.slice(prefix.length).trim();
+          break;
+        }
+      }
+      return { city, nickname: nickname || club.name };
+    }
+    const words = team.name.trim().split(/\s+/);
+    return words.length > 1
+      ? { city: words[0], nickname: words.slice(1).join(' ') }
+      : { city: team.name.trim(), nickname: '' };
+  }
+
+  function centerIceLines(value) {
+    const text = value.trim().replace(/\s+/g, ' ').toUpperCase();
+    if (!text) return [];
+    if (Array.from(text).length <= 13) return [text];
+    const words = text.split(' ');
+    if (words.length === 1) {
+      const chars = Array.from(text);
+      return [chars.slice(0, Math.ceil(chars.length/2)).join(''),
+        chars.slice(Math.ceil(chars.length/2)).join('')];
+    }
+    // Split at a word boundary that balances visual line lengths.
+    let split = 1, balance = Infinity;
+    for (let i=1; i<words.length; i++) {
+      const first = words.slice(0,i).join(' ');
+      const second = words.slice(i).join(' ');
+      const score = Math.max(first.length, second.length) + Math.abs(first.length-second.length)*.25;
+      if (score < balance) { balance = score; split = i; }
+    }
+    return [words.slice(0,split).join(' '), words.slice(split).join(' ')];
+  }
+
+  function drawCenterIceArc(text, radius, side) {
+    if (!text) return;
+    const letters = Array.from(text);
+    // Both arcs stay inside the 71-unit faceoff circle; reduce point size
+    // only as much as necessary to fit the available curved baseline.
+    let fontSize = 13.5;
+    const tracking = 1.15;
+    const widthAt = size => {
+      ctx.font = '900 ' + size + 'px system-ui, sans-serif';
+      return letters.reduce((sum, letter) => sum + ctx.measureText(letter).width, 0)
+        + (letters.length-1) * tracking;
+    };
+    const available = radius * 2.35;
+    if (widthAt(fontSize) > available) {
+      fontSize = Math.max(8.2, fontSize * (available-(letters.length-1)*tracking) /
+        Math.max(1, widthAt(13.5)-(letters.length-1)*tracking));
+    }
+    ctx.font = '900 ' + fontSize + 'px system-ui, sans-serif';
+    const glyphs = letters.map(letter => ({letter, width:ctx.measureText(letter).width}));
+    const totalWidth = glyphs.reduce((sum,g)=>sum+g.width,0) + (glyphs.length-1)*tracking;
+    let cursor = -totalWidth/2;
+    ctx.save();
+    ctx.globalAlpha = .84;
+    // Consistent dark rink lettering reads even for white/yellow team palettes.
+    ctx.fillStyle = '#174861';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (const glyph of glyphs) {
+      const offset = (cursor + glyph.width/2) / radius;
+      ctx.save();
+      ctx.translate(210 + radius*Math.sin(offset),
+        414 + (side === 'top' ? -1 : 1)*radius*Math.cos(offset));
+      ctx.rotate(side === 'top' ? offset : -offset);
+      ctx.fillText(glyph.letter, 0, 0);
+      ctx.restore();
+      cursor += glyph.width + tracking;
+    }
+    ctx.restore();
+  }
+
+  function drawCenterIceBrand(team) {
+    const identity = centerIceIdentity(team);
+    const cityLines = centerIceLines(identity.city);
+    const nicknameLines = centerIceLines(identity.nickname);
+    cityLines.forEach((line, i) => drawCenterIceArc(line, i === 0 ? 62 : 49, 'top'));
+    nicknameLines.forEach((line, i) => drawCenterIceArc(line,
+      nicknameLines.length === 1 ? 62 : i === 0 ? 49 : 62, 'bottom'));
+    ctx.save();
+    ctx.translate(210, 429); // Center the existing approved shield in the ring.
+    drawIceCrest(team);
+    ctx.restore();
+  }
+
   function drawIce() {
     const grad = ctx.createLinearGradient(0, 0, 0, H);
     grad.addColorStop(0, '#c4eaf4'); grad.addColorStop(.48, '#eaf8ff');
@@ -1642,14 +1752,7 @@
     ctx.strokeStyle = game.team.secondary + '99'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(210, 414, 71, 0, Math.PI * 2); ctx.stroke();
     ellipse(210, 414, 5, 5, game.team.secondary + '99');
-    ctx.save(); ctx.translate(210, 399);
-    ctx.textAlign = 'center';
-    drawIceCrest(game.team);
-    ctx.globalAlpha = .55;
-    ctx.fillStyle = game.team.primary; ctx.font = '900 11px system-ui, sans-serif';
-    ctx.fillText(game.team.name.toUpperCase(), 0, 39, 170);
-    ctx.globalAlpha = 1;
-    ctx.restore();
+    drawCenterIceBrand(game.team);
     for (const x of [78, 342]) {
       ctx.strokeStyle = '#c7747e80'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(x - 15, 259); ctx.lineTo(x - 15, 282);
