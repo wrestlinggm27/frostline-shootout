@@ -391,9 +391,9 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .city-club-choice:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .city-club-icon{display:grid;place-items:center;width:54px;height:74px;flex:0 0 54px}
 .city-club-shield{height:72px;width:60px;overflow:visible;filter:drop-shadow(0 4px 4px #0008)}
-.city-club-detail{display:grid;align-content:center;gap:3px;min-width:0}
-.city-club-detail small{display:block;font-size:8px;letter-spacing:.13em;color:#a4c9fb;font-weight:900}
-.city-club-detail strong{display:block;font-size:clamp(10px,2.8vw,12px);line-height:1.17;letter-spacing:.015em;font-weight:1000;overflow-wrap:anywhere}
+.city-club-detail{display:grid;align-content:center;gap:3px;min-width:0;flex:1 1 0}
+.city-club-detail small{display:block;font-size:8px;letter-spacing:.11em;color:#a4c9fb;font-weight:900;overflow-wrap:normal;word-break:normal;hyphens:none}
+.city-club-detail strong{display:block;font-size:clamp(9px,2.55vw,11px);line-height:1.17;letter-spacing:-.015em;font-weight:1000;overflow-wrap:normal;word-break:normal;hyphens:none}
 .city-club-detail em{display:block;font-size:9px;font-style:normal;line-height:1.24;color:#c1d2ec}
 .city-club-swatches{display:flex;gap:3px;margin-top:5px}
 .city-club-swatches i{display:block;background:var(--swatch);width:13px;height:7px;border:1px solid #ffffff5b;border-radius:2px}
@@ -405,7 +405,7 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
  .city-club-icon{width:43px;flex-basis:43px;height:63px}
  .city-club-shield{width:47px;height:60px}
  .city-club-detail small{font-size:7px}
- .city-club-detail strong{font-size:9px}
+ .city-club-detail strong{font-size:clamp(8px,2.5vw,9px);letter-spacing:-.02em}
  .city-club-detail em{font-size:8px}
  .city-club-swatches{margin-top:2px}
  .city-club-swatches i{height:6px;width:11px}
@@ -493,9 +493,9 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .national-team-choice[aria-pressed="true"]{border:2px solid var(--team-highlight);padding:7px 5px;background:#205372}
 .national-team-choice:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .national-team-icon{width:54px;min-width:54px;height:74px;display:grid;place-items:center}
-.national-team-detail{display:grid;min-width:0;align-content:center;gap:4px}
+.national-team-detail{display:grid;min-width:0;align-content:center;gap:4px;flex:1 1 0}
 .national-team-flag{font-size:22px;line-height:1}
-.national-team-detail strong{font-size:clamp(10px,2.8vw,12px);line-height:1.17;overflow-wrap:anywhere}
+.national-team-detail strong{font-size:clamp(8px,2.4vw,10px);line-height:1.17;overflow-wrap:normal;word-break:normal;hyphens:none}
 .national-team-detail small{color:#c0d5e5;font-size:9px;line-height:1.25}
 .customizer-source-heading{font-size:10px;letter-spacing:.1em;color:#c9dbed;font-weight:950;margin:5px 0 0}
 @media(max-width:390px){
@@ -505,7 +505,7 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .national-team-icon{width:42px;min-width:42px;height:61px}
   .national-team-detail{gap:2px}
   .national-team-flag{font-size:17px}
-  .national-team-detail strong{font-size:9px}
+  .national-team-detail strong{font-size:clamp(8px,2.2vw,8.5px)}
   .national-team-detail small{font-size:8px}
 }
 
@@ -514,7 +514,7 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .national-team-icon{filter:drop-shadow(0 4px 4px #0008)}
 .national-team-detail{gap:3px}
 .national-team-flag{font-size:12px;line-height:1.12;color:#f8fbff;letter-spacing:.07em;font-weight:1000}
-.national-team-detail strong{font-weight:1000;letter-spacing:.015em}
+.national-team-detail strong{font-weight:1000;letter-spacing:-.02em}
 @media(max-width:390px){.national-team-choice{min-height:100px}.national-team-flag{font-size:11px}}
 
 /* in-round escape hatch and results navigation, designed for the compact rink. */
