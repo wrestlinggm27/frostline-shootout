@@ -69,6 +69,10 @@ function boot(seed = {}, options = {}) {
       if (key in target) return target[key];
       if (key === 'createLinearGradient' || key === 'createRadialGradient') return () => gradient;
       if (key === 'measureText') return text => ({ width: String(text).length * 10 });
+      if (key === 'fillText' && options.onDrawText) return text => options.onDrawText(String(text));
+      if (key === 'rotate' && options.onCanvasRotate) return angle => options.onCanvasRotate(angle);
+      if (key === 'translate' && options.onCanvasTranslate) return (x,y) => options.onCanvasTranslate(x,y);
+      if (key === 'scale' && options.onCanvasScale) return (x,y) => options.onCanvasScale(x,y);
       return noop;
     },
     set(target, key, value) { target[key] = value; return true; }
@@ -111,6 +115,7 @@ function boot(seed = {}, options = {}) {
   let time = 1000;
   const sandbox = {
     document, localStorage, console,
+    Path2D: options.usePath2D ? class MockPath2D { constructor(path) { this.path = path; } } : undefined,
     window: { addEventListener: noop, devicePixelRatio: 1, AudioContext: options.AudioContext },
     performance: { now: () => time },
     requestAnimationFrame: fn => raf.push(fn),
@@ -665,6 +670,64 @@ test('Stable data normalizes unknown old shield identifiers safely', () => {
   const t = boot(seed);
   t.elem('customizeButton').emit('click');
   assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
+});
+
+test('Stable center ice curves city and nickname around the approved team crest', () => {
+  assert.match(gameCode, /function drawCenterIceBrand\(team\)/);
+  assert.match(gameCode, /function drawCenterIceArc\(text, radius, side\)/);
+  assert.equal(gameCode.includes('ctx.fillText(game.team.name.toUpperCase(), 0, 39, 170)'), false,
+    'old one-line name must not crowd the logo');
+  const inspectClub=id=>{
+    const letters=[],rotations=[];
+    const t=boot({}, {onDrawText:text=>letters.push(text),
+      onCanvasRotate:angle=>rotations.push(angle)});
+    t.frame(16);
+    t.elem('playerNameInput').value='Center Ice Checker';
+    t.submit('playerForm');
+    t.cityChoices.find(c=>c.dataset.cityClub===id).emit('click');
+    t.submit('teamForm');
+    letters.length=0;rotations.length=0;
+    t.frame(16);
+    assert.ok(rotations.filter(a=>Math.abs(a)>.02).length>=6, id+': text follows both arcs');
+    return letters.join('');
+  };
+  assert.match(inspectClub('vancouver'), /VANCOUVERCLOCK CHAIN/,
+    'Vancouver and Clock Chain appear separately');
+  assert.match(inspectClub('detroit'), /DETROITMOTOR CITYOCTOPUS/,
+    'long traditions wrap without compressing the crest');
+  assert.match(inspectClub('tampa'), /TAMPA BAYCOIL/,
+    'multi-word locations retain their city identity');
+  const country=boot({}, {onDrawText:()=>{}});
+  country.frame(16);
+  country.elem('playerNameInput').value='Flag Checker';
+  country.submit('playerForm');
+  country.nationChoices.find(c=>c.dataset.nationalTeam==='sweden').emit('click');
+  country.submit('teamForm');
+  const stored=JSON.parse(country.storage.get('frostline-player-profiles-v1'));
+  assert.equal(stored.players[0].team.crest,'natSweden','approved national crest data preserved');
+  assert.equal(country.storage.has('frostline-dev:frostline-player-profiles-v1'),false,
+    'Stable stores records in its original namespace');
+});
+
+test('Stable center-ice crest is wider, centered and clear of circular lettering', () => {
+  const transforms=[];
+  const t=boot({}, {usePath2D:true,
+    onCanvasTranslate:(x,y)=>transforms.push({type:'translate',x,y}),
+    onCanvasScale:(x,y)=>transforms.push({type:'scale',x,y})});
+  t.frame(16);
+  const crestScale=transforms.find(o=>o.type==='scale'&&
+    Math.abs(o.x-.78)<1e-6&&Math.abs(o.y-.675)<1e-6);
+  assert.ok(crestScale, 'approved .78 wide, .675 high crest scale present');
+  const offset=transforms.find(o=>o.type==='translate'&&
+    Math.abs(o.x+39)<.001&&Math.abs(o.y+54.4875)<.001);
+  assert.ok(offset,'crest translate uses correct center');
+  const cx=210+offset.x+50*crestScale.x;
+  const cy=429+offset.y+58.5*crestScale.y;
+  assert.ok(Math.abs(cx-210)<.01&&Math.abs(cy-414)<.01,'center aligns with faceoff spot');
+  assert.ok(cx+(12-50)*crestScale.x>177&&cx+(88-50)*crestScale.x<243,
+    'shield stays inside the text arcs horizontally');
+  assert.ok(cy+(4-58.5)*crestScale.y>374&&cy+(113-58.5)*crestScale.y<454,
+    'shield stays between upper and lower lettering');
 });
 
 test('Stable thirty-two division-grouped city clubs load original crests with intended color palettes and save team', () => {
