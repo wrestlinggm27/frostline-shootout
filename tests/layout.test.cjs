@@ -326,6 +326,31 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         });
       });
       assert.ok(nationFit,viewport.label+': national flags/cards overflow customizer');
+      // Countries such as SWITZERLAND must stay on one line, never SWITZERLAN/D.
+      // A single Range rectangle verifies wrapping; its bounds also guard
+      // against hiding or spilling the unbroken word past the card's text slot.
+      const nationWordFailures = await page.evaluate(() => {
+        const errors = [];
+        for (const card of document.querySelectorAll('.national-team-choice')) {
+          const strong = card.querySelector('.national-team-detail strong');
+          const node = strong.firstChild;
+          const rect = strong.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          const glyphRects = [...range.getClientRects()];
+          if (glyphRects.length !== 1 || glyphRects[0].left < rect.left - 1 ||
+              glyphRects[0].right > rect.right + 1 ||
+              strong.scrollWidth > strong.clientWidth + 1) {
+            errors.push({ country:card.dataset.nationalTeam, pieces:glyphRects.length,
+              width:Math.round(rect.width), textWidth:Math.round(glyphRects[0]?.width || 0) });
+          }
+        }
+        return errors;
+      });
+      assert.deepEqual(nationWordFailures, [],
+        viewport.label+': all eight national team names must be unbroken and fit their text columns');
+      assert.equal(await page.locator('[data-national-team="switzerland"] .national-team-detail strong').textContent(),
+        'SWITZERLAND',viewport.label+': country label remains fully spelled');
       await page.locator('[data-national-team="sweden"]').click();
       await page.locator('#teamForm button[type="submit"]').click();
       let nationalSaved=await page.evaluate(()=>{
