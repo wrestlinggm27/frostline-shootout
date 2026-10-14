@@ -392,9 +392,9 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .city-club-choice:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .city-club-icon{display:grid;place-items:center;width:54px;height:74px;flex:0 0 54px}
 .city-club-shield{height:72px;width:60px;overflow:visible;filter:drop-shadow(0 4px 4px #0008)}
-.city-club-detail{display:grid;align-content:center;gap:3px;min-width:0}
-.city-club-detail small{display:block;font-size:8px;letter-spacing:.13em;color:#a4c9fb;font-weight:900}
-.city-club-detail strong{display:block;font-size:clamp(10px,2.8vw,12px);line-height:1.17;letter-spacing:.015em;font-weight:1000;overflow-wrap:anywhere}
+.city-club-detail{display:grid;align-content:center;gap:3px;min-width:0;flex:1 1 0}
+.city-club-detail small{display:block;font-size:8px;letter-spacing:.11em;color:#a4c9fb;font-weight:900;overflow-wrap:normal;word-break:normal;hyphens:none}
+.city-club-detail strong{display:block;font-size:clamp(9px,2.55vw,11px);line-height:1.17;letter-spacing:-.015em;font-weight:1000;overflow-wrap:normal;word-break:normal;hyphens:none}
 .city-club-detail em{display:block;font-size:9px;font-style:normal;line-height:1.24;color:#c1d2ec}
 .city-club-swatches{display:flex;gap:3px;margin-top:5px}
 .city-club-swatches i{display:block;background:var(--swatch);width:13px;height:7px;border:1px solid #ffffff5b;border-radius:2px}
@@ -406,7 +406,7 @@ button.brand-mark:focus-visible{outline:2px solid #fff;outline-offset:3px}
  .city-club-icon{width:43px;flex-basis:43px;height:63px}
  .city-club-shield{width:47px;height:60px}
  .city-club-detail small{font-size:7px}
- .city-club-detail strong{font-size:9px}
+ .city-club-detail strong{font-size:clamp(8px,2.5vw,9px);letter-spacing:-.02em}
  .city-club-detail em{font-size:8px}
  .city-club-swatches{margin-top:2px}
  .city-club-swatches i{height:6px;width:11px}
