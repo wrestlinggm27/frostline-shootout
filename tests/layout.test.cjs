@@ -218,7 +218,7 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
             const textNode = element.firstChild;
             if (!textNode || textNode.nodeType !== Node.TEXT_NODE) continue;
             const bounds = element.getBoundingClientRect();
-            for (const match of textNode.textContent.matchAll(/\\S+/g)) {
+            for (const match of textNode.textContent.matchAll(/\S+/g)) {
               const word = document.createRange();
               word.setStart(textNode, match.index);
               word.setEnd(textNode, match.index + match[0].length);
