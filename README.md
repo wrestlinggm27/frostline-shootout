@@ -1,4 +1,10 @@
-# Frostline Shootout — Stable Version 2.17
+# Frostline Shootout — Stable Version 2.18
+
+## Stable V2.18: Larger Center-Ice Identity (Approved)
+
+The player-approved DEV center-ice design is now in Stable: each team keeps its original shield/logo at the center of the faceoff circle, with the city/location following the upper arc and nickname or tradition following the lower arc. Long names wrap into balanced curved lines. The shield is larger and wider with horizontal scale 0.78 and vertical scale 0.675, centered in the ring. National teams retain their authentic approved flag shields.
+
+**Release boundary:** Only DEV's center-ice drawing and lettering changes were promoted. Stable shooting mechanics, other game art, team catalog, local profile/record data, storage keys, and the Ice Cut F brand remain unchanged. Private DEV TEST/RESUME controls, goalie dragging and collision diagnostics remain DEV-only, protected by production regression checks.
 
 ## Stable V2.17: Glove Contact Fix (Approved)
 
@@ -52,7 +58,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.17 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.18 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
