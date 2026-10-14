@@ -208,6 +208,34 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         });
       });
       assert.ok(cityOptionsFit, viewport.label + ': city club cards fit within customizer');
+      // No player should see PITTSBURG/H or WASHINGTO/N on narrow phones.
+      // Browser Range detects split words and checks every city/nickname token
+      // stays inside its card's text column, not merely inside the button.
+      const clubWordFailures = await page.evaluate(() => {
+        const problems = [];
+        for (const button of document.querySelectorAll('.city-club-choice')) {
+          for (const element of button.querySelectorAll('.city-club-detail small, .city-club-detail strong')) {
+            const textNode = element.firstChild;
+            if (!textNode || textNode.nodeType !== Node.TEXT_NODE) continue;
+            const bounds = element.getBoundingClientRect();
+            for (const match of textNode.textContent.matchAll(/\\S+/g)) {
+              const word = document.createRange();
+              word.setStart(textNode, match.index);
+              word.setEnd(textNode, match.index + match[0].length);
+              const pieces = [...word.getClientRects()];
+              if (pieces.length !== 1 || pieces[0].left < bounds.left - 1 ||
+                  pieces[0].right > bounds.right + 1) {
+                problems.push({ team:button.dataset.cityClub, token:match[0], pieces:pieces.length });
+              }
+            }
+          }
+        }
+        return problems;
+      });
+      assert.deepEqual(clubWordFailures, [],
+        viewport.label + ': city club words must stay whole and inside the text column');
+      assert.equal(await page.locator('[data-city-club="islanders"] .city-club-detail small').textContent(),
+        'LONG ISLAND', viewport.label + ': original Long Island identity is used');
       await clubToggle.click();
       assert.equal(await page.locator('#cityClubGallery').evaluate(el => el.open), false,
         viewport.label + ': collapse control closes the catalog');
