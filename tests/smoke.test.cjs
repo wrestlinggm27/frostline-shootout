@@ -786,6 +786,24 @@ test('DEV center-ice shield widens horizontally and stays centered clear of curv
   assert.match(gameCode, /nicknameLines\.forEach\(/, 'curved nickname text remains intact');
 });
 
+test('DEV keeps all city words intact and corrects Long Island display label', () => {
+  assert.match(html, /data-city-club="islanders"[\\s\\S]*?<small>LONG ISLAND<\\/small>/);
+  assert.equal(html.includes('<small>NY ISLANDERS</small>'), false,
+    'Islanders is not the location; use Long Island');
+  assert.match(css, /\\.city-club-detail strong\\{[^}]*overflow-wrap:normal;word-break:normal;hyphens:none/);
+  assert.equal(/\\.city-club-detail strong\\{[^}]*overflow-wrap:anywhere/.test(css), false,
+    'city-card titles must not break in the middle of a city name');
+  const t=boot();
+  t.frame(16);
+  t.elem('playerNameInput').value='Long Island Tester';
+  t.submit('playerForm');
+  t.cityChoices.find(c=>c.dataset.cityClub==='islanders').emit('click');
+  t.submit('teamForm');
+  const saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(saved.players[0].team.name,'Island Yes Wave');
+  assert.equal(saved.players[0].team.club,'islanders');
+});
+
 test('DEV thirty-two division-grouped city clubs load original crests with intended color palettes and save team', () => {
   assert.equal((html.match(/data-city-club="/g) || []).length, 32);
   assert.match(html, /<details class="city-club-gallery" id="cityClubGallery">/);
