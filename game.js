@@ -693,9 +693,12 @@
       // Center-ice-only: 25% larger shield, centered in the faceoff circle.
       // SHIELD_OUTER spans x=12..88 and y=4..113; its midpoint is (50,58.5).
       // The caller is at (210,429), 15px below the circle center (210,414).
-      const rinkCrestScale = .675;
-      ctx.translate(-50 * rinkCrestScale, -15 - 58.5 * rinkCrestScale);
-      ctx.scale(rinkCrestScale, rinkCrestScale);
+      // Give the approved shield more width without raising it into the
+      // curved city/nickname lettering. Both axes retain the same center.
+      const rinkCrestScaleX = .78;
+      const rinkCrestScaleY = .675;
+      ctx.translate(-50 * rinkCrestScaleX, -15 - 58.5 * rinkCrestScaleY);
+      ctx.scale(rinkCrestScaleX, rinkCrestScaleY);
       const flag = NATIONAL_FLAG_VECTORS[team.crest];
       const isFlag = !!flag;
       ctx.fillStyle = isFlag ? '#06254b' : team.secondary;
