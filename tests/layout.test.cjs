@@ -43,12 +43,18 @@ async function inspect(page) {
     const pad = 1.5;
     const fits = b => b.left >= frame.left - pad && b.right <= frame.right + pad
       && b.top >= frame.top - pad && b.bottom <= frame.bottom + pad;
-    const visible = selectors.filter(selector => document.querySelector(selector))
-      .map(selector => {
-        const element = document.querySelector(selector);
-        const rect = element.getBoundingClientRect();
-        return { selector, fits: fits(rect), width: Math.round(rect.width), height: Math.round(rect.height) };
-      });
+    // Hidden headings have a zero-sized rectangle at (0,0), which is not
+    // content escaping the rink. Only verify elements actually rendered.
+    const visible = selectors.filter(selector => {
+      const el = document.querySelector(selector);
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+    }).map(selector => {
+      const element = document.querySelector(selector);
+      const rect = element.getBoundingClientRect();
+      return { selector, fits: fits(rect), width: Math.round(rect.width), height: Math.round(rect.height) };
+    });
     const buttons = [...document.querySelectorAll('.difficulty-choice, .menu-utility-actions button, .results-menu-button:not([hidden])')];
     return {
       cardFits: fits(card),
