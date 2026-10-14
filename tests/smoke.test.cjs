@@ -69,6 +69,8 @@ function boot(seed = {}, options = {}) {
       if (key in target) return target[key];
       if (key === 'createLinearGradient' || key === 'createRadialGradient') return () => gradient;
       if (key === 'measureText') return text => ({ width: String(text).length * 10 });
+      if (key === 'fillText' && options.onDrawText) return text => options.onDrawText(String(text));
+      if (key === 'rotate' && options.onCanvasRotate) return angle => options.onCanvasRotate(angle);
       return noop;
     },
     set(target, key, value) { target[key] = value; return true; }
@@ -706,6 +708,50 @@ test('DEV data normalizes unknown old shield identifiers safely', () => {
   const t = boot(seed);
   t.elem('customizeButton').emit('click');
   assert.equal(t.crestChoices[0].getAttribute('aria-pressed'), 'true');
+});
+
+test('DEV center ice draws approved crest with curved city and nickname, including long names', () => {
+  assert.match(gameCode, /function drawCenterIceBrand\(team\)/);
+  assert.match(gameCode, /function drawCenterIceArc\(text, radius, side\)/);
+  assert.match(gameCode, /ctx\.translate\(210, 429\)/, 'existing crest artwork is centered');
+  assert.equal(gameCode.includes('ctx.fillText(game.team.name.toUpperCase(), 0, 39, 170)'), false,
+    'old squeezed single-line team label must be removed');
+
+  const cityLabel = (id) => {
+    const letters=[], rotations=[];
+    const t=boot({}, {onDrawText: text=>letters.push(text), onCanvasRotate: radians=>rotations.push(radians)});
+    t.frame(16);
+    t.elem('playerNameInput').value = 'Rink Auditor';
+    t.submit('playerForm');
+    t.cityChoices.find(choice => choice.dataset.cityClub === id).emit('click');
+    t.submit('teamForm');
+    letters.length=0; rotations.length=0;
+    t.frame(16);
+    assert.ok(rotations.filter(angle=>Math.abs(angle)>.02).length >= 6,
+      id + ': text should follow circular arc, not run straight');
+    return letters.join('');
+  };
+  assert.match(cityLabel('vancouver'), /VANCOUVERCLOCK CHAIN/,
+    'long Vancouver name must separate city and nickname');
+  assert.match(cityLabel('detroit'), /DETROITMOTOR CITYOCTOPUS/,
+    'long Detroit nickname must wrap into two curved rows');
+  assert.match(cityLabel('islanders'), /LONG ISLANDYES WAVE/,
+    'Long Island location should not duplicate Island in the nickname');
+  assert.match(cityLabel('tampa'), /TAMPA BAYCOIL/,
+    'Tampa Bay should keep the full city and a clean nickname');
+
+  const letters=[];
+  const country=boot({}, {onDrawText:text=>letters.push(text)});
+  country.frame(16);
+  country.elem('playerNameInput').value='Nation Tester';
+  country.submit('playerForm');
+  country.nationChoices.find(choice=>choice.dataset.nationalTeam==='sweden').emit('click');
+  country.submit('teamForm');
+  letters.length=0;
+  country.frame(16);
+  assert.match(letters.join(''), /^SWEDEN/, 'national team shows the actual country name');
+  const stored=JSON.parse(country.storage.get('frostline-dev:frostline-player-profiles-v1'));
+  assert.equal(stored.players[0].team.crest, 'natSweden', 'approved national flag is unchanged');
 });
 
 test('DEV thirty-two division-grouped city clubs load original crests with intended color palettes and save team', () => {
