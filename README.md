@@ -1,4 +1,12 @@
-# Frostline Shootout — Stable Version 2.18
+# Frostline Shootout — Stable Version 2.19
+
+## Stable V2.19: Clearer Team Selection Cards (Approved)
+
+The complete DEV-tested team-menu polish is now in Stable. All 32 city-club cards use their small city/location heading plus a bold nickname or distinctive identity, without redundant repeated place names. The Islanders location is correctly labeled **LONG ISLAND**; the saved team remains **Island Yes Wave**. The same original team names, approved crests, colors, and flag vectors remain intact in player profiles, team customization, and center-ice visuals.
+
+Mobile typography has been improved to keep complete words together on city-club cards, including Pittsburgh and Washington. All eight national-team names, including **SWITZERLAND**, fit their respective cards without breaking in the middle of a word. Layout and smoke regression tests cover responsive word fitting, name display and player-record persistence.
+
+**Production boundary:** Only HTML team-card text, production CSS typography, and test/release documentation changed. DEV-only TEST/RESUME, paused shots, goalie dragging and diagnostic hit-zone overlays remain strictly excluded. Stable player-record storage keys and gameplay JavaScript are unchanged.
 
 ## Stable V2.18: Larger Center-Ice Identity (Approved)
 
@@ -58,7 +66,7 @@ Frostline now has two independently playable sites, with the **same compact arca
 
 | Environment | Website | Development source | Purpose |
 |---|---|---|---|
-| Stable V2.18 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
+| Stable V2.19 | [Play Stable](https://wrestlinggm27.github.io/frostline-shootout/) | [main branch](https://github.com/wrestlinggm27/frostline-shootout/tree/main) | Reliable game; keep this build unchanged while features are tested |
 | Development | [Play DEV](https://wrestlinggm27.github.io/frostline-shootout/dev/) | [dev branch](https://github.com/wrestlinggm27/frostline-shootout/tree/dev) | Experimental improvements; may be unstable |
 
 **Release process:**
