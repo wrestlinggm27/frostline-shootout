@@ -757,7 +757,7 @@ test('DEV center ice draws approved crest with curved city and nickname, includi
   assert.equal(stored.players[0].team.crest, 'natSweden', 'approved national flag is unchanged');
 });
 
-test('DEV center-ice shield is 25% larger and centered without touching the curved labels', () => {
+test('DEV center-ice shield widens horizontally and stays centered clear of curved labels', () => {
   const transforms=[];
   const t=boot({}, {
     usePath2D:true,
@@ -766,18 +766,22 @@ test('DEV center-ice shield is 25% larger and centered without touching the curv
   });
   t.frame(16);
   const crestScale=transforms.find(entry => entry.type==='scale' &&
-    Math.abs(entry.x-.675)<1e-6 && Math.abs(entry.y-.675)<1e-6);
-  assert.ok(crestScale, 'center-ice crest must be scaled 25% beyond old .54 size');
+    Math.abs(entry.x-.78)<1e-6 && Math.abs(entry.y-.675)<1e-6);
+  assert.ok(crestScale, 'center-ice crest is wider than the approved 0.675 uniform scale');
   const crestOffset=transforms.find(entry => entry.type==='translate' &&
-    Math.abs(entry.x + 33.75)<.001);
-  assert.ok(crestOffset, 'new shield transform must preserve horizontal centering');
+    Math.abs(entry.x + 39)<.001 && Math.abs(entry.y+54.4875)<.001);
+  assert.ok(crestOffset, 'shield re-centers independently on both axes');
   const centerX=210+crestOffset.x+50*crestScale.x;
   const centerY=429+crestOffset.y+58.5*crestScale.y;
   assert.ok(Math.abs(centerX-210)<.01, 'shield is centered horizontally');
   assert.ok(Math.abs(centerY-414)<.01, 'shield is centered vertically in faceoff circle');
+  const left=centerX+(12-50)*crestScale.x;
+  const right=centerX+(88-50)*crestScale.x;
+  assert.ok(left>177 && right<243, 'wider shield remains inside center-ice circle');
+  assert.ok((right-left)>76*.675, 'shield width is greater than previous DEV design');
   const top=centerY+(4-58.5)*crestScale.y;
   const bottom=centerY+(113-58.5)*crestScale.y;
-  assert.ok(top>374 && bottom<454, 'crest leaves room for wrapped upper and lower lettering');
+  assert.ok(top>374 && bottom<454, 'unchanged crest height leaves room for both arcs');
   assert.match(gameCode, /cityLines\.forEach\(/, 'curved city text remains intact');
   assert.match(gameCode, /nicknameLines\.forEach\(/, 'curved nickname text remains intact');
 });
