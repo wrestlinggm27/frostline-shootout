@@ -787,11 +787,11 @@ test('DEV center-ice shield widens horizontally and stays centered clear of curv
 });
 
 test('DEV keeps all city words intact and corrects Long Island display label', () => {
-  assert.match(html, /data-city-club="islanders"[\\s\\S]*?<small>LONG ISLAND<\\/small>/);
+  assert.match(html, /data-city-club="islanders"[\s\S]*?<small>LONG ISLAND<\/small>/);
   assert.equal(html.includes('<small>NY ISLANDERS</small>'), false,
     'Islanders is not the location; use Long Island');
-  assert.match(css, /\\.city-club-detail strong\\{[^}]*overflow-wrap:normal;word-break:normal;hyphens:none/);
-  assert.equal(/\\.city-club-detail strong\\{[^}]*overflow-wrap:anywhere/.test(css), false,
+  assert.match(css, /\.city-club-detail strong\{[^}]*overflow-wrap:normal;word-break:normal;hyphens:none/);
+  assert.equal(/\.city-club-detail strong\{[^}]*overflow-wrap:anywhere/.test(css), false,
     'city-card titles must not break in the middle of a city name');
   const t=boot();
   t.frame(16);
