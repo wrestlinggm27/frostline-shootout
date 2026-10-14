@@ -1746,6 +1746,7 @@
       fontSize = Math.max(8.2, fontSize * (available-(letters.length-1)*tracking) /
         Math.max(1, widthAt(13.5)-(letters.length-1)*tracking));
     }
+    ctx.font = '900 ' + fontSize + 'px system-ui, sans-serif';
     const glyphs = letters.map(letter => ({letter, width:ctx.measureText(letter).width}));
     const totalWidth = glyphs.reduce((sum,g)=>sum+g.width,0) + (glyphs.length-1)*tracking;
     let cursor = -totalWidth/2;
