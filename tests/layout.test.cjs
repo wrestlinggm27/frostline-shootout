@@ -203,6 +203,22 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
         assert.equal(await page.locator('[data-city-club="' + id + '"]').getAttribute('aria-pressed'), 'true');
         assert.equal(await page.locator('#previewTeamCrest svg').count(), 1);
       }
+      // The menu uses location above nickname only; picking a club still loads
+      // its full original name into the editor and player records.
+      for (const [id, location, nickname] of [
+        ['pittsburgh','PITTSBURGH','GEAR'],
+        ['washington','WASHINGTON','FURY'],
+        ['vancouver','VANCOUVER','CLOCK CHAIN'],
+        ['philadelphia','PHILADELPHIA','BELLLINE'],
+        ['vegas','LAS VEGAS','FLAMINGO TOSS'],
+        ['islanders','LONG ISLAND','ISLAND YES WAVE']
+      ]) {
+        const card = page.locator('[data-city-club="' + id + '"]');
+        assert.equal(await card.locator('small').first().textContent(), location,
+          viewport.label + ': correct ' + id + ' city label');
+        assert.equal(await card.locator('strong').first().textContent(), nickname,
+          viewport.label + ': ' + id + ' card shows nickname without repeating location');
+      }
       const cityOptionsFit = await page.evaluate(() => {
         const gallery = document.querySelector('.city-club-gallery');
         return [...gallery.querySelectorAll('.city-club-choice')].every(el => {
@@ -210,6 +226,34 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
           return r.left >= parent.left-2 && r.right <= parent.right+2 && el.scrollWidth <= el.clientWidth+2;
         });
       });
+      // No player should see PITTSBURG/H or WASHINGTO/N on narrow phones.
+      // Browser Range detects split words and checks every city/nickname token
+      // stays inside its card's text column, not merely inside the button.
+      const clubWordFailures = await page.evaluate(() => {
+        const problems = [];
+        for (const button of document.querySelectorAll('.city-club-choice')) {
+          for (const element of button.querySelectorAll('.city-club-detail small, .city-club-detail strong')) {
+            const textNode = element.firstChild;
+            if (!textNode || textNode.nodeType !== Node.TEXT_NODE) continue;
+            const bounds = element.getBoundingClientRect();
+            for (const match of textNode.textContent.matchAll(/\S+/g)) {
+              const word = document.createRange();
+              word.setStart(textNode, match.index);
+              word.setEnd(textNode, match.index + match[0].length);
+              const pieces = [...word.getClientRects()];
+              if (pieces.length !== 1 || pieces[0].left < bounds.left - 1 ||
+                  pieces[0].right > bounds.right + 1) {
+                problems.push({ team:button.dataset.cityClub, token:match[0], pieces:pieces.length });
+              }
+            }
+          }
+        }
+        return problems;
+      });
+      assert.deepEqual(clubWordFailures, [],
+        viewport.label + ': city club words must stay whole and inside the text column');
+      assert.equal(await page.locator('[data-city-club="islanders"] .city-club-detail small').textContent(),
+        'LONG ISLAND', viewport.label + ': original Long Island identity is used');
       assert.ok(cityOptionsFit, viewport.label + ': city club cards fit within customizer');
       await clubToggle.click();
       assert.equal(await page.locator('#cityClubGallery').evaluate(el => el.open), false,
@@ -284,6 +328,31 @@ test('Arcade menus remain inside the cabinet with no clipped labels at desktop a
           return r.left>=p.left-2&&r.right<=p.right+2&&el.scrollWidth<=el.clientWidth+2;
         });
       });
+      // Countries such as SWITZERLAND must stay on one line, never SWITZERLAN/D.
+      // A single Range rectangle verifies wrapping; its bounds also guard
+      // against hiding or spilling the unbroken word past the card's text slot.
+      const nationWordFailures = await page.evaluate(() => {
+        const errors = [];
+        for (const card of document.querySelectorAll('.national-team-choice')) {
+          const strong = card.querySelector('.national-team-detail strong');
+          const node = strong.firstChild;
+          const rect = strong.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          const glyphRects = [...range.getClientRects()];
+          if (glyphRects.length !== 1 || glyphRects[0].left < rect.left - 1 ||
+              glyphRects[0].right > rect.right + 1 ||
+              strong.scrollWidth > strong.clientWidth + 1) {
+            errors.push({ country:card.dataset.nationalTeam, pieces:glyphRects.length,
+              width:Math.round(rect.width), textWidth:Math.round(glyphRects[0]?.width || 0) });
+          }
+        }
+        return errors;
+      });
+      assert.deepEqual(nationWordFailures, [],
+        viewport.label+': all eight national team names must be unbroken and fit their text columns');
+      assert.equal(await page.locator('[data-national-team="switzerland"] .national-team-detail strong').textContent(),
+        'SWITZERLAND',viewport.label+': country label remains fully spelled');
       assert.ok(nationFit,viewport.label+': national flags/cards overflow customizer');
       await page.locator('[data-national-team="sweden"]').click();
       await page.locator('#teamForm button[type="submit"]').click();
