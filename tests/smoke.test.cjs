@@ -839,7 +839,7 @@ test('DEV team cards show each location once with full team data untouched', () 
     ["vancouver","VANCOUVER","CLOCK CHAIN"],
     ["vegas","LAS VEGAS","FLAMINGO TOSS"],
   ];
-  const entries = [...html.matchAll(/data-city-club="([^"]+)"[^>]*>[\\s\\S]*?<span class="city-club-detail"><small>([^<]+)<\\/small><strong>([^<]+)<\\/strong>/g)]
+  const entries = [...html.matchAll(/data-city-club="([^"]+)"[^>]*>[\s\S]*?<span class="city-club-detail"><small>([^<]+)<\/small><strong>([^<]+)<\/strong>/g)]
     .map(match => [match[1], match[2], match[3]]);
   assert.deepEqual(entries, expected, 'all 32 club cards use a consistent location + nickname display');
 
