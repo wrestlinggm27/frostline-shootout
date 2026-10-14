@@ -690,8 +690,12 @@
     ctx.save();
     ctx.globalAlpha = .76;
     if (typeof Path2D === 'function') {
-      ctx.translate(-27, -42);
-      ctx.scale(.54, .54);
+      // Center-ice-only: 25% larger shield, centered in the faceoff circle.
+      // SHIELD_OUTER spans x=12..88 and y=4..113; its midpoint is (50,58.5).
+      // The caller is at (210,429), 15px below the circle center (210,414).
+      const rinkCrestScale = .675;
+      ctx.translate(-50 * rinkCrestScale, -15 - 58.5 * rinkCrestScale);
+      ctx.scale(rinkCrestScale, rinkCrestScale);
       const flag = NATIONAL_FLAG_VECTORS[team.crest];
       const isFlag = !!flag;
       ctx.fillStyle = isFlag ? '#06254b' : team.secondary;
