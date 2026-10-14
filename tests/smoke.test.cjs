@@ -804,6 +804,66 @@ test('DEV keeps all city words intact and corrects Long Island display label', (
   assert.equal(saved.players[0].team.club,'islanders');
 });
 
+test('DEV team cards show each location once with full team data untouched', () => {
+  const expected = [
+    ["boston","BOSTON","BANNER"],
+    ["buffalo","BUFFALO","BLADE GANG"],
+    ["detroit","DETROIT","MOTOR CITY OCTOPUS"],
+    ["florida","FLORIDA","BLUE RAT"],
+    ["montreal","MONTREAL","OLÉ"],
+    ["ottawa","OTTAWA","LEGION"],
+    ["tampa","TAMPA BAY","COIL"],
+    ["toronto","TORONTO","GRIND"],
+    ["carolina","CAROLINA","WARNING"],
+    ["columbus","COLUMBUS","CANNONFIRE"],
+    ["newjersey","NEW JERSEY","NEWARK IRONBOUND"],
+    ["islanders","LONG ISLAND","ISLAND YES WAVE"],
+    ["newyork","NEW YORK","EMPIRE SALUTE"],
+    ["philadelphia","PHILADELPHIA","BELLLINE"],
+    ["pittsburgh","PITTSBURGH","GEAR"],
+    ["washington","WASHINGTON","FURY"],
+    ["chicago","CHICAGO","CURVE"],
+    ["colorado","COLORADO","ANTHEM"],
+    ["dallas","DALLAS","BRIMLINE"],
+    ["minnesota","MINNESOTA","NORTHWOODS"],
+    ["nashville","NASHVILLE","RIFF"],
+    ["stlouis","ST. LOUIS","TOWEL WAVE"],
+    ["utah","UTAH","TUSKS UP"],
+    ["winnipeg","WINNIPEG","TRUE NORTH"],
+    ["anaheim","ANAHEIM","RALLY FLIGHT"],
+    ["calgary","CALGARY","PRAIRIE FIRE"],
+    ["edmonton","EDMONTON","OIL COUNTRY"],
+    ["losangeles","LOS ANGELES","ROYAL ARMY"],
+    ["sanjose","SAN JOSE","CHOMP"],
+    ["seattle","SEATTLE","RAINLINE"],
+    ["vancouver","VANCOUVER","CLOCK CHAIN"],
+    ["vegas","LAS VEGAS","FLAMINGO TOSS"],
+  ];
+  const entries = [...html.matchAll(/data-city-club="([^"]+)"[^>]*>[\\s\\S]*?<span class="city-club-detail"><small>([^<]+)<\\/small><strong>([^<]+)<\\/strong>/g)]
+    .map(match => [match[1], match[2], match[3]]);
+  assert.deepEqual(entries, expected, 'all 32 club cards use a consistent location + nickname display');
+
+  for (const [club, originalName] of [
+    ['pittsburgh', 'Pittsburgh Gear'],
+    ['washington', 'Washington Fury'],
+    ['philadelphia', 'Philly Bellline'],
+    ['vegas', 'Vegas Flamingo Toss'],
+    ['islanders', 'Island Yes Wave']
+  ]) {
+    const t = boot();
+    t.frame(16);
+    t.elem('playerNameInput').value = 'Original Name Keeper';
+    t.submit('playerForm');
+    t.cityChoices.find(choice => choice.dataset.cityClub === club).emit('click');
+    assert.equal(t.elem('teamNameInput').value, originalName,
+      club + ': display-only edit must not rename the team in the editor');
+    t.submit('teamForm');
+    const storage = JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1'));
+    assert.equal(storage.players[0].team.name, originalName,
+      club + ': saved team name remains the original');
+  }
+});
+
 test('DEV thirty-two division-grouped city clubs load original crests with intended color palettes and save team', () => {
   assert.equal((html.match(/data-city-club="/g) || []).length, 32);
   assert.match(html, /<details class="city-club-gallery" id="cityClubGallery">/);
