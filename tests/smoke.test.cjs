@@ -71,6 +71,8 @@ function boot(seed = {}, options = {}) {
       if (key === 'measureText') return text => ({ width: String(text).length * 10 });
       if (key === 'fillText' && options.onDrawText) return text => options.onDrawText(String(text));
       if (key === 'rotate' && options.onCanvasRotate) return angle => options.onCanvasRotate(angle);
+      if (key === 'translate' && options.onCanvasTranslate) return (x,y) => options.onCanvasTranslate(x,y);
+      if (key === 'scale' && options.onCanvasScale) return (x,y) => options.onCanvasScale(x,y);
       return noop;
     },
     set(target, key, value) { target[key] = value; return true; }
@@ -113,6 +115,7 @@ function boot(seed = {}, options = {}) {
   let time = 1000;
   const sandbox = {
     document, localStorage, console,
+    Path2D: options.usePath2D ? class MockPath2D { constructor(path) { this.path = path; } } : undefined,
     window: { addEventListener: noop, devicePixelRatio: 1, AudioContext: options.AudioContext },
     performance: { now: () => time },
     requestAnimationFrame: fn => raf.push(fn),
@@ -752,6 +755,31 @@ test('DEV center ice draws approved crest with curved city and nickname, includi
   assert.match(letters.join(''), /^SWEDEN/, 'national team shows the actual country name');
   const stored=JSON.parse(country.storage.get('frostline-dev:frostline-player-profiles-v1'));
   assert.equal(stored.players[0].team.crest, 'natSweden', 'approved national flag is unchanged');
+});
+
+test('DEV center-ice shield is 25% larger and centered without touching the curved labels', () => {
+  const transforms=[];
+  const t=boot({}, {
+    usePath2D:true,
+    onCanvasTranslate:(x,y)=>transforms.push({type:'translate',x,y}),
+    onCanvasScale:(x,y)=>transforms.push({type:'scale',x,y})
+  });
+  t.frame(16);
+  const crestScale=transforms.find(entry => entry.type==='scale' &&
+    Math.abs(entry.x-.675)<1e-6 && Math.abs(entry.y-.675)<1e-6);
+  assert.ok(crestScale, 'center-ice crest must be scaled 25% beyond old .54 size');
+  const crestOffset=transforms.find(entry => entry.type==='translate' &&
+    Math.abs(entry.x + 33.75)<.001);
+  assert.ok(crestOffset, 'new shield transform must preserve horizontal centering');
+  const centerX=210+crestOffset.x+50*crestScale.x;
+  const centerY=429+crestOffset.y+58.5*crestScale.y;
+  assert.ok(Math.abs(centerX-210)<.01, 'shield is centered horizontally');
+  assert.ok(Math.abs(centerY-414)<.01, 'shield is centered vertically in faceoff circle');
+  const top=centerY+(4-58.5)*crestScale.y;
+  const bottom=centerY+(113-58.5)*crestScale.y;
+  assert.ok(top>374 && bottom<454, 'crest leaves room for wrapped upper and lower lettering');
+  assert.match(gameCode, /cityLines\.forEach\(/, 'curved city text remains intact');
+  assert.match(gameCode, /nicknameLines\.forEach\(/, 'curved nickname text remains intact');
 });
 
 test('DEV thirty-two division-grouped city clubs load original crests with intended color palettes and save team', () => {
