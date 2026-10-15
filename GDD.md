@@ -1,6 +1,6 @@
 # Frostline Shootout — Game Design Document (GDD)
 
-> **Document version:** 1.2 (approved online Showdown direction)  
+> **Document version:** 1.3 (approved Showdown role switching)  
 > **Last updated:** October 14, 2026  
 > **Game status:** In development; current playable Stable build V2.19  
 > **Target public launch:** Friday, December 4, 2026 (subject to release-readiness checks)  
@@ -294,12 +294,14 @@ Potential future projects, subject to real-player demand and separate scoping:
 
 **Design intent:** Build direct competition around the existing puck-shooting and save/collision feel. Goalie control must reward human skill and offer fair counterplay; neither player should win through invisible collision rules or an impossible movement advantage.
 
+**Approved role rotation:** After **every completed round**, the two players **swap positions**. The shooter becomes the goalie; the goalie becomes the shooter. Both players therefore have opportunities to attack and defend within a Showdown match. Exact match length, how many rounds make a match, point totals, winning conditions and tiebreakers remain to be designed.
+
 **Approved networking direction:** Players join the same internet-connected match using separate devices. Both players' actions and puck/goalie outcomes must remain synchronized. A fair match must account for network latency and disconnections; browser-only local storage and static hosting alone are not sufficient to coordinate a live internet match. A real-time networking service or backend will need evaluation during Showdown development.
 
 **Unresolved design decisions (do not treat as approved):**
 
 - How players find each other or join matches (invite code, friends, matchmaking).
-- Whether players **swap shooter/goalie roles**, after how many shots or rounds, and how the winner is determined.
+- How many alternating rounds make a complete match, how the winner is determined, and whether special tiebreaker rounds are needed.
 - Exact match length, shot limits, scoring, goalie movement/control layout and tie-breaking.
 - Networking architecture, state authority, latency compensation, anti-cheat protections, hosting/costs and disconnect/reconnect behavior.
 - Whether a separate single-player **Goalie Mode** serves as a tutorial before Showdown.
@@ -353,6 +355,7 @@ This file is the approved **design foundation**. It records intended game behavi
 | **2026-10-14** | **1.0** | Initial approved Frostline game-design baseline; Arcade-only December 4 target, protected customization/art/records, separate DEV/Stable rules, launch gates and future backlog |
 | **2026-10-14** | **1.1** | Approved Showdown concept: a human shooter plays directly against a human-controlled goalie; match format and local/online implementation remain open |
 | **2026-10-14** | **1.2** | Confirmed Showdown is online real-time competition between two players on separate phones/computers; networking and match rules remain to be designed |
+| **2026-10-14** | **1.3** | Approved alternating Showdown roles: shooter and human goalie swap positions after every completed round; duration, match length and scoring still open |
 
 ---
 
