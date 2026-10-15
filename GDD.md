@@ -1,6 +1,6 @@
 # Frostline Shootout — Game Design Document (GDD)
 
-> **Document version:** 1.1 (approved design baseline + Showdown concept)  
+> **Document version:** 1.2 (approved online Showdown direction)  
 > **Last updated:** October 14, 2026  
 > **Game status:** In development; current playable Stable build V2.19  
 > **Target public launch:** Friday, December 4, 2026 (subject to release-readiness checks)  
@@ -283,23 +283,25 @@ Automated test success does **not** replace actual touch-device playtesting.
 Potential future projects, subject to real-player demand and separate scoping:
 
 1. Extra Arcade challenges, stats and quality-of-life improvements.
-2. **Showdown** mode: two human players compete head-to-head, with **one player shooting pucks and the other directly controlling the goalie and defending the net**. See the approved concept below.
+2. **Showdown** mode: **two human players on separate phones or computers connected over the internet**, with one controlling the shooter and the other actively defending as the goalie. See the approved concept below.
 3. Optional online leaderboards and account/sync features.
 4. Multiplayer and additional competitive modes.
 5. Native mobile packaging/app-store distribution only if the browser game earns that investment.
 
 ### Showdown: two-player shooter versus human goalie — Approved future concept
 
-**Approved player roles:** Two real players participate in the same matchup. **One controls the shooter**, aiming and firing pucks; **the other controls the goalie**, positioning and actively making saves. Unlike Classic Arcade, Showdown is **not** two shooters separately taking turns against an automated goalie.
+**Approved player roles and setup:** Two real players compete **online in real time, each on their own phone or computer**. **One controls the shooter**, aiming and firing pucks; **the other controls the goalie**, positioning and actively making saves. Unlike Classic Arcade, Showdown is **not** two shooters separately taking turns against an automated goalie, and it is not designed around sharing one device.
 
 **Design intent:** Build direct competition around the existing puck-shooting and save/collision feel. Goalie control must reward human skill and offer fair counterplay; neither player should win through invisible collision rules or an impossible movement advantage.
 
+**Approved networking direction:** Players join the same internet-connected match using separate devices. Both players' actions and puck/goalie outcomes must remain synchronized. A fair match must account for network latency and disconnections; browser-only local storage and static hosting alone are not sufficient to coordinate a live internet match. A real-time networking service or backend will need evaluation during Showdown development.
+
 **Unresolved design decisions (do not treat as approved):**
 
-- Whether each person plays on a **separate device** (online real-time connection) or whether a local/two-controller prototype comes first.
+- How players find each other or join matches (invite code, friends, matchmaking).
 - Whether players **swap shooter/goalie roles**, after how many shots or rounds, and how the winner is determined.
 - Exact match length, shot limits, scoring, goalie movement/control layout and tie-breaking.
-- Networking/latency requirements if using real-time online play.
+- Networking architecture, state authority, latency compensation, anti-cheat protections, hosting/costs and disconnect/reconnect behavior.
 - Whether a separate single-player **Goalie Mode** serves as a tutorial before Showdown.
 
 **Scope:** This is a **post-1.0 expansion**. Planning this mode does **not** change the December 4, 2026 Arcade-only release target or authorize gameplay code changes.
@@ -350,6 +352,7 @@ This file is the approved **design foundation**. It records intended game behavi
 | --- | --- | --- |
 | **2026-10-14** | **1.0** | Initial approved Frostline game-design baseline; Arcade-only December 4 target, protected customization/art/records, separate DEV/Stable rules, launch gates and future backlog |
 | **2026-10-14** | **1.1** | Approved Showdown concept: a human shooter plays directly against a human-controlled goalie; match format and local/online implementation remain open |
+| **2026-10-14** | **1.2** | Confirmed Showdown is online real-time competition between two players on separate phones/computers; networking and match rules remain to be designed |
 
 ---
 
