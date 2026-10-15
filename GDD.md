@@ -1,6 +1,6 @@
 # Frostline Shootout — Game Design Document (GDD)
 
-> **Document version:** 1.0 (approved design baseline)  
+> **Document version:** 1.1 (approved design baseline + Showdown concept)  
 > **Last updated:** October 14, 2026  
 > **Game status:** In development; current playable Stable build V2.19  
 > **Target public launch:** Friday, December 4, 2026 (subject to release-readiness checks)  
@@ -224,7 +224,7 @@ Checked items represent *implementation known to exist*; unchecked items require
 
 ### Explicitly out of scope for 1.0
 
-Online leaderboards, account/cloud save systems, multiplayer, native app-store builds, microtransactions, additional Arcade styles, player-controlled goalie Showdown, and large new customization catalogs. These require separate future approval.
+Online leaderboards, account/cloud save systems, multiplayer, native app-store builds, microtransactions, additional Arcade styles, two-player shooter-versus-goalie Showdown, and large new customization catalogs. These require separate future approval.
 
 **Launch principle:** Ship **one polished Arcade mode**, not multiple unfinished modes.
 
@@ -283,10 +283,26 @@ Automated test success does **not** replace actual touch-device playtesting.
 Potential future projects, subject to real-player demand and separate scoping:
 
 1. Extra Arcade challenges, stats and quality-of-life improvements.
-2. **Showdown** mode with a player-controlled goalie/opponent experience.
+2. **Showdown** mode: two human players compete head-to-head, with **one player shooting pucks and the other directly controlling the goalie and defending the net**. See the approved concept below.
 3. Optional online leaderboards and account/sync features.
 4. Multiplayer and additional competitive modes.
 5. Native mobile packaging/app-store distribution only if the browser game earns that investment.
+
+### Showdown: two-player shooter versus human goalie — Approved future concept
+
+**Approved player roles:** Two real players participate in the same matchup. **One controls the shooter**, aiming and firing pucks; **the other controls the goalie**, positioning and actively making saves. Unlike Classic Arcade, Showdown is **not** two shooters separately taking turns against an automated goalie.
+
+**Design intent:** Build direct competition around the existing puck-shooting and save/collision feel. Goalie control must reward human skill and offer fair counterplay; neither player should win through invisible collision rules or an impossible movement advantage.
+
+**Unresolved design decisions (do not treat as approved):**
+
+- Whether each person plays on a **separate device** (online real-time connection) or whether a local/two-controller prototype comes first.
+- Whether players **swap shooter/goalie roles**, after how many shots or rounds, and how the winner is determined.
+- Exact match length, shot limits, scoring, goalie movement/control layout and tie-breaking.
+- Networking/latency requirements if using real-time online play.
+- Whether a separate single-player **Goalie Mode** serves as a tutorial before Showdown.
+
+**Scope:** This is a **post-1.0 expansion**. Planning this mode does **not** change the December 4, 2026 Arcade-only release target or authorize gameplay code changes.
 
 Avoid dates or commitments for these until their complexity and player value are verified.
 
@@ -333,6 +349,7 @@ This file is the approved **design foundation**. It records intended game behavi
 | Date | GDD version | Change |
 | --- | --- | --- |
 | **2026-10-14** | **1.0** | Initial approved Frostline game-design baseline; Arcade-only December 4 target, protected customization/art/records, separate DEV/Stable rules, launch gates and future backlog |
+| **2026-10-14** | **1.1** | Approved Showdown concept: a human shooter plays directly against a human-controlled goalie; match format and local/online implementation remain open |
 
 ---
 
