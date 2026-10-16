@@ -1066,3 +1066,24 @@ test('the original V2.8 Power Play default migrates to Ice Cut only once',()=>{
   const again=boot(Object.fromEntries(t.storage));
   assert.equal(again.elem('brandLogoUse').getAttribute('href'),'#frostline-power','explicitly chosen Power Play remains valid');
 });
+
+test('Stable Florida Blue Rat fierce mascot uses a detailed SVG crest and keeps saved team ID', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Rat Captain';
+  t.submit('playerForm');
+  const florida = t.cityChoices.find(button => button.dataset.cityClub === 'florida');
+  assert.ok(florida, 'Florida team remains in the Atlantic gallery');
+  const svg = florida.querySelector('.city-club-icon').children[0];
+  assert.equal(svg.children.length, 24, 'Florida shield includes 22 fierce rat symbol paths');
+  assert.equal(svg.children[0].getAttribute('stroke'), '#ffffff', 'white shield border');
+  assert.equal(svg.children[1].getAttribute('fill'), '#c8102e', 'preserve red team palette');
+  const symbolPaths = svg.children.slice(2);
+  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#b9975b'), 'gold eyes and nose');
+  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#ffffff'), 'white brows and teeth');
+  assert.ok(symbolPaths.some(p => p.getAttribute('stroke') === '#ffffff'), 'white whiskers');
+  assert.match(gameCode, /crestBorder = team.crest === 'flaRat'/, 'same white border in SVG and center-ice drawing');
+  florida.emit('click');
+  assert.equal(t.elem('previewTeamName').textContent, 'FLORIDA BLUE RAT', 'full team identity remains unchanged');
+  assert.equal(t.elem('previewTeamCrest').children[0].children.length, 24, 'team preview uses same approved vector');
+});
