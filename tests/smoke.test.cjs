@@ -859,8 +859,15 @@ test('Stable thirty-two division-grouped city clubs load original crests with in
     assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
     assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
-    // The SVG contains one or more original icon path elements beyond the shield.
-    assert.ok(t.elem('previewTeamCrest').children[0].children.length > 4);
+    // Florida uses the same approved image as DEV; other teams keep SVG vector paths.
+    const crestSvg = t.elem('previewTeamCrest').children[0];
+    if (expected.club === 'florida') {
+      assert.equal(crestSvg.children.length, 1, 'Florida loads the approved crest image');
+      assert.equal(crestSvg.children[0].name, 'image', 'not the replaced hand-drawn version');
+      assert.equal(crestSvg.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+    } else {
+      assert.ok(crestSvg.children.length > 4, 'other teams keep their SVG art');
+    }
     t.submit('teamForm');
     const saved=JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0].team;
     for (const key of ['name','crest','club','primary','secondary']) assert.equal(saved[key], expected[key]);
@@ -1067,23 +1074,23 @@ test('the original V2.8 Power Play default migrates to Ice Cut only once',()=>{
   assert.equal(again.elem('brandLogoUse').getAttribute('href'),'#frostline-power','explicitly chosen Power Play remains valid');
 });
 
-test('Stable Florida Blue Rat fierce mascot uses a detailed SVG crest and keeps saved team ID', () => {
+test('Stable Florida uses the exact approved image asset in picker and preview, keeping the same team identity', () => {
   const t = boot();
   t.frame(16);
   t.elem('playerNameInput').value = 'Rat Captain';
   t.submit('playerForm');
   const florida = t.cityChoices.find(button => button.dataset.cityClub === 'florida');
   assert.ok(florida, 'Florida team remains in the Atlantic gallery');
-  const svg = florida.querySelector('.city-club-icon').children[0];
-  assert.equal(svg.children.length, 24, 'Florida shield includes 22 fierce rat symbol paths');
-  assert.equal(svg.children[0].getAttribute('stroke'), '#ffffff', 'white shield border');
-  assert.equal(svg.children[1].getAttribute('fill'), '#c8102e', 'preserve red team palette');
-  const symbolPaths = svg.children.slice(2);
-  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#b9975b'), 'gold eyes and nose');
-  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#ffffff'), 'white brows and teeth');
-  assert.ok(symbolPaths.some(p => p.getAttribute('stroke') === '#ffffff'), 'white whiskers');
-  assert.match(gameCode, /crestBorder = team.crest === 'flaRat'/, 'same white border in SVG and center-ice drawing');
+  const cardSvg = florida.querySelector('.city-club-icon').children[0];
+  assert.equal(cardSvg.children.length, 1, 'approved crest is displayed as one image');
+  assert.equal(cardSvg.children[0].name, 'image', 'no hand-recreated mascot artwork');
+  assert.equal(cardSvg.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+  assert.match(gameCode, /ctx.drawImage\(floridaRatImage, 12, 4, 76, 109\)/,
+    'center ice uses the same approved source image');
   florida.emit('click');
-  assert.equal(t.elem('previewTeamName').textContent, 'FLORIDA BLUE RAT', 'full team identity remains unchanged');
-  assert.equal(t.elem('previewTeamCrest').children[0].children.length, 24, 'team preview uses same approved vector');
+  assert.equal(t.elem('previewTeamName').textContent, 'FLORIDA BLUE RAT');
+  const preview=t.elem('previewTeamCrest').children[0];
+  assert.equal(preview.children.length, 1, 'preview uses the approved image');
+  assert.equal(preview.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+  assert.equal(t.elem('teamNameInput').value, 'Florida Blue Rat', 'unchanged saved identity');
 });
