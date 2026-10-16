@@ -1,4 +1,12 @@
-# Frostline Shootout — Stable Version 2.19
+# Frostline Shootout — Stable Version 2.20
+
+## Stable V2.20: Florida Blue Rat Gets Fierce (Approved)
+
+Player feedback prompted a stronger Florida Blue Rat mascot. Its revised original vector artwork now features sharper narrowed eyes, aggressive eyebrows and fur, white whiskers and teeth, gold eye accents, a contrasting red-and-navy background, and white shield outlines. The same `flaRat` ID renders consistently in the team picker, team preview and curved center-ice crest.
+
+**Safe cosmetic change:** Florida's club name, palette, crest ID and existing player records stay intact. The other 31 clubs, eight country flag shields, official Ice Cut F, gameplay physics, goalie AI, sound and profile storage keys remain unchanged. DEV-only TEST/RESUME, goalie dragging, and collision diagnostics remain excluded from Stable. Smoke and responsive-layout tests are retained; the Florida crest has an additional regression check.
+
+
 
 ## Stable V2.19: Clearer Team Selection Cards (Approved)
 
