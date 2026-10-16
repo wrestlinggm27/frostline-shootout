@@ -245,16 +245,31 @@
       { d: 'M46 70 H54 L56 83 H44 Z', mode: 'trim' },
       { d: 'M38 84 H62 M32 88 H68', mode: 'stroke', width: 3.1 }
     ] },
-    flaRat: { label: 'Florida Blue Rally Rat', shapes: [
-      // Navy-blue rat mascot, curved tail and white whiskers: entirely original.
-      { d: 'M32 53 Q24 42 29 35 Q34 29 43 41 Q54 35 61 43 Q68 31 74 37 Q79 43 68 55 Q71 64 77 70 L72 78 Q57 86 44 82 Q30 78 29 65 Q28 59 32 53 Z', mode: 'accent' },
-      { d: 'M33 40 Q37 38 41 47 M68 41 Q64 40 62 48', mode: 'stroke', width: 2.8 },
-      { d: 'M42 58 Q46 54 50 58 Q54 54 58 58', mode: 'stroke', width: 2.7 },
-      { d: 'M44 64 A3 3 0 1 0 50 64 A3 3 0 1 0 44 64 Z M55 64 A3 3 0 1 0 61 64 A3 3 0 1 0 55 64 Z', mode: 'gold' },
-      { d: 'M60 72 L65 70 L63 75 Z', mode: 'gold' },
-      { d: 'M63 74 L78 72 M61 77 L77 80 M42 73 L26 70 M42 77 L24 79', mode: 'stroke', width: 2.2 },
-      { d: 'M37 81 Q22 90 22 76 Q23 68 29 68', mode: 'gold-stroke', width: 3.7 },
-      { d: 'M46 83 Q56 89 66 83', mode: 'stroke', width: 2.5 }
+    flaRat: { label: 'Florida Fierce Blue Rally Rat', shapes: [
+      // Player-approved redesign: narrowed gold eyes, angled brows, pointed fur,
+      // white whiskers and teeth. Original club ID, save data and colors stay intact.
+      { d: 'M27 51 Q26 43 31 40 L27 37 Q22 29 30 26 Q35 24 43 36 L50 38 L57 36 Q66 23 71 26 Q79 31 72 40 L73 45 Q78 57 72 73 Q66 91 50 96 Q34 91 28 75 Q24 63 27 51 Z', mode: 'accent' },
+      { d: 'M29 34 Q29 28 33 30 Q37 33 42 42 L36 39 Z', mode: 'white' },
+      { d: 'M71 34 Q71 28 67 30 Q63 33 58 42 L64 39 Z', mode: 'white' },
+      { d: 'M38 38 L37 32 L45 39 L43 33 L52 39 L59 35 L57 43 L50 40 Z', mode: 'accent' },
+      { d: 'M31 53 L26 58 L35 55 L30 64 L40 58 Z', mode: 'ice' },
+      { d: 'M69 53 L74 58 L65 55 L70 64 L60 58 Z', mode: 'ice' },
+      { d: 'M31 57 Q36 52 42 57 L47 64 Q37 60 31 63 Z', mode: 'white' },
+      { d: 'M69 57 Q64 52 58 57 L53 64 Q63 60 69 63 Z', mode: 'white' },
+      { d: 'M31 64 Q36 61 43 67 Q38 72 33 67 Z', mode: 'night' },
+      { d: 'M69 64 Q64 61 57 67 Q62 72 67 67 Z', mode: 'night' },
+      { d: 'M34 66 Q38 64 42 68 Q38 72 34 68 Z', mode: 'gold' },
+      { d: 'M66 66 Q62 64 58 68 Q62 72 66 68 Z', mode: 'gold' },
+      { d: 'M38 65 L40 65 L39 68 Z', mode: 'night' },
+      { d: 'M62 65 L60 65 L61 68 Z', mode: 'night' },
+      { d: 'M28 72 L38 72 L45 78 L35 78 Z', mode: 'ice' },
+      { d: 'M72 72 L62 72 L55 78 L65 78 Z', mode: 'ice' },
+      { d: 'M39 78 Q45 74 50 77 Q55 74 61 78 Q60 83 56 83 L50 86 L44 83 Q40 83 39 78 Z', mode: 'white' },
+      { d: 'M47 77 Q50 74 53 77 L50 80 Z', mode: 'gold' },
+      { d: 'M47 82 H53 L55 85 H45 Z', mode: 'night' },
+      { d: 'M45 85 H49 L49 92 H45 Z M51 85 H55 V92 H51 Z', mode: 'white' },
+      { d: 'M36 75 L18 72 M37 79 L19 82 M64 75 L82 72 M63 79 L81 82', mode: 'white-stroke', width: 2.4 },
+      { d: 'M46 94 Q50 97 54 94', mode: 'ice-stroke', width: 1.7 }
     ] },
     tamCoil: { label: 'Tampa Tesla Coil Intro', shapes: [
       // Electric arc forks above a freestanding induction coil tower.
@@ -620,13 +635,16 @@
   };
   function artPaint(shape, team) {
     if (Object.hasOwn(FLAG_PAINT, shape.mode)) return FLAG_PAINT[shape.mode];
+    if (shape.mode === 'white' || shape.mode === 'white-stroke') return '#ffffff';
+    if (shape.mode === 'ice' || shape.mode === 'ice-stroke') return '#bedfff';
+    if (shape.mode === 'night') return '#05122d';
     if (shape.mode === 'gold' || shape.mode === 'gold-stroke') return '#b9975b';
     if (shape.mode === 'silver' || shape.mode === 'silver-stroke') return '#b5c1d0';
     if (shape.mode === 'accent' || shape.mode === 'cutout' || shape.mode === 'accent-stroke') return team.secondary;
     if (shape.mode === 'base' || shape.mode === 'base-stroke') return team.primary;
     return team.trim;
   }
-  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke','gold-stroke','silver-stroke'].includes(shape.mode); }
+  function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke','gold-stroke','silver-stroke','white-stroke','ice-stroke'].includes(shape.mode); }
   function makeCrestSvg(team, className = '') {
     const svgNS = 'http://www.w3.org/2000/svg';
     const create = (tag, attrs) => {
@@ -637,10 +655,11 @@
     const svg = create('svg', { viewBox: '0 0 100 116', 'aria-hidden': 'true', class: className });
     const flag = NATIONAL_FLAG_VECTORS[team.crest];
     const isFlag = !!flag;
+    const crestBorder = team.crest === 'flaRat' ? '#ffffff' : team.trim;
     svg.append(create('path', { d: SHIELD_OUTER, fill: isFlag ? '#06254b' : team.secondary,
-      stroke: isFlag ? '#3775ad' : team.trim, 'stroke-width': 2.4 }));
+      stroke: isFlag ? '#3775ad' : crestBorder, 'stroke-width': 2.4 }));
     svg.append(create('path', { d: SHIELD_INNER, fill: isFlag ? '#ffffff' : team.primary,
-      stroke: isFlag ? '#ffffff' : team.trim, 'stroke-width': 1.5 }));
+      stroke: isFlag ? '#ffffff' : crestBorder, 'stroke-width': 1.5 }));
     if (isFlag) {
       const clipId = 'frostline-national-clip-' + (++nationalClipId);
       const defs = create('defs', {});
@@ -701,11 +720,13 @@
       ctx.scale(rinkCrestScaleX, rinkCrestScaleY);
       const flag = NATIONAL_FLAG_VECTORS[team.crest];
       const isFlag = !!flag;
+      const crestBorder = team.crest === 'flaRat' ? '#ffffff' : team.trim;
       ctx.fillStyle = isFlag ? '#06254b' : team.secondary;
-      ctx.strokeStyle = isFlag ? '#3775ad' : team.trim; ctx.lineWidth = 2.4;
+      ctx.strokeStyle = isFlag ? '#3775ad' : crestBorder; ctx.lineWidth = 2.4;
       const outer = new Path2D(SHIELD_OUTER);
       ctx.fill(outer); ctx.stroke(outer);
-      ctx.fillStyle = isFlag ? '#ffffff' : team.primary; ctx.lineWidth = 1.5;
+      ctx.fillStyle = isFlag ? '#ffffff' : team.primary;
+      ctx.strokeStyle = isFlag ? '#3775ad' : crestBorder; ctx.lineWidth = 1.5;
       const inner = new Path2D(SHIELD_INNER);
       ctx.fill(inner); ctx.stroke(inner);
       if (isFlag) {
