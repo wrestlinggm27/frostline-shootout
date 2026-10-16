@@ -1077,23 +1077,23 @@ test('national SVG vector detail is preserved in generated previews and saved te
   assert.equal(flagsSvg.children[3].children[0].children.length,53,'USA must have 50 actual star paths plus 3 flag layers');
 });
 
-test('DEV Florida Blue Rat fierce mascot uses a detailed SVG crest and keeps saved team ID', () => {
+test('DEV Florida uses the exact approved image asset in picker and preview, keeping the same team identity', () => {
   const t = boot();
   t.frame(16);
   t.elem('playerNameInput').value = 'Rat Captain';
   t.submit('playerForm');
   const florida = t.cityChoices.find(button => button.dataset.cityClub === 'florida');
   assert.ok(florida, 'Florida team remains in the Atlantic gallery');
-  const svg = florida.querySelector('.city-club-icon').children[0];
-  assert.equal(svg.children.length, 24, 'Florida shield includes 22 fierce rat symbol paths');
-  assert.equal(svg.children[0].getAttribute('stroke'), '#ffffff', 'white shield border');
-  assert.equal(svg.children[1].getAttribute('fill'), '#c8102e', 'preserve red team palette');
-  const symbolPaths = svg.children.slice(2);
-  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#b9975b'), 'gold eyes and nose');
-  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#ffffff'), 'white brows and teeth');
-  assert.ok(symbolPaths.some(p => p.getAttribute('stroke') === '#ffffff'), 'white whiskers');
-  assert.match(gameCode, /crestBorder = team.crest === 'flaRat'/, 'same white border in SVG and center-ice drawing');
+  const cardSvg = florida.querySelector('.city-club-icon').children[0];
+  assert.equal(cardSvg.children.length, 1, 'approved crest is displayed as one image');
+  assert.equal(cardSvg.children[0].name, 'image', 'no hand-recreated mascot artwork');
+  assert.equal(cardSvg.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+  assert.match(gameCode, /ctx.drawImage\(floridaRatImage, 12, 4, 76, 109\)/,
+    'center ice uses the same approved source image');
   florida.emit('click');
-  assert.equal(t.elem('previewTeamName').textContent, 'FLORIDA BLUE RAT', 'full team identity remains unchanged');
-  assert.equal(t.elem('previewTeamCrest').children[0].children.length, 24, 'team preview uses same approved vector');
+  assert.equal(t.elem('previewTeamName').textContent, 'FLORIDA BLUE RAT');
+  const preview=t.elem('previewTeamCrest').children[0];
+  assert.equal(preview.children.length, 1, 'preview uses the approved image');
+  assert.equal(preview.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+  assert.equal(t.elem('teamNameInput').value, 'Florida Blue Rat', 'unchanged saved identity');
 });
