@@ -1076,3 +1076,24 @@ test('national SVG vector detail is preserved in generated previews and saved te
   const flagsSvg=t.elem('previewTeamCrest').children[0];
   assert.equal(flagsSvg.children[3].children[0].children.length,53,'USA must have 50 actual star paths plus 3 flag layers');
 });
+
+test('DEV Florida Blue Rat fierce mascot uses a detailed SVG crest and keeps saved team ID', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Rat Captain';
+  t.submit('playerForm');
+  const florida = t.cityChoices.find(button => button.dataset.cityClub === 'florida');
+  assert.ok(florida, 'Florida team remains in the Atlantic gallery');
+  const svg = florida.querySelector('.city-club-icon').children[0];
+  assert.equal(svg.children.length, 24, 'Florida shield includes 22 fierce rat symbol paths');
+  assert.equal(svg.children[0].getAttribute('stroke'), '#ffffff', 'white shield border');
+  assert.equal(svg.children[1].getAttribute('fill'), '#c8102e', 'preserve red team palette');
+  const symbolPaths = svg.children.slice(2);
+  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#b9975b'), 'gold eyes and nose');
+  assert.ok(symbolPaths.some(p => p.getAttribute('fill') === '#ffffff'), 'white brows and teeth');
+  assert.ok(symbolPaths.some(p => p.getAttribute('stroke') === '#ffffff'), 'white whiskers');
+  assert.match(gameCode, /crestBorder = team.crest === 'flaRat'/, 'same white border in SVG and center-ice drawing');
+  florida.emit('click');
+  assert.equal(t.elem('previewTeamName').textContent, 'FLORIDA BLUE RAT', 'full team identity remains unchanged');
+  assert.equal(t.elem('previewTeamCrest').children[0].children.length, 24, 'team preview uses same approved vector');
+});
