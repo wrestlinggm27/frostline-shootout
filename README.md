@@ -1,4 +1,12 @@
-# Frostline Shootout — Stable Version 2.20
+# Frostline Shootout — Stable Version 2.21
+
+## Stable V2.21: Exact Approved Florida Blue Rat Crest (Approved)
+
+Florida Blue Rat now uses the exact player-approved fierce crest artwork from the working DEV preview, rather than a simplified hand-redrawn rat. The cropped WebP asset (`assets/florida-blue-rat-approved.webp`) displays in the team gallery, customization preview, header, and center ice through the existing `flaRat` crest ID. The center-ice renderer uses the same image once loaded and retains the existing vector fallback while loading.
+
+**Scoped art-only promotion:** The Florida identity, stored team choices, team colors and original `flaRat` ID are preserved. All other 31 city teams, eight national shields, Ice Cut F, gameplay, records and production storage keys remain unchanged. DEV-exclusive testing tools and storage remain outside Stable. Regression tests cover the image and preserved team data.
+
+
 
 ## Stable V2.20: Florida Blue Rat Gets Fierce (Approved)
 
