@@ -645,6 +645,11 @@
     return team.trim;
   }
   function artIsStroke(shape) { return ['stroke','accent-stroke','base-stroke','trim-stroke','gold-stroke','silver-stroke','white-stroke','ice-stroke'].includes(shape.mode); }
+  // Exact approved Florida crest, cropped from the player's selected artwork.
+  // Other clubs, national teams and existing crest IDs still use the vector engine.
+  const FLORIDA_RAT_ART = 'assets/florida-blue-rat-approved.webp';
+  const floridaRatImage = typeof Image === 'function' ? new Image() : null;
+  if (floridaRatImage) floridaRatImage.src = FLORIDA_RAT_ART;
   function makeCrestSvg(team, className = '') {
     const svgNS = 'http://www.w3.org/2000/svg';
     const create = (tag, attrs) => {
@@ -653,6 +658,12 @@
       return node;
     };
     const svg = create('svg', { viewBox: '0 0 100 116', 'aria-hidden': 'true', class: className });
+    if (team.crest === 'flaRat') {
+      // Do not redraw approved art as a simplified mascot.
+      svg.append(create('image', { href: FLORIDA_RAT_ART, x: 12, y: 4,
+        width: 76, height: 109, preserveAspectRatio: 'xMidYMid meet' }));
+      return svg;
+    }
     const flag = NATIONAL_FLAG_VECTORS[team.crest];
     const isFlag = !!flag;
     const crestBorder = team.crest === 'flaRat' ? '#ffffff' : team.trim;
@@ -718,6 +729,13 @@
       const rinkCrestScaleY = .675;
       ctx.translate(-50 * rinkCrestScaleX, -15 - 58.5 * rinkCrestScaleY);
       ctx.scale(rinkCrestScaleX, rinkCrestScaleY);
+      if (team.crest === 'flaRat' && floridaRatImage &&
+          floridaRatImage.complete && floridaRatImage.naturalWidth > 0) {
+        ctx.drawImage(floridaRatImage, 12, 4, 76, 109);
+        ctx.restore();
+        return;
+      }
+      // Use the existing vector as a fallback until the image loads.
       const flag = NATIONAL_FLAG_VECTORS[team.crest];
       const isFlag = !!flag;
       const crestBorder = team.crest === 'flaRat' ? '#ffffff' : team.trim;
