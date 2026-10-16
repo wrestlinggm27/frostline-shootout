@@ -926,8 +926,15 @@ test('DEV thirty-two division-grouped city clubs load original crests with inten
     assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
     assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
-    // The SVG contains one or more original icon path elements beyond the shield.
-    assert.ok(t.elem('previewTeamCrest').children[0].children.length > 4);
+    // Florida uses the exact approved raster shield; all other clubs stay SVG paths.
+    const detail=t.elem('previewTeamCrest').children[0];
+    if (expected.club === 'florida') {
+      assert.equal(detail.children.length, 1);
+      assert.equal(detail.children[0].name, 'image');
+      assert.equal(detail.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+    } else {
+      assert.ok(detail.children.length > 4);
+    }
     t.submit('teamForm');
     const saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
     for (const key of ['name','crest','club','primary','secondary']) assert.equal(saved[key], expected[key]);
