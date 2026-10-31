@@ -650,6 +650,10 @@
   const FLORIDA_RAT_ART = 'assets/florida-blue-rat-approved.webp';
   const floridaRatImage = typeof Image === 'function' ? new Image() : null;
   if (floridaRatImage) floridaRatImage.src = FLORIDA_RAT_ART;
+  // Player-approved Boston Banner artwork, keeping the original bosBanner crest ID.
+  const BOSTON_BANNER_ART = 'assets/boston-banner-approved.webp';
+  const bostonBannerImage = typeof Image === 'function' ? new Image() : null;
+  if (bostonBannerImage) bostonBannerImage.src = BOSTON_BANNER_ART;
   function makeCrestSvg(team, className = '') {
     const svgNS = 'http://www.w3.org/2000/svg';
     const create = (tag, attrs) => {
@@ -662,6 +666,11 @@
       // Do not redraw approved art as a simplified mascot.
       svg.append(create('image', { href: FLORIDA_RAT_ART, x: 12, y: 4,
         width: 76, height: 109, preserveAspectRatio: 'xMidYMid meet' }));
+      return svg;
+    }
+    if (team.crest === 'bosBanner') {
+      svg.append(create('image', { href: BOSTON_BANNER_ART, x: 6, y: 13,
+        width: 88, height: 88, preserveAspectRatio: 'xMidYMid meet' }));
       return svg;
     }
     const flag = NATIONAL_FLAG_VECTORS[team.crest];
@@ -732,6 +741,12 @@
       if (team.crest === 'flaRat' && floridaRatImage &&
           floridaRatImage.complete && floridaRatImage.naturalWidth > 0) {
         ctx.drawImage(floridaRatImage, 12, 4, 76, 109);
+        ctx.restore();
+        return;
+      }
+      if (team.crest === 'bosBanner' && bostonBannerImage &&
+          bostonBannerImage.complete && bostonBannerImage.naturalWidth > 0) {
+        ctx.drawImage(bostonBannerImage, 6, 13, 88, 88);
         ctx.restore();
         return;
       }
