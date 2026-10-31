@@ -926,12 +926,14 @@ test('DEV thirty-two division-grouped city clubs load original crests with inten
     assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
     assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
-    // Florida uses the exact approved raster shield; all other clubs stay SVG paths.
+    // Boston and Florida use player-approved imagery; other clubs remain vector shapes.
     const detail=t.elem('previewTeamCrest').children[0];
-    if (expected.club === 'florida') {
+    if (expected.club === 'florida' || expected.club === 'boston') {
+      const approvedAsset = expected.club === 'florida'
+        ? 'assets/florida-blue-rat-approved.webp' : 'assets/boston-banner-approved.webp';
       assert.equal(detail.children.length, 1);
       assert.equal(detail.children[0].name, 'image');
-      assert.equal(detail.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+      assert.equal(detail.children[0].getAttribute('href'), approvedAsset);
     } else {
       assert.ok(detail.children.length > 4);
     }
@@ -1103,4 +1105,31 @@ test('DEV Florida uses the exact approved image asset in picker and preview, kee
   assert.equal(preview.children.length, 1, 'preview uses the approved image');
   assert.equal(preview.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
   assert.equal(t.elem('teamNameInput').value, 'Florida Blue Rat', 'unchanged saved identity');
+});
+
+
+test('DEV Boston Banner uses player-approved artwork in picker, header and center ice without changing team records', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Banner Captain';
+  t.submit('playerForm');
+  const boston = t.cityChoices.find(button => button.dataset.cityClub === 'boston');
+  assert.ok(boston, 'Boston stays in the Atlantic gallery');
+  const cardSvg = boston.querySelector('.city-club-icon').children[0];
+  assert.equal(cardSvg.children.length, 1);
+  assert.equal(cardSvg.children[0].name, 'image');
+  assert.equal(cardSvg.children[0].getAttribute('href'), 'assets/boston-banner-approved.webp');
+  assert.match(gameCode, /ctx.drawImage\(bostonBannerImage, 6, 13, 88, 88\)/,
+    'center ice uses the approved image once it has loaded');
+  boston.emit('click');
+  assert.equal(t.elem('previewTeamName').textContent, 'BOSTON BANNER');
+  assert.equal(t.elem('teamNameInput').value, 'Boston Banner');
+  const preview = t.elem('previewTeamCrest').children[0];
+  assert.equal(preview.children.length, 1);
+  assert.equal(preview.children[0].getAttribute('href'), 'assets/boston-banner-approved.webp');
+  t.submit('teamForm');
+  const saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.crest, 'bosBanner');
+  assert.equal(saved.club, 'boston');
+  assert.equal(t.elem('headerTeamCrest').children[0].children[0].getAttribute('href'), 'assets/boston-banner-approved.webp');
 });

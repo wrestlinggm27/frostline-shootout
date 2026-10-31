@@ -1,5 +1,8 @@
 # Frostline Shootout — DEV V2.10: Accurate National Flag Shields
 
+## DEV: Boston Banner crest redesign (pending player playtest)
+The original approved Boston Banner image is now used for the existing `bosBanner` team identity in the 32-team gallery, live customization preview, profile header, and center ice. It is stored at `assets/boston-banner-approved.webp` and uses a vector fallback while the center-ice image loads. No team IDs, records, names, palette, gameplay, or other team artwork change. The Stable root remains untouched until player approval.
+
 > **Development copy.** All new features are tested here before being approved for Stable. Dev player names, teams and records are stored under separate browser keys. Stable remains unchanged.
 
 A complete, offline-friendly **30-second arcade ice hockey shootout**. Made with original graphics using plain HTML, CSS, and JavaScript. No installation, frameworks, or accounts. Crowd recordings are licensed and credited below.
