@@ -1,5 +1,8 @@
 # Frostline Shootout — DEV V2.10: Accurate National Flag Shields
 
+## DEV: Boston Banner background cutout (pending player playtest)
+The approved Boston image now uses the same accurately traced transparent silhouette for SVG previews and Canvas center ice. The surrounding dark square is clipped away, while the gold B, banner, skyline and inner black details remain. Only the Boston visual renderer changes; no team identity, save keys, goalie behavior or other marks change.
+
 ## DEV: Boston Banner crest redesign (pending player playtest)
 The original approved Boston Banner image is now used for the existing `bosBanner` team identity in the 32-team gallery, live customization preview, profile header, and center ice. It is stored at `assets/boston-banner-approved.webp` and uses a vector fallback while the center-ice image loads. No team IDs, records, names, palette, gameplay, or other team artwork change. The Stable root remains untouched until player approval.
 
