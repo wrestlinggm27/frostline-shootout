@@ -859,9 +859,16 @@ test('Stable thirty-two division-grouped city clubs load original crests with in
     assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
     assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
-    // Florida uses the same approved image as DEV; other teams keep SVG vector paths.
+    // Boston has a traced silhouette; Florida retains its approved raster; the other teams remain vectors.
     const crestSvg = t.elem('previewTeamCrest').children[0];
-    if (expected.club === 'florida') {
+    if (expected.club === 'boston') {
+      assert.equal(crestSvg.children.length, 2, 'Boston logo has silhouette clip and image');
+      assert.equal(crestSvg.children[0].name, 'defs');
+      assert.equal(crestSvg.children[0].children[0].name, 'clipPath');
+      assert.equal(crestSvg.children[1].name, 'image');
+      assert.equal(crestSvg.children[1].getAttribute('href'), 'assets/boston-banner-approved.webp');
+      assert.match(crestSvg.children[1].getAttribute('clip-path'), /^url\(#frostline-boston-banner-clip-\d+\)$/);
+    } else if (expected.club === 'florida') {
       assert.equal(crestSvg.children.length, 1, 'Florida loads the approved crest image');
       assert.equal(crestSvg.children[0].name, 'image', 'not the replaced hand-drawn version');
       assert.equal(crestSvg.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
@@ -1093,4 +1100,38 @@ test('Stable Florida uses the exact approved image asset in picker and preview, 
   assert.equal(preview.children.length, 1, 'preview uses the approved image');
   assert.equal(preview.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
   assert.equal(t.elem('teamNameInput').value, 'Florida Blue Rat', 'unchanged saved identity');
+});
+
+
+test('Stable approved Boston Banner has no square matte in SVG or center ice and preserves player data', () => {
+  const t = boot();
+  t.frame(16);
+  t.elem('playerNameInput').value = 'Boston Captain';
+  t.submit('playerForm');
+  const boston = t.cityChoices.find(button => button.dataset.cityClub === 'boston');
+  assert.ok(boston, 'Boston remains in the Atlantic Division');
+  const cardSvg = boston.querySelector('.city-club-icon').children[0];
+  assert.equal(cardSvg.children.length, 2, 'Boston logo has a silhouette mask plus original artwork');
+  assert.equal(cardSvg.children[0].name, 'defs');
+  assert.equal(cardSvg.children[0].children[0].name, 'clipPath');
+  assert.equal(cardSvg.children[1].name, 'image');
+  assert.equal(cardSvg.children[1].getAttribute('href'), 'assets/boston-banner-approved.webp');
+  assert.match(cardSvg.children[1].getAttribute('clip-path'), /^url\(#frostline-boston-banner-clip-\d+\)$/);
+  assert.match(gameCode, /ctx.clip\(new Path2D\(BOSTON_BANNER_CLIP\)\)/,
+    'center ice clips the original image to the same banner contour');
+  assert.match(gameCode, /ctx.drawImage\(bostonBannerImage, 6, 13, 88, 88\)/);
+  boston.emit('click');
+  assert.equal(t.elem('previewTeamName').textContent, 'BOSTON BANNER');
+  assert.equal(t.elem('teamNameInput').value, 'Boston Banner');
+  const preview=t.elem('previewTeamCrest').children[0];
+  assert.equal(preview.children.length, 2);
+  assert.equal(preview.children[1].getAttribute('href'), 'assets/boston-banner-approved.webp');
+  t.submit('teamForm');
+  const saved = JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.crest, 'bosBanner');
+  assert.equal(saved.club, 'boston');
+  assert.equal(t.elem('headerTeamCrest').children[0].children[1].getAttribute('href'),
+    'assets/boston-banner-approved.webp');
+  assert.doesNotMatch(gameCode, /frostline-dev:|DEV_STORAGE_PREFIX|resumeDevTest/i,
+    'STABLE must not ship DEV-specific storage and test controls');
 });

@@ -15,6 +15,17 @@
 
 ---
 
+## Approved team logo production standard — October 31, 2026
+
+**Status: Approved; apply to every future revised team/logo asset.** Boston Banner is the successful reference implementation (Stable V2.22, following DEV testing); Florida Blue Rat remains an approved prior crest.
+
+- **Keep the exact approved artwork**, including textures, lettering, colors and shape. Do not substitute an approximate hand-redrawn graphic unless the player specifically approves a redesign.
+- **No square/rectangular image backgrounds on the rink.** Cut the logo to its actual visible contour. Prefer source images with a true transparent alpha channel. When artwork has a rectangular matte, trace an accurate silhouette and clip the original image using the **same outline in SVG (`clipPath`) and Canvas (`Path2D` + `ctx.clip`)**, matching the Boston Banner implementation. Keep black details *inside* the logo intact. A mere rectangular crop is not sufficient.
+- Check the appearance on light center ice and dark menus at small mobile sizes and desktop sizes, including team cards, customization preview, header, and center ice. Avoid halos, lost edges, accidental square corners and distorted proportions. Retain safe vector fallbacks while the image loads.
+- Preserve each club's stored team name, `crest` ID, `club` ID, palette and all player records. New art must change rendering only, not persistence or mechanics.
+- **Release sequence:** implement and test in DEV, let the player verify on a real phone/desktop, promote *only the approved art/rendering changes* to STABLE when explicitly authorized. Never copy DEV-only diagnostics, TEST/RESUME, storage prefixes, or work-in-progress gameplay into STABLE.
+- Add a regression test for the asset/reference, silhouette clip, UI contexts and stable data. Update cache-busting version tags on promotion.
+
 ## 1. High concept and vision
 
 **Frostline Shootout** is an original, fast-paced hockey arcade game. Players have **30 seconds** to shoot unlimited pucks past a moving goalie, post a high score, and try again. The controls are simple enough for a first-time player and skillful enough to make repeat attempts worthwhile.

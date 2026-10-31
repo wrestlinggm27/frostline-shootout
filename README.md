@@ -1,4 +1,11 @@
-# Frostline Shootout — Stable Version 2.21
+# Frostline Shootout — Stable Version 2.22
+
+
+## Stable V2.22: Approved Boston Banner Cutout (Approved)
+
+Boston Banner now displays the exact player-approved gold-and-black B, waving banner and skyline without the surrounding black square. The existing original WebP asset (`assets/boston-banner-approved.webp`) is restricted to its actual silhouette with the same traced clip path in SVG team selection/header and the Canvas center-ice renderer. The old `bosBanner` crest ID and `boston` club ID are preserved, including saved player/team data.
+
+**Art-only promotion from DEV:** No gameplay, goalie logic, player records, production storage keys, national flags, Ice Cut F, other club crests or DEV-only diagnostics are changed. DEV preview remains independent. The approved no-square-logo workflow is documented in `GDD.md` and covered by Stable regression checks.
 
 ## Stable V2.21: Exact Approved Florida Blue Rat Crest (Approved)
 
