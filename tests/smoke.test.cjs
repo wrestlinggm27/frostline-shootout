@@ -926,7 +926,7 @@ test('DEV thirty-two division-grouped city clubs load original crests with inten
     assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
     assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
-    // Boston and Florida use player-approved imagery; other clubs remain vector shapes.
+    // Boston, Florida and Buffalo use approved artwork; other clubs stay vector shapes.
     const detail=t.elem('previewTeamCrest').children[0];
     if (expected.club === 'boston') {
       assert.equal(detail.children.length, 2, 'Boston image is clipped to the banner outline');
@@ -934,10 +934,12 @@ test('DEV thirty-two division-grouped city clubs load original crests with inten
       assert.equal(detail.children[1].name, 'image');
       assert.equal(detail.children[1].getAttribute('href'), 'assets/boston-banner-approved.webp');
       assert.match(detail.children[1].getAttribute('clip-path'), /^url\(#frostline-boston-banner-clip-\d+\)$/);
-    } else if (expected.club === 'florida') {
+    } else if (expected.club === 'florida' || expected.club === 'buffalo') {
+      const art = expected.club === 'florida'
+        ? 'assets/florida-blue-rat-approved.webp' : 'assets/buffalo-blade-gang-approved.webp';
       assert.equal(detail.children.length, 1);
       assert.equal(detail.children[0].name, 'image');
-      assert.equal(detail.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+      assert.equal(detail.children[0].getAttribute('href'), art);
     } else {
       assert.ok(detail.children.length > 4);
     }
@@ -1142,4 +1144,34 @@ test('DEV Boston Banner uses player-approved artwork in picker, header and cente
   assert.equal(saved.crest, 'bosBanner');
   assert.equal(saved.club, 'boston');
   assert.equal(t.elem('headerTeamCrest').children[0].children[1].getAttribute('href'), 'assets/boston-banner-approved.webp');
+});
+
+
+test('DEV Buffalo Blade Gang approved transparent crest renders on picker, preview, header and rink without resetting team data', () => {
+  const t=boot();
+  t.frame(16);
+  t.elem('playerNameInput').value='Blade Tester';
+  t.submit('playerForm');
+  const buffalo=t.cityChoices.find(button=>button.dataset.cityClub==='buffalo');
+  assert.ok(buffalo, 'Buffalo stays in the Atlantic Division');
+  const cardSvg=buffalo.querySelector('.city-club-icon').children[0];
+  assert.equal(cardSvg.children.length, 1, 'approved art displayed without a separate background shield');
+  assert.equal(cardSvg.children[0].name, 'image');
+  assert.equal(cardSvg.children[0].getAttribute('href'), 'assets/buffalo-blade-gang-approved.webp');
+  assert.match(gameCode, /ctx.drawImage\(buffaloBladeImage, 5, 14, 90, 90\)/,
+    'center ice draws the approved transparent artwork');
+  buffalo.emit('click');
+  assert.equal(t.elem('previewTeamName').textContent, 'BUFFALO BLADE GANG');
+  const preview=t.elem('previewTeamCrest').children[0];
+  assert.equal(preview.children.length,1);
+  assert.equal(preview.children[0].getAttribute('href'),'assets/buffalo-blade-gang-approved.webp');
+  t.submit('teamForm');
+  const saved=JSON.parse(t.storage.get('frostline-dev:frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.crest, 'bufBladeGang');
+  assert.equal(saved.club, 'buffalo');
+  assert.equal(saved.name, 'Buffalo Blade Gang');
+  assert.equal(saved.primary, '#003087');
+  assert.equal(saved.secondary, '#ffb81c');
+  assert.equal(t.elem('headerTeamCrest').children[0].children[0].getAttribute('href'),
+    'assets/buffalo-blade-gang-approved.webp');
 });

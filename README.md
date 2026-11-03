@@ -1,5 +1,8 @@
 # Frostline Shootout — DEV V2.10: Accurate National Flag Shields
 
+## DEV: Buffalo Blade Gang crest redesign (pending player playtest)
+Buffalo Blade Gang now uses the approved fierce blue buffalo, gold horns, crossed skates, and wordmark artwork in its team gallery card, customization preview, player header, and center ice. The WebP asset (`assets/buffalo-blade-gang-approved.webp`) preserves a true transparent background so no square matte appears on ice or menus; the original vector remains a loading fallback for center ice. The existing `bufBladeGang` crest, `buffalo` club, team colors and all saved DEV profiles/records remain unchanged. STABLE is untouched pending approval.
+
 ## DEV: Boston Banner background cutout (pending player playtest)
 The approved Boston image now uses the same accurately traced transparent silhouette for SVG previews and Canvas center ice. The surrounding dark square is clipped away, while the gold B, banner, skyline and inner black details remain. Only the Boston visual renderer changes; no team identity, save keys, goalie behavior or other marks change.
 
