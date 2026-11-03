@@ -1,5 +1,12 @@
-# Frostline Shootout — Stable Version 2.22
+# Frostline Shootout — Stable Version 2.23
 
+
+
+## Stable V2.23: Buffalo Blade Gang Crest Approved
+
+Buffalo Blade Gang now displays the player-approved blue buffalo, gold horns, crossed hockey skates and original wordmark artwork. The optimized transparent image (`assets/buffalo-blade-gang-approved.webp`) replaces the previous simplified vector crest in the 32-city club selector, customization preview, header, and center ice. Existing `bufBladeGang` and `buffalo` identifiers, palette and player records are untouched, and center ice keeps the old vector as a fallback until the image loads.
+
+**DEV-to-STABLE scope:** Only the approved Buffalo artwork and its display integration are promoted, plus regression tests, a cache-refresh reference and release notes. Boston and Florida artwork, national flags, gameplay, goalie logic, storage keys, Ice Cut branding, and DEV-only testing features remain unchanged. The permanent no-square-background artwork guideline remains in `GDD.md`.
 
 ## Stable V2.22: Approved Boston Banner Cutout (Approved)
 

@@ -859,7 +859,7 @@ test('Stable thirty-two division-grouped city clubs load original crests with in
     assert.equal(t.cityChoices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(t.elem('cityClubSummary').textContent, 'Selected: ' + expected.name);
     assert.equal(t.cityChoices[i].querySelector('.city-club-icon').children.length, 1);
-    // Boston has a traced silhouette; Florida retains its approved raster; the other teams remain vectors.
+    // Boston retains its traced silhouette; Florida and Buffalo use approved images; remaining clubs stay vectors.
     const crestSvg = t.elem('previewTeamCrest').children[0];
     if (expected.club === 'boston') {
       assert.equal(crestSvg.children.length, 2, 'Boston logo has silhouette clip and image');
@@ -868,10 +868,12 @@ test('Stable thirty-two division-grouped city clubs load original crests with in
       assert.equal(crestSvg.children[1].name, 'image');
       assert.equal(crestSvg.children[1].getAttribute('href'), 'assets/boston-banner-approved.webp');
       assert.match(crestSvg.children[1].getAttribute('clip-path'), /^url\(#frostline-boston-banner-clip-\d+\)$/);
-    } else if (expected.club === 'florida') {
-      assert.equal(crestSvg.children.length, 1, 'Florida loads the approved crest image');
-      assert.equal(crestSvg.children[0].name, 'image', 'not the replaced hand-drawn version');
-      assert.equal(crestSvg.children[0].getAttribute('href'), 'assets/florida-blue-rat-approved.webp');
+    } else if (expected.club === 'florida' || expected.club === 'buffalo') {
+      const source = expected.club === 'florida'
+        ? 'assets/florida-blue-rat-approved.webp' : 'assets/buffalo-blade-gang-approved.webp';
+      assert.equal(crestSvg.children.length, 1, 'approved crest should render as an image');
+      assert.equal(crestSvg.children[0].name, 'image', 'approved image replaces old vector artwork');
+      assert.equal(crestSvg.children[0].getAttribute('href'), source);
     } else {
       assert.ok(crestSvg.children.length > 4, 'other teams keep their SVG art');
     }
@@ -1134,4 +1136,36 @@ test('Stable approved Boston Banner has no square matte in SVG or center ice and
     'assets/boston-banner-approved.webp');
   assert.doesNotMatch(gameCode, /frostline-dev:|DEV_STORAGE_PREFIX|resumeDevTest/i,
     'STABLE must not ship DEV-specific storage and test controls');
+});
+
+
+test('Stable approved Buffalo Blade Gang crest displays on picker, preview, header and rink without changing saved data', () => {
+  const t=boot();
+  t.frame(16);
+  t.elem('playerNameInput').value='Blade Tester';
+  t.submit('playerForm');
+  const buffalo=t.cityChoices.find(button=>button.dataset.cityClub==='buffalo');
+  assert.ok(buffalo,'Buffalo remains in the Atlantic Division');
+  const cardSvg=buffalo.querySelector('.city-club-icon').children[0];
+  assert.equal(cardSvg.children.length,1,'approved transparent image replaces the old vector');
+  assert.equal(cardSvg.children[0].name,'image');
+  assert.equal(cardSvg.children[0].getAttribute('href'),'assets/buffalo-blade-gang-approved.webp');
+  assert.match(gameCode,/ctx.drawImage\(buffaloBladeImage, 5, 14, 90, 90\)/,
+    'center ice draws the exact approved art');
+  buffalo.emit('click');
+  assert.equal(t.elem('previewTeamName').textContent,'BUFFALO BLADE GANG');
+  const preview=t.elem('previewTeamCrest').children[0];
+  assert.equal(preview.children.length,1);
+  assert.equal(preview.children[0].getAttribute('href'),'assets/buffalo-blade-gang-approved.webp');
+  t.submit('teamForm');
+  const saved=JSON.parse(t.storage.get('frostline-player-profiles-v1')).players[0].team;
+  assert.equal(saved.crest,'bufBladeGang');
+  assert.equal(saved.club,'buffalo');
+  assert.equal(saved.name,'Buffalo Blade Gang');
+  assert.equal(saved.primary,'#003087');
+  assert.equal(saved.secondary,'#ffb81c');
+  assert.equal(t.elem('headerTeamCrest').children[0].children[0].getAttribute('href'),
+    'assets/buffalo-blade-gang-approved.webp');
+  assert.doesNotMatch(gameCode,/DEV_STORAGE_PREFIX|resumeDevTest|frostline-dev:/i,
+    'DEV diagnostics and storage must not reach STABLE');
 });

@@ -648,6 +648,11 @@
   const BOSTON_BANNER_ART = 'assets/boston-banner-approved.webp';
   const bostonBannerImage = typeof Image === 'function' ? new Image() : null;
   if (bostonBannerImage) bostonBannerImage.src = BOSTON_BANNER_ART;
+  // Approved Buffalo Blade Gang crest: true transparency, no square background.
+  // Keep the original bufBladeGang ID and vector art as the loading fallback.
+  const BUFFALO_BLADE_ART = 'assets/buffalo-blade-gang-approved.webp';
+  const buffaloBladeImage = typeof Image === 'function' ? new Image() : null;
+  if (buffaloBladeImage) buffaloBladeImage.src = BUFFALO_BLADE_ART;
   // Exact silhouette of the approved banner, scaled to the SVG's 100x116 viewBox.
   // The gold-and-black interior remains intact; the square image background is clipped away.
   const BOSTON_BANNER_CLIP = 'M 16.04,14.68 L 13.23,23.18 L 14.77,24.93 L 15.54,29.98 L 16.46,31.32 L 17.02,34.61 L 16.60,35.60 L 14.70,36.72 L 15.05,46.19 L 16.32,54.75 L 18.98,63.81 L 22.21,70.82 L 26.91,77.91 L 31.40,82.75 L 37.02,86.96 L 49.72,94.26 L 61.30,87.53 L 66.14,84.23 L 70.28,80.44 L 75.75,73.56 L 76.60,73.63 L 77.86,75.32 L 79.19,76.09 L 85.37,77.00 L 87.33,77.77 L 91.05,81.56 L 90.42,77.21 L 89.37,74.40 L 88.18,72.86 L 87.75,71.04 L 88.25,69.77 L 89.86,70.40 L 88.88,66.61 L 87.19,64.23 L 85.65,63.25 L 83.40,62.61 L 82.70,61.14 L 83.05,59.95 L 85.16,59.81 L 83.61,57.77 L 83.54,56.51 L 85.30,55.25 L 89.16,55.74 L 92.11,59.18 L 91.19,54.82 L 89.72,51.60 L 87.75,49.77 L 84.04,48.44 L 82.35,46.61 L 82.28,45.42 L 81.58,44.16 L 81.65,43.25 L 83.05,41.98 L 85.16,42.26 L 88.32,43.67 L 86.56,40.37 L 81.86,34.75 L 79.75,33.49 L 76.60,32.72 L 76.46,27.53 L 63.82,23.11 L 49.93,19.11 L 39.33,21.91 L 33.93,21.00 L 29.30,21.00 L 25.30,22.33 L 22.21,24.23 L 20.88,24.23 L 20.25,23.46 L 20.95,20.51 Z';
@@ -676,6 +681,11 @@
       svg.append(create('image', { href: BOSTON_BANNER_ART, x: 6, y: 13,
         width: 88, height: 88, preserveAspectRatio: 'xMidYMid meet',
         'clip-path': 'url(#' + clipId + ')' }));
+      return svg;
+    }
+    if (team.crest === 'bufBladeGang') {
+      svg.append(create('image', { href: BUFFALO_BLADE_ART, x: 5, y: 14,
+        width: 90, height: 90, preserveAspectRatio: 'xMidYMid meet' }));
       return svg;
     }
     const flag = NATIONAL_FLAG_VECTORS[team.crest];
@@ -755,6 +765,12 @@
         ctx.clip(new Path2D(BOSTON_BANNER_CLIP));
         ctx.drawImage(bostonBannerImage, 6, 13, 88, 88);
         ctx.restore();
+        ctx.restore();
+        return;
+      }
+      if (team.crest === 'bufBladeGang' && buffaloBladeImage &&
+          buffaloBladeImage.complete && buffaloBladeImage.naturalWidth > 0) {
+        ctx.drawImage(buffaloBladeImage, 5, 14, 90, 90);
         ctx.restore();
         return;
       }
